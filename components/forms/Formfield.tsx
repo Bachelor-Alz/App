@@ -49,12 +49,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     borderWidth: 1,
     borderRadius: 8,
-    marginBottom: 10,
+    marginBottom: 1,
   },
   errorText: {
     color: "#ff0000",
     fontSize: 12,
-    marginTop: 5,
   }
 });
 
