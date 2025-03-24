@@ -5,7 +5,9 @@ import { PaperProvider } from "react-native-paper";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import FormField from "@/components/forms/TextInput";
+import FormField from "@/components/forms/Formfield";
+import SubmitButton from "@/components/forms/SubmitButton";
+import FormContainer from "@/components/forms/FormContainer";
 
 const schema = z
   .object({
@@ -38,7 +40,7 @@ const RegisterScreen = () => {
   const {
     control,
     handleSubmit,
-    formState: { isSubmitting  },
+    formState: { isSubmitting, isValid  },
   } = useForm<RegisterForm>({
     resolver: zodResolver(schema),
     mode: "onChange",
@@ -51,7 +53,7 @@ const RegisterScreen = () => {
   return (
     <PaperProvider theme={theme}>
       <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.background }]}>
-        <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+        <FormContainer>
           <Text style={[styles.header, { color: theme.colors.text }]}>Register</Text>
 
           <FormField
@@ -100,14 +102,13 @@ const RegisterScreen = () => {
             ]}
           />
 
-          <TouchableOpacity
-            style={[styles.button, { backgroundColor: theme.colors.primary }]}
-            onPress={handleSubmit(onSubmit)}
-            disabled={isSubmitting}
-          >
-            <Text style={styles.buttonText}>Register</Text>
-          </TouchableOpacity>
-        </View>
+          <SubmitButton
+            isValid={isValid}
+            isSubmitting={isSubmitting}
+            handleSubmit={handleSubmit(onSubmit)}
+            label="Register"
+            />
+        </FormContainer>
       </SafeAreaView>
     </PaperProvider>
   );
@@ -138,7 +139,8 @@ const styles = StyleSheet.create({
   input: {
     width: "100%",
     height: 50,
-    padding: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
     marginBottom: 15,
     borderRadius: 8,
     borderWidth: 1,
