@@ -8,45 +8,39 @@ type SubmitButtonProps = {
   label: string;
   style?: StyleProp<ViewStyle>;
 };
-const colorScheme = useColorScheme();
-const theme = createTheme(colorScheme === "dark");
-
 
 const SubmitButton = ({ isValid, isSubmitting, handleSubmit, label, style }: SubmitButtonProps) => {
+  const colorScheme = useColorScheme();
+  const theme = createTheme(colorScheme === "dark");
+
   return (
     <TouchableOpacity
-      style={[isValid ? styles.submitButton : styles.buttonDisabled, style]}
+      style={[
+        styles.baseButton,
+        isValid ? { backgroundColor: theme.colors.primary } : { backgroundColor: theme.colors.surfaceDisabled },
+        style,
+      ]}
       disabled={!isValid || isSubmitting}
-      onPress={handleSubmit}>
+      onPress={handleSubmit}
+    >
       <Text style={styles.buttonText}>{isSubmitting ? "..." : label}</Text>
     </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
-    buttonText: {
-        color: "#fff",
-        fontSize: 16,
-    },
-    buttonDisabled: {
-        width: "100%",
-        height: 50,
-        borderRadius: 8,
-        justifyContent: "center",
-        alignItems: "center",
-        marginTop: 10,
-        backgroundColor: theme.colors.surfaceDisabled,
-    },
-    submitButton: {
-        width: "100%",
-        height: 50,
-        borderRadius: 8,
-        justifyContent: "center",
-        alignItems: "center",
-        marginTop: 10,
-        backgroundColor: theme.colors.primary,
-    },
+  baseButton: {
+    width: "100%",
+    height: 50,
+    borderRadius: 8,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 10,
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+  },
 });
 
 export default SubmitButton;
-
