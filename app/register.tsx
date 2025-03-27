@@ -1,7 +1,7 @@
-import React, { useState } from "react";
-import { SafeAreaView, StyleSheet, Text, View, useColorScheme, TouchableOpacity } from "react-native";
-import { createTheme } from "@/constants/CreateTheme";
-import { PaperProvider, RadioButton } from "react-native-paper";
+import React from "react";
+import { SafeAreaView, StyleSheet, View, TouchableOpacity } from "react-native";
+import { Text } from "react-native-paper";
+import { PaperProvider, RadioButton, useTheme } from "react-native-paper";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
@@ -38,9 +38,7 @@ export type RegisterForm = z.infer<typeof schema>;
 
 const RegisterScreen = () => {
   const { register } = useAuthentication();
-  const [userID, setUserID] = useState<string | null>(null);
-  const colorScheme = useColorScheme();
-  const theme = createTheme(colorScheme === "dark");
+  const theme = useTheme();
 
   const {
     control,
@@ -54,7 +52,6 @@ const RegisterScreen = () => {
   const handleRegister = () => {
     const form = getValues();
     register(form).then(() => {
-      setUserID(userID);
       router.navigate("/");
     });
   }
@@ -63,22 +60,18 @@ const RegisterScreen = () => {
     <PaperProvider theme={theme}>
       <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.background }]}>
         <FormContainer>
-          <Text style={[styles.header, { color: theme.colors.text }]}>Register</Text>
+          <Text variant="headlineLarge">Register</Text>
 
           <FormField
             control={control}
             name="name"
             placeholder="Name"
-            errorStyle={styles.errorText}
-            style={[styles.input, { backgroundColor: theme.dark ? "#333" : "#fff", color: theme.colors.text }]}
           />
 
           <FormField
             control={control}
             name="email"
             placeholder="Email"
-            errorStyle={styles.errorText}
-            style={[styles.input, { backgroundColor: theme.dark ? "#333" : "#fff", color: theme.colors.text }]}
           />
 
           <FormField
@@ -86,8 +79,6 @@ const RegisterScreen = () => {
             name="password"
             placeholder="Password"
             secureTextEntry
-            errorStyle={styles.errorText}
-            style={[styles.input, { backgroundColor: theme.dark ? "#333" : "#fff", color: theme.colors.text }]}
           />
 
           <FormField
@@ -95,12 +86,10 @@ const RegisterScreen = () => {
             name="confirmPassword"
             placeholder="Confirm Password"
             secureTextEntry
-            errorStyle={styles.errorText}
-            style={[styles.input, { backgroundColor: theme.dark ? "#333" : "#fff", color: theme.colors.text }]}
           />
 
           {/* Role Selection */}
-          <Text style={[styles.radioLabel, { color: theme.colors.text }]}>Select Role:</Text>
+          <Text style={[styles.radioLabel]}>Select Role:</Text>
           <Controller
             control={control}
             name="role"
@@ -112,10 +101,9 @@ const RegisterScreen = () => {
                     <RadioButton
                       value="0"
                       status={field.value === 0 ? "checked" : "unchecked"}
-                      color={theme.colors.primary}
                     />
                   </View>
-                  <Text style={[styles.radioText, { color: theme.colors.text }]}>Caregiver</Text>
+                  <Text style={styles.radioText}>Caregiver</Text>
                 </TouchableOpacity>
 
                 {/* Elder Option */}
@@ -124,10 +112,9 @@ const RegisterScreen = () => {
                     <RadioButton
                       value="1"
                       status={field.value === 1 ? "checked" : "unchecked"}
-                      color={theme.colors.primary}
                     />
                   </View>
-                  <Text style={[styles.radioText, { color: theme.colors.text }]}>Elder</Text>
+                  <Text style={styles.radioText}>Elder</Text>
                 </TouchableOpacity>
               </View>
             )}
@@ -155,21 +142,6 @@ const styles = StyleSheet.create({
     fontSize: 26,
     fontWeight: "bold",
     marginBottom: 20,
-  },
-  input: {
-    width: "100%",
-    height: 50,
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    marginBottom: 15,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#555",
-  },
-  errorText: {
-    color: "red",
-    fontSize: 12,
-    marginBottom: 5,
   },
   radioLabel: {
     fontSize: 16,

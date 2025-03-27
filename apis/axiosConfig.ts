@@ -14,7 +14,7 @@ export const setBearer = (token: string) => {
 
 axiosInstance.interceptors.response.use(
   (response) => {
-    //console.log(response.status + ": " + response.request.responseURL); // Should display all successful requests
+    console.log(response.status + ": " + response.request.responseURL); // Should display all successful requests
     return response; // Successful request (2xx status)
   },
   (error) => {
