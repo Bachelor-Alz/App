@@ -15,10 +15,10 @@ const AuthenticationProvider = ({ children }: { children: React.ReactNode }) => 
       const res = await createUserRequest(form);
       return res.id;
     } catch (error) {
-      console.error(error);
-      return null;
+      throw new Error("Failed to register user");
     }
   }, []);
+
 
   return (
     <AuthenticationContext.Provider value={{ register }}>
