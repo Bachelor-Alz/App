@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { View, SafeAreaView } from "react-native";
-import { Text } from "react-native-paper";
+import { Text, Checkbox } from "react-native-paper";
 import { Button, useTheme } from "react-native-paper";
 import { router } from "expo-router";
+import * as SecureStore from "expo-secure-store";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,10 +13,7 @@ import { useAuthentication } from "@/providers/AuthenticationProvider";
 
 const schema = z.object({
   email: z.string().email("Indtast en gyldig e-mailadresse").trim(),
-  password: z
-    .string()
-    .min(1)
-    .trim(),
+  password: z.string().min(1).trim(),
 });
 
 export type LoginForm = z.infer<typeof schema>;
@@ -24,6 +22,7 @@ const LoginScreen = () => {
   const {
     control,
     handleSubmit,
+    setValue,
     formState: { isValid },
   } = useForm<LoginForm>({
     resolver: zodResolver(schema),
@@ -32,22 +31,71 @@ const LoginScreen = () => {
 
   const theme = useTheme();
   const { login } = useAuthentication();
+  const [rememberMe, setRememberMe] = useState(false);
 
-  const onSubmit = (data: LoginForm) => {
+  useEffect(() => {
+    const loadAndAutoLogin = async () => {
+      const savedEmail = await SecureStore.getItemAsync("rememberedEmail");
+      const savedPassword = await SecureStore.getItemAsync("password");
+
+      if (savedEmail) {
+        setValue("email", savedEmail);
+        setRememberMe(true);
+      }
+
+      if (savedEmail && savedPassword) {
+        setValue("password", savedPassword);
+
+        login({ email: savedEmail, password: savedPassword }).then(() => {
+          router.navigate("/(tabs)");
+        }).catch((error) => {
+          console.error("Auto-login failed:", error);
+        });
+      }
+    };
+
+    loadAndAutoLogin();
+  }, []);
+
+
+  const onSubmit = async (data: LoginForm) => {
+    if (rememberMe) {
+      await SecureStore.setItemAsync("rememberedEmail", data.email);
+      await SecureStore.setItemAsync("password", data.password);
+    } else {
+      await SecureStore.deleteItemAsync("rememberedEmail");
+      await SecureStore.deleteItemAsync("password");
+    }
+
     login(data).then(() => {
       router.navigate("/(tabs)");
-    }
-    );
-  }
+    });
+  };
 
   return (
-    <SafeAreaView style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: theme.colors.background }}>
+    <SafeAreaView
+      style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: theme.colors.background }}
+    >
       <FormContainer>
-        
-        <Text variant="headlineLarge" style={{ fontWeight: "bold", marginBottom: 20, color: theme.colors.onSurface }}>Login</Text>
+        <Text
+          variant="headlineLarge"
+          style={{ fontWeight: "bold", marginBottom: 20, color: theme.colors.onSurface }}
+        >
+          Login
+        </Text>
         <FormField name="email" control={control} placeholder="Enter your email" />
         <FormField name="password" control={control} placeholder="Enter your password" secureTextEntry />
-        <View style={{flexDirection: "row", gap: 10, alignItems: "center"}}>
+
+        {/* Remember Me Checkbox */}
+        <View style={{ flexDirection: "row", alignItems: "center", marginVertical: 10 }}>
+          <Checkbox.Android
+            status={rememberMe ? "checked" : "unchecked"}
+            onPress={() => setRememberMe(!rememberMe)}
+          />
+          <Text style={{ color: theme.colors.onSurface }}>Remember Me</Text>
+        </View>
+
+        <View style={{ flexDirection: "row", gap: 10, alignItems: "center" }}>
           <Button mode="outlined" textColor={theme.colors.onSurface} disabled={!isValid} style={{ marginTop: 10 }} icon={"key"} onPress={handleSubmit(onSubmit)}>
             Login
           </Button>
