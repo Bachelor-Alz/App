@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, FlatList, StyleSheet, SafeAreaView, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { useTheme, Provider as PaperProvider } from "react-native-paper";
+import { useTheme, Provider as PaperProvider, Button } from "react-native-paper";
 
 type HealthData = {
   title: string;
@@ -76,6 +76,13 @@ const HomeScreen = () => {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor }}>
       <View style={styles.container}>
+      <Button
+          mode="contained"
+          onPress={() => router.push("/vitoryChart")}
+          style={{ marginTop: 20 }}
+        >
+          Go to victoryChart
+        </Button>
         <Text style={[styles.header, { color: theme.colors.onBackground }]}>Health Summary</Text>
         <FlatList
           data={healthData}

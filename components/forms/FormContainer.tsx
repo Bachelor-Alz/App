@@ -15,6 +15,7 @@ const styles = StyleSheet.create({
 container: {
     width: "85%",
     padding: 25,
+    gap: 15,
     borderRadius: 10,
     elevation: 5,
     alignItems: "center",

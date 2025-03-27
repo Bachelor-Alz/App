@@ -1,9 +1,13 @@
 import { createContext, useCallback, useContext } from "react";
 import { createUserRequest } from "@/apis/registerAPI";
 import { RegisterForm } from "@/app/register";
+import { LoginForm } from "@/app/index"
+import { loginUserRequest } from "@/apis/loginAPI";
+import { setBearer } from "@/apis/axiosConfig";
 
 type AuthenticationProviderProps = {
   register: (form: RegisterForm) => Promise<string | null>;
+  login: (form: LoginForm) => Promise<void>;
 }
 
 const AuthenticationContext = createContext<AuthenticationProviderProps | undefined>(undefined);
@@ -20,8 +24,17 @@ const AuthenticationProvider = ({ children }: { children: React.ReactNode }) => 
     }
   }, []);
 
+  const login = useCallback(async (form: LoginForm) => {
+    try {
+      const token = await loginUserRequest(form);
+      setBearer(token);
+    } catch (error) {
+      console.log(error)
+    }
+  }, []);
+
   return (
-    <AuthenticationContext.Provider value={{ register }}>
+    <AuthenticationContext.Provider value={{ register, login }}>
       {children}
     </AuthenticationContext.Provider>
   );

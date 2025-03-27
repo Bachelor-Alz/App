@@ -1,7 +1,8 @@
 import React from "react";
-import { StyleSheet, Text, TextInput, TextInputProps, TextStyle, useColorScheme, View } from "react-native";
+import { StyleSheet, TextStyle, useColorScheme, View } from "react-native";
 import { Control, Controller, FieldPath, FieldValues, useFormState } from "react-hook-form";
 import { createTheme } from "@/constants/CreateTheme";
+import { TextInput, Text, TextInputProps } from "react-native-paper";
 
 type FormFieldProps<T extends FieldValues> = {
   control: Control<T>;
@@ -19,19 +20,23 @@ const FormField = <T extends FieldValues>({ control, name, errorStyle, ...inputP
       control={control}
       name={name}
       render={({ field: { onChange, value } }) => (
-        <View style={{ width: "100%" }}>
+        <View style={{ width: "100%", gap: 5 }}>
           <TextInput
             value={value}
             onChangeText={onChange}
+            mode="outlined" 
             style={[
               styles.inputBase,
+              { color: theme.colors.onSurface }, 
               errors[name] ? { borderColor: theme.colors.error } : { borderColor: theme.colors.outline },
-              inputProps.style,  // Ensure this is merged correctly with default styles
+              inputProps.style,
             ]}
+            selectionColor={theme.colors.onSurface as string} 
+            placeholderTextColor={theme.colors.onSurface as string}
             {...inputProps}
-          />
+/>
           {errors[name] && (
-            <Text style={[styles.errorText, errorStyle]}>
+            <Text  style={[errorStyle]}>
               {typeof errors[name]?.message === "string" ? errors[name]?.message : ""}
             </Text>
           )}
@@ -44,17 +49,10 @@ const FormField = <T extends FieldValues>({ control, name, errorStyle, ...inputP
 
 const styles = StyleSheet.create({
   inputBase: {
-    width: "100%",
-    paddingVertical: 10,
-    paddingHorizontal: 15,
     borderWidth: 1,
     borderRadius: 8,
     marginBottom: 1,
   },
-  errorText: {
-    color: "#ff0000",
-    fontSize: 12,
-  }
 });
 
 export default FormField;
