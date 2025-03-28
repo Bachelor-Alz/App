@@ -49,7 +49,7 @@ const healthData: HealthData[] = [
     value: "Home",
     icon: "location",
     color: "#ff6348",
-  }
+  },
 ];
 
 const HealthCard: React.FC<HealthData> = ({ title, value, icon, color, onPress }) => {
@@ -76,19 +76,24 @@ const HomeScreen = () => {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor }}>
       <View style={styles.container}>
-      <Button
-          mode="contained"
-          onPress={() => router.push("/vitoryChart")}
-          style={{ marginTop: 20 }}
-        >
-          Go to victoryChart
+        <Button mode="contained" onPress={() => router.push("/LineChart")} style={{ marginTop: 20 }}>
+          Go to LineChart
+        </Button>
+        <Button mode="contained" onPress={() => router.push("/BarChart")} style={{ marginTop: 20 }}>
+          Go to BarChart
         </Button>
         <Text style={[styles.header, { color: theme.colors.onBackground }]}>Health Summary</Text>
         <FlatList
           data={healthData}
           keyExtractor={(item) => item.title}
           renderItem={({ item }) => (
-            <HealthCard title={item.title} value={item.value} icon={item.icon} color={item.color} onPress={item.onPress} />
+            <HealthCard
+              title={item.title}
+              value={item.value}
+              icon={item.icon}
+              color={item.color}
+              onPress={item.onPress}
+            />
           )}
           showsVerticalScrollIndicator={false}
         />
