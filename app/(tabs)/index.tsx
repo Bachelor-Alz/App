@@ -76,8 +76,11 @@ const HomeScreen = () => {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor }}>
       <View style={styles.container}>
-        <Button mode="contained" onPress={() => router.push("/vitoryChart")} style={{ marginTop: 20 }}>
-          Go to victoryChart
+        <Button mode="contained" onPress={() => router.push("/LineChart")} style={{ marginTop: 20 }}>
+          Go to LineChart
+        </Button>
+        <Button mode="contained" onPress={() => router.push("/BarChart")} style={{ marginTop: 20 }}>
+          Go to BarChart
         </Button>
         <Text style={[styles.header, { color: theme.colors.onBackground }]}>Health Summary</Text>
         <FlatList

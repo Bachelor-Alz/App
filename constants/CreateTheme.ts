@@ -9,5 +9,6 @@ export const createTheme = (isDarkMode: boolean) => ({
     text: isDarkMode ? "#ffffff" : "#000000",
     primary: "#7ae00b",
     secondary: "#007AFF",
+    tertiary: "#FFA500",
   },
 });
