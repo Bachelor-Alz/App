@@ -1,35 +1,18 @@
-import React, { useEffect, useState } from "react";
-import { StyleSheet, SafeAreaView, Text, View, FlatList } from "react-native";
+import React, { useState } from "react";
+import { StyleSheet, SafeAreaView, Text, View, FlatList, ActivityIndicator } from "react-native";
 import { List, Searchbar, useTheme } from "react-native-paper";
-import { fetchAllElders } from "@/apis/elderAPI";
-
-type Elder = {
-  name: string;
-  email: string;
-};
+import { useElders } from "@/hooks/useElders";
 
 const ViewElders = () => {
   const theme = useTheme();
+  const { data: elders, isLoading, error, refetch } = useElders();
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [elders, setElders] = useState<Elder[]>([]);
 
-  useEffect(() => {
-    fetchAllElders()
-      .then((data) => {
-        setElders(data);
-      })
-      .catch((error) => {
-        console.error("Error fetching elders:", error);
-      });
-  }, []);
+  const filteredElders =
+    elders?.filter((elder) => elder.name.toLowerCase().includes(searchQuery.toLowerCase())) || [];
 
-  const filteredElders = elders.filter((elder) =>
-    elder.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const renderItem = ({ item }: { item: Elder }) => (
+  const renderItem = ({ item }: { item: { name: string; email: string } }) => (
     <List.Item
-      key={item.email}
       title={item.name}
       description={item.email}
       left={(props) => <List.Icon {...props} icon="account" />}
@@ -47,12 +30,18 @@ const ViewElders = () => {
       />
 
       <View style={styles.listContainer}>
-        {filteredElders.length > 0 ? (
+        {isLoading ? (
+          <ActivityIndicator size="large" color={theme.colors.primary} />
+        ) : error ? (
+          <Text style={[styles.errorText, { color: theme.colors.error }]}>Failed to load elders.</Text>
+        ) : filteredElders.length > 0 ? (
           <FlatList
             data={filteredElders}
             renderItem={renderItem}
             keyExtractor={(item) => item.email}
             contentContainerStyle={styles.flatListContainer}
+            refreshing={isLoading}
+            onRefresh={refetch}
           />
         ) : (
           <Text style={[styles.noEldersText, { color: theme.colors.onSurface }]}>No elders found</Text>
@@ -85,6 +74,11 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
   },
   noEldersText: {
+    fontSize: 16,
+    textAlign: "center",
+    marginTop: 20,
+  },
+  errorText: {
     fontSize: 16,
     textAlign: "center",
     marginTop: 20,
