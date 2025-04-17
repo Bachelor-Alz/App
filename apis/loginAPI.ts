@@ -8,11 +8,11 @@ type LoginResponse = {
 export const loginUserRequest = async (
   userData: LoginForm
 ): Promise<{
-  role: number | undefined; // role can be undefined if not returned from API
+  role: number;
   token: string;
   email: string;
-} | null> => {
-  const attemptLogin = async (role: number) => {
+}> => {
+  for (const role of [0, 1]) {
     try {
       const response = await axiosInstance.post<LoginResponse>(`/api/User/login`, {
         email: userData.email,
@@ -23,20 +23,10 @@ export const loginUserRequest = async (
       return {
         token: response.data.token,
         email: userData.email,
-        role: role,
+        role,
       };
-    } catch (error: any) {
-      return null;
-    }
-  };
-
-  // Try login as caregiver first
-  const tokenAsCaregiver = await attemptLogin(0);
-  if (tokenAsCaregiver) return tokenAsCaregiver;
-
-  // Try login as elder second
-  const tokenAsElder = await attemptLogin(1);
-  if (tokenAsElder) return tokenAsElder;
+    } catch (error) {}
+  }
 
   throw new Error("Login failed for both caregiver and elder roles.");
 };
