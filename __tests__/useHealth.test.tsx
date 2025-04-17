@@ -150,7 +150,7 @@ describe("useHealth hooks", () => {
   });
 
   it("should fetch falls data successfully", async () => {
-    const mockFallsData = [{ id: 1, fallDetected: true, timestamp: testDate }];
+    const mockFallsData = [{ id: 1, timestamp: testDate }];
     (fetchFallsData as jest.Mock).mockResolvedValue(mockFallsData);
 
     const { result } = renderHook(() => useFalls(testEmail, testDate, period), { wrapper });
