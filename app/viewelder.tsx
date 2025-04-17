@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { StyleSheet, SafeAreaView, Text, View, FlatList, ActivityIndicator } from "react-native";
 import { List, Searchbar, useTheme } from "react-native-paper";
-import { useElders } from "@/hooks/useElders";
+import { useEldersForCaregiver } from "@/hooks/useElders";
 
 const ViewElders = () => {
   const theme = useTheme();
-  const { data: elders, isLoading, error, refetch } = useElders();
+  const { data: elders, isLoading, error, refetch } = useEldersForCaregiver();
   const [searchQuery, setSearchQuery] = useState<string>("");
 
   const filteredElders =

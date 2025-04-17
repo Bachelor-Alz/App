@@ -9,7 +9,7 @@ import { router } from "expo-router";
 
 type AuthenticationProviderProps = {
   register: (form: RegisterForm) => Promise<string | null>;
-  login: (form: LoginForm) => Promise<void>;
+  login: (form: LoginForm) => Promise<number>;
   logout: () => Promise<void>;
   userEmail: string | null;
   role: number | undefined;
@@ -18,8 +18,8 @@ type AuthenticationProviderProps = {
 const AuthenticationContext = createContext<AuthenticationProviderProps | undefined>(undefined);
 
 const AuthenticationProvider = ({ children }: { children: React.ReactNode }) => {
-  const [userEmail, setUserEmail] = useState<string | null>(null); // Add email state
-  const [role, setRole] = useState<number | undefined>(undefined); // Add role state
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [role, setRole] = useState<number | undefined>(undefined);
 
   const register = useCallback(async (form: RegisterForm) => {
     try {
@@ -30,21 +30,23 @@ const AuthenticationProvider = ({ children }: { children: React.ReactNode }) => 
     }
   }, []);
 
-  const login = useCallback(async (form: LoginForm) => {
+  const login = useCallback(async (form: LoginForm): Promise<number> => {
     try {
       const response = await loginUserRequest(form);
 
-      if (response === null || !response.token || !response.email || response.role === undefined) {
-        throw new Error("Login failed: Missing token, email, or role.");
+      if (!response?.token || !response.email || response.role === undefined) {
+        throw new Error("Login failed: Missing token, email or role.");
       }
 
       const { token, email, role } = response;
-
       setBearer(token);
       setUserEmail(email);
       setRole(role);
+
+      return role;
     } catch (error) {
       console.log(error);
+      throw error;
     }
   }, []);
 
