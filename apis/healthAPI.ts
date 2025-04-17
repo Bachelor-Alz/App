@@ -91,3 +91,38 @@ export const fetchSteps = (
       throw error;
     });
 };
+
+export const fetchDashBoardData = (
+  elderEmail: string
+): Promise<{
+  heartRate: HeartRateData[];
+  spo2: SPO2Data[];
+  distance: DistanceData[];
+  steps: StepsData[];
+}> => {
+  return axiosInstance
+    .get("/api/Health/Dashboard", {
+      params: { elderEmail },
+    })
+    .then((response) => response.data)
+    .catch((error) => {
+      console.error("Error fetching dashboard data:", error);
+      throw error;
+    });
+};
+
+export const fetchFallsData = (
+  elderEmail: string,
+  date: string,
+  period: "Hour" | "Day" | "Week"
+): Promise<{ id: number; timestamp: string }[]> => {
+  return axiosInstance
+    .get("/api/Health/Falls", {
+      params: { elderEmail, date, period },
+    })
+    .then((response) => response.data)
+    .catch((error) => {
+      console.error("Error fetching falls data:", error);
+      throw error;
+    });
+};

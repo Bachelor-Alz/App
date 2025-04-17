@@ -4,10 +4,12 @@ import {
   fetchSPO2,
   fetchDistance,
   fetchSteps,
+  fetchDashBoardData,
   HeartRateData,
   SPO2Data,
   DistanceData,
   StepsData,
+  fetchFallsData,
 } from "@/apis/healthAPI";
 
 export const useHeartRate = (elderEmail: string, date: string, period: "Hour" | "Day" | "Week") => {
@@ -43,5 +45,25 @@ export const useSteps = (elderEmail: string, date: string, period: "Hour" | "Day
     queryFn: () => fetchSteps(elderEmail, date, period),
     staleTime: 5 * 60 * 1000,
     retry: 2,
+  });
+};
+
+export const useDashBoardData = (elderEmail: string) => {
+  return useQuery({
+    queryKey: ["dashboard", elderEmail],
+    queryFn: () => fetchDashBoardData(elderEmail),
+    staleTime: 5 * 60 * 1000,
+    retry: 2,
+    enabled: !!elderEmail,
+  });
+};
+
+export const useFalls = (elderEmail: string, date: string, period: "Hour" | "Day" | "Week") => {
+  return useQuery({
+    queryKey: ["falls", elderEmail, date, period],
+    queryFn: () => fetchFallsData(elderEmail, date, period),
+    staleTime: 5 * 60 * 1000,
+    retry: 2,
+    enabled: !!elderEmail,
   });
 };
