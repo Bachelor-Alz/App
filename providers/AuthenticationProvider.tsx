@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext } from "react";
+import { createContext, useCallback, useContext, useState } from "react";
 import { createUserRequest } from "@/apis/registerAPI";
 import { RegisterForm } from "@/app/register";
 import { LoginForm } from "@/app";
@@ -9,13 +9,18 @@ import { router } from "expo-router";
 
 type AuthenticationProviderProps = {
   register: (form: RegisterForm) => Promise<string | null>;
-  login: (form: LoginForm) => Promise<void>;
+  login: (form: LoginForm) => Promise<number>;
   logout: () => Promise<void>;
+  userEmail: string | null;
+  role: number | undefined;
 };
 
 const AuthenticationContext = createContext<AuthenticationProviderProps | undefined>(undefined);
 
 const AuthenticationProvider = ({ children }: { children: React.ReactNode }) => {
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [role, setRole] = useState<number | undefined>(undefined);
+
   const register = useCallback(async (form: RegisterForm) => {
     try {
       const res = await createUserRequest(form);
@@ -25,12 +30,23 @@ const AuthenticationProvider = ({ children }: { children: React.ReactNode }) => 
     }
   }, []);
 
-  const login = useCallback(async (form: LoginForm) => {
+  const login = useCallback(async (form: LoginForm): Promise<number> => {
     try {
-      const token = await loginUserRequest(form);
+      const response = await loginUserRequest(form);
+
+      if (!response?.token || !response.email || response.role === undefined) {
+        throw new Error("Login failed: Missing token, email or role.");
+      }
+
+      const { token, email, role } = response;
       setBearer(token);
+      setUserEmail(email);
+      setRole(role);
+
+      return role;
     } catch (error) {
       console.log(error);
+      throw error;
     }
   }, []);
 
@@ -38,6 +54,8 @@ const AuthenticationProvider = ({ children }: { children: React.ReactNode }) => 
     try {
       await SecureStore.deleteItemAsync("rememberedEmail");
       await SecureStore.deleteItemAsync("password");
+      setUserEmail(null);
+      setRole(undefined);
       router.dismissAll();
     } catch (error) {
       console.log(error);
@@ -45,7 +63,7 @@ const AuthenticationProvider = ({ children }: { children: React.ReactNode }) => 
   }, []);
 
   return (
-    <AuthenticationContext.Provider value={{ register, login, logout }}>
+    <AuthenticationContext.Provider value={{ register, login, logout, userEmail, role }}>
       {children}
     </AuthenticationContext.Provider>
   );
@@ -54,7 +72,7 @@ const AuthenticationProvider = ({ children }: { children: React.ReactNode }) => 
 export const useAuthentication = () => {
   const context = useContext(AuthenticationContext);
   if (context === undefined) {
-    throw new Error("useAuthentication skal bruges i en AuthenticationProvider");
+    throw new Error("useAuthentication must be used within an AuthenticationProvider");
   }
   return context;
 };

@@ -46,17 +46,18 @@ const LoginScreen = () => {
       if (savedEmail && savedPassword) {
         setValue("password", savedPassword);
 
-        login({ email: savedEmail, password: savedPassword }).then(() => {
-          router.navigate("/(tabs)");
-        }).catch((error) => {
-          console.error("Auto-login failed:", error);
-        });
+        login({ email: savedEmail, password: savedPassword })
+          .then(() => {
+            router.navigate("/(tabs)");
+          })
+          .catch((error) => {
+            console.error("Auto-login failed:", error);
+          });
       }
     };
 
     loadAndAutoLogin();
   }, []);
-
 
   const onSubmit = async (data: LoginForm) => {
     if (rememberMe) {
@@ -67,20 +68,31 @@ const LoginScreen = () => {
       await SecureStore.deleteItemAsync("password");
     }
 
-    login(data).then(() => {
-      router.navigate("/(tabs)");
-    });
+    try {
+      const role = await login(data);
+
+      if (role === 0) {
+        router.push("/viewelder");
+      } else if (role === 1) {
+        router.push("/(tabs)");
+      }
+    } catch (error) {
+      console.error("Login failed:", error);
+    }
   };
 
   return (
     <SafeAreaView
-      style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: theme.colors.background }}
-    >
+      style={{
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: theme.colors.background,
+      }}>
       <FormContainer>
         <Text
           variant="headlineLarge"
-          style={{ fontWeight: "bold", marginBottom: 20, color: theme.colors.onSurface }}
-        >
+          style={{ fontWeight: "bold", marginBottom: 20, color: theme.colors.onSurface }}>
           Login
         </Text>
         <FormField name="email" control={control} placeholder="Enter your email" />
@@ -96,10 +108,21 @@ const LoginScreen = () => {
         </View>
 
         <View style={{ flexDirection: "row", gap: 10, alignItems: "center" }}>
-          <Button mode="outlined" textColor={theme.colors.onSurface} disabled={!isValid} style={{ marginTop: 10 }} icon={"key"} onPress={handleSubmit(onSubmit)}>
+          <Button
+            mode="outlined"
+            textColor={theme.colors.onSurface}
+            disabled={!isValid}
+            style={{ marginTop: 10 }}
+            icon={"key"}
+            onPress={handleSubmit(onSubmit)}>
             Login
           </Button>
-          <Button mode="outlined" textColor={theme.colors.onSurface} style={{ marginTop: 5 }} icon={"account-plus"} onPress={() => router.push("/register")}>
+          <Button
+            mode="outlined"
+            textColor={theme.colors.onSurface}
+            style={{ marginTop: 5 }}
+            icon={"account-plus"}
+            onPress={() => router.push("/register")}>
             Register
           </Button>
         </View>
