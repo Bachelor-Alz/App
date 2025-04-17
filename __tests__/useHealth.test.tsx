@@ -1,7 +1,14 @@
 import { renderHook, waitFor } from "@testing-library/react-native";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { fetchHeartRate, fetchSPO2, fetchDistance, fetchSteps } from "@/apis/healthAPI";
-import { useHeartRate, useSPO2, useDistance, useSteps } from "@/hooks/useHealth";
+import { useHeartRate, useSPO2, useDistance, useSteps, useFalls, useDashBoardData } from "@/hooks/useHealth";
+import {
+  fetchHeartRate,
+  fetchSPO2,
+  fetchDistance,
+  fetchSteps,
+  fetchDashBoardData,
+  fetchFallsData,
+} from "@/apis/healthAPI";
 
 jest.mock("@/apis/healthAPI");
 
@@ -20,9 +27,7 @@ describe("useHealth hooks", () => {
   });
 
   it("should fetch heart rate data successfully", async () => {
-    const mockData = [
-      { id: 1, maxrate: 120, minrate: 60, avgrate: 90, timestamp: "2025-04-01T08:39:26.839Z" },
-    ];
+    const mockData = [{ id: 1, maxrate: 120, minrate: 60, avgrate: 90, timestamp: testDate }];
     (fetchHeartRate as jest.Mock).mockResolvedValue(mockData);
 
     const { result } = renderHook(() => useHeartRate(testEmail, testDate, period), { wrapper });
@@ -33,7 +38,7 @@ describe("useHealth hooks", () => {
   });
 
   it("should fetch SPO2 data successfully", async () => {
-    const mockData = [{ id: 1, spO2: 98, maxSpO2: 100, minSpO2: 96, timestamp: "2025-04-01T08:39:44.704Z" }];
+    const mockData = [{ id: 1, spO2: 98, maxSpO2: 100, minSpO2: 96, timestamp: testDate }];
     (fetchSPO2 as jest.Mock).mockResolvedValue(mockData);
 
     const { result } = renderHook(() => useSPO2(testEmail, testDate, period), { wrapper });
@@ -44,7 +49,7 @@ describe("useHealth hooks", () => {
   });
 
   it("should fetch distance data successfully", async () => {
-    const mockData = [{ id: 1, distance: 5.2, timestamp: "2025-04-01T08:39:55.325Z" }];
+    const mockData = [{ id: 1, distance: 5.2, timestamp: testDate }];
     (fetchDistance as jest.Mock).mockResolvedValue(mockData);
 
     const { result } = renderHook(() => useDistance(testEmail, testDate, period), { wrapper });
@@ -55,7 +60,7 @@ describe("useHealth hooks", () => {
   });
 
   it("should fetch steps data successfully", async () => {
-    const mockData = [{ id: 1, stepsCount: 1000, timestamp: "2025-04-01T08:40:05.296Z" }];
+    const mockData = [{ id: 1, stepsCount: 1000, timestamp: testDate }];
     (fetchSteps as jest.Mock).mockResolvedValue(mockData);
 
     const { result } = renderHook(() => useSteps(testEmail, testDate, period), { wrapper });
@@ -117,5 +122,50 @@ describe("useHealth hooks", () => {
 
     expect(result.current.isLoading).toBe(true);
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
+  });
+
+  it("should fetch dashboard data successfully", async () => {
+    const mockDashboardData = {
+      heartRate: [{ id: 1, avgrate: 90, timestamp: testDate }],
+      spo2: [{ id: 1, spO2: 98, timestamp: testDate }],
+      distance: [{ id: 1, distance: 3.2, timestamp: testDate }],
+      steps: [{ id: 1, stepsCount: 1200, timestamp: testDate }],
+    };
+    (fetchDashBoardData as jest.Mock).mockResolvedValue(mockDashboardData);
+
+    const { result } = renderHook(() => useDashBoardData(testEmail), { wrapper });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(result.current.data).toEqual(mockDashboardData);
+    expect(fetchDashBoardData).toHaveBeenCalledWith(testEmail);
+  });
+
+  it("should handle dashboard data API failure", async () => {
+    (fetchDashBoardData as jest.Mock).mockRejectedValue(new Error("Failed to fetch dashboard"));
+
+    const { result } = renderHook(() => useDashBoardData(testEmail), { wrapper });
+
+    await waitFor(() => expect(result.current.isError).toBe(true), { timeout: 5000 });
+    expect(result.current.error?.message).toBe("Failed to fetch dashboard");
+  });
+
+  it("should fetch falls data successfully", async () => {
+    const mockFallsData = [{ id: 1, timestamp: testDate }];
+    (fetchFallsData as jest.Mock).mockResolvedValue(mockFallsData);
+
+    const { result } = renderHook(() => useFalls(testEmail, testDate, period), { wrapper });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(result.current.data).toEqual(mockFallsData);
+    expect(fetchFallsData).toHaveBeenCalledWith(testEmail, testDate, period);
+  });
+
+  it("should handle falls data API failure", async () => {
+    (fetchFallsData as jest.Mock).mockRejectedValue(new Error("Failed to fetch falls"));
+
+    const { result } = renderHook(() => useFalls(testEmail, testDate, period), { wrapper });
+
+    await waitFor(() => expect(result.current.isError).toBe(true), { timeout: 5000 });
+    expect(result.current.error?.message).toBe("Failed to fetch falls");
   });
 });
