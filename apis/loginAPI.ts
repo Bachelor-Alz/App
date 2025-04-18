@@ -3,6 +3,7 @@ import { axiosInstance } from "./axiosConfig";
 
 type LoginResponse = {
   token: string;
+  role: number;
 };
 
 export const loginUserRequest = async (
@@ -12,21 +13,25 @@ export const loginUserRequest = async (
   token: string;
   email: string;
 }> => {
-  for (const role of [0, 1]) {
-    try {
-      const response = await axiosInstance.post<LoginResponse>(`/api/User/login`, {
-        email: userData.email,
-        password: userData.password,
-        role,
-      });
+  try {
+    const response = await axiosInstance.post<LoginResponse>("/api/User/login", {
+      email: userData.email,
+      password: userData.password,
+    });
 
-      return {
-        token: response.data.token,
-        email: userData.email,
-        role,
-      };
-    } catch (error) {}
+    const { token, role } = response.data;
+
+    if (!token || role === undefined) {
+      throw new Error("Login failed: Missing token or role.");
+    }
+
+    return {
+      token,
+      email: userData.email,
+      role,
+    };
+  } catch (error) {
+    console.error("Login failed:", error);
+    throw new Error("Login failed.");
   }
-
-  throw new Error("Login failed for both caregiver and elder roles.");
 };
