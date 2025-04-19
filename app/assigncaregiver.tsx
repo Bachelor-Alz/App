@@ -1,72 +1,76 @@
-import React, { useState } from "react";
-import { StyleSheet, SafeAreaView, Text, Alert, TextInput, Button } from "react-native";
+import React from "react";
+import { SafeAreaView, View, Alert } from "react-native";
+import { Text, useTheme, Button } from "react-native-paper";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import FormField from "@/components/forms/Formfield";
+import FormContainer from "@/components/forms/FormContainer";
+import { useAuthentication } from "@/providers/AuthenticationProvider";
 import { assignCaregiverToElder } from "@/apis/elderAPI";
-import { useAuthentication } from "@/providers/AuthenticationProvider"; // Import the context
 
-const AssignCaregiver = () => {
+const schema = z.object({
+  caregiverEmail: z.string().email("Please enter a valid email address").trim(),
+});
+
+type AssignCaregiverForm = z.infer<typeof schema>;
+
+const AssignCaregiverScreen = () => {
+  const theme = useTheme();
   const { userEmail } = useAuthentication();
-  const [caregiverEmail, setCaregiverEmail] = useState<string>("");
-  const [isAssigning, setIsAssigning] = useState<boolean>(false);
 
-  const handleAssign = async () => {
+  const {
+    control,
+    handleSubmit,
+    formState: { isSubmitting, isValid },
+  } = useForm<AssignCaregiverForm>({
+    resolver: zodResolver(schema),
+    mode: "onChange",
+  });
+
+  const onSubmit = async ({ caregiverEmail }: AssignCaregiverForm) => {
     if (!userEmail) {
       Alert.alert("Error", "No elder is logged in.");
       return;
     }
 
-    if (!caregiverEmail.trim()) {
-      Alert.alert("Input Error", "Please enter a caregiver email.");
-      return;
-    }
-
-    setIsAssigning(true);
     try {
       await assignCaregiverToElder(userEmail, caregiverEmail);
       Alert.alert("Success", `Caregiver assigned to ${userEmail}`);
-    } catch {
+    } catch (error) {
       Alert.alert("Error", "Failed to assign caregiver.");
-    } finally {
-      setIsAssigning(false);
     }
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.heading}>Assign Caregiver</Text>
+    <SafeAreaView
+      style={{
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: theme.colors.background,
+      }}>
+      <FormContainer>
+        <Text
+          variant="headlineLarge"
+          style={{ fontWeight: "bold", marginBottom: 20, color: theme.colors.onSurface }}>
+          Assign Caregiver
+        </Text>
 
-      <TextInput
-        placeholder="Enter Caregiver Email"
-        value={caregiverEmail}
-        onChangeText={setCaregiverEmail}
-        style={styles.input}
-        placeholderTextColor="#888"
-      />
+        <FormField name="caregiverEmail" control={control} placeholder="Enter caregiver email" />
 
-      <Button title="Assign Caregiver" onPress={handleAssign} disabled={isAssigning} />
+        <Button
+          mode="outlined"
+          textColor={theme.colors.onSurface}
+          onPress={handleSubmit(onSubmit)}
+          disabled={!isValid || isSubmitting}
+          icon="account-arrow-right"
+          style={{ marginTop: 10 }}>
+          Assign
+        </Button>
+      </FormContainer>
     </SafeAreaView>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  heading: {
-    fontSize: 24,
-    marginBottom: 20,
-  },
-  input: {
-    width: "100%",
-    height: 40,
-    borderColor: "#ccc",
-    borderWidth: 1,
-    borderRadius: 5,
-    marginBottom: 20,
-    paddingLeft: 10,
-  },
-});
-
-export default AssignCaregiver;
+export default AssignCaregiverScreen;

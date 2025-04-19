@@ -72,7 +72,7 @@ const LoginScreen = () => {
       const role = await login(data);
 
       if (role === 0) {
-        router.push("/viewelder");
+        router.push("/(tabs)/caregiveroverview");
       } else if (role === 1) {
         router.push("/(tabs)");
       }
