@@ -26,14 +26,39 @@ export const assignCaregiverToElder = async (elderEmail: string, caregiverEmail:
   try {
     const response = await axiosInstance.post(
       `/api/User/users/elder`,
-      { elderEmail },
+      {},
       {
-        params: { caregiverEmail },
+        params: {
+          elderEmail,
+          caregiverEmail,
+        },
       }
     );
     return response.data;
   } catch (error) {
     console.error("Error assigning caregiver to elder:", error);
+    throw error;
+  }
+};
+
+export const fetchCaregiverInvites = async () => {
+  try {
+    const response = await axiosInstance.get(`/api/User/caregiver/invites`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching caregiver invites:", error);
+    throw error;
+  }
+};
+
+export const acceptCaregiverInvite = async (elderEmail: string) => {
+  try {
+    const response = await axiosInstance.post("/api/User/caregiver/invites/accept", null, {
+      params: { elderEmail },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error accepting caregiver invite:", error);
     throw error;
   }
 };
