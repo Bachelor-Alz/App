@@ -3,40 +3,35 @@ import { axiosInstance } from "./axiosConfig";
 
 type LoginResponse = {
   token: string;
+  role: number;
 };
 
 export const loginUserRequest = async (
   userData: LoginForm
 ): Promise<{
-  role: number | undefined; // role can be undefined if not returned from API
+  role: number;
   token: string;
   email: string;
-} | null> => {
-  const attemptLogin = async (role: number) => {
-    try {
-      const response = await axiosInstance.post<LoginResponse>(`/api/User/login`, {
-        email: userData.email,
-        password: userData.password,
-        role,
-      });
+}> => {
+  try {
+    const response = await axiosInstance.post<LoginResponse>("/api/User/login", {
+      email: userData.email,
+      password: userData.password,
+    });
 
-      return {
-        token: response.data.token,
-        email: userData.email,
-        role: role,
-      };
-    } catch (error: any) {
-      return null;
+    const { token, role } = response.data;
+
+    if (!token || role === undefined) {
+      throw new Error("Login failed: Missing token or role.");
     }
-  };
 
-  // Try login as caregiver first
-  const tokenAsCaregiver = await attemptLogin(0);
-  if (tokenAsCaregiver) return tokenAsCaregiver;
-
-  // Try login as elder second
-  const tokenAsElder = await attemptLogin(1);
-  if (tokenAsElder) return tokenAsElder;
-
-  throw new Error("Login failed for both caregiver and elder roles.");
+    return {
+      token,
+      email: userData.email,
+      role,
+    };
+  } catch (error) {
+    console.error("Login failed:", error);
+    throw new Error("Login failed.");
+  }
 };
