@@ -1,8 +1,17 @@
 import React from "react";
-import { View, Text, FlatList, StyleSheet, SafeAreaView, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  SafeAreaView,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
-import { useTheme, Provider as PaperProvider, Button } from "react-native-paper";
+import { router, useLocalSearchParams } from "expo-router";
+import { useTheme, Provider as PaperProvider } from "react-native-paper";
+import { useDashBoardData } from "@/hooks/useHealth";
 
 type HealthData = {
   title: string;
@@ -11,46 +20,6 @@ type HealthData = {
   icon: keyof typeof Ionicons.glyphMap;
   color: string;
 };
-
-const healthData: HealthData[] = [
-  {
-    title: "Heart Rate",
-    value: "62 BPM",
-    icon: "heart",
-    color: "#ff4757",
-    onPress: () => router.push("/heartrate"),
-  },
-  {
-    title: "Blood Oxygen Level",
-    value: "98%",
-    icon: "water",
-    color: "#1e90ff",
-  },
-  {
-    title: "Steps",
-    value: "8,560",
-    icon: "footsteps",
-    color: "#2ed573",
-  },
-  {
-    title: "Recorded Falls",
-    value: "2",
-    icon: "alert-circle",
-    color: "#ffa502",
-  },
-  {
-    title: "Distance Walked",
-    value: "4.5 km",
-    icon: "walk",
-    color: "#ff7f50",
-  },
-  {
-    title: "Location",
-    value: "Home",
-    icon: "location",
-    color: "#ff6348",
-  },
-];
 
 const HealthCard: React.FC<HealthData> = ({ title, value, icon, color, onPress }) => {
   const theme = useTheme();
@@ -73,30 +42,75 @@ const HomeScreen = () => {
   const theme = useTheme();
   const backgroundColor = theme.dark ? "#000000" : "#f9f9f9";
 
+  const { name, email } = useLocalSearchParams<{ name?: string; email?: string }>();
+  const elderEmail = email || "";
+
+  const { data, isLoading, error } = useDashBoardData(elderEmail);
+
+  const healthData: HealthData[] = data
+    ? [
+        {
+          title: "Heart Rate",
+          value: `${data.heartRate ?? "N/A"} BPM`,
+          icon: "heart",
+          color: "#ff4757",
+          onPress: () => router.push("/heartrate"),
+        },
+        {
+          title: "Blood Oxygen Level",
+          value: data.spO2 != null ? `${Math.round(Number(data.spO2) * 100)}%` : "N/A",
+          icon: "water",
+          color: "#1e90ff",
+        },
+        {
+          title: "Steps",
+          value: `${data.steps ?? "N/A"}`,
+          icon: "footsteps",
+          color: "#2ed573",
+        },
+        {
+          title: "Recorded Falls",
+          value: `${data.allFall ?? "N/A"}`,
+          icon: "alert-circle",
+          color: "#ffa502",
+        },
+        {
+          title: "Distance Walked",
+          value: `${data.distance ?? "N/A"} km`,
+          icon: "walk",
+          color: "#ff7f50",
+        },
+        {
+          title: "Location",
+          value: data.locationAdress ?? "N/A",
+          icon: "location",
+          color: "#ff6348",
+        },
+      ]
+    : [];
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor }}>
       <View style={styles.container}>
-        <Button mode="contained" onPress={() => router.push("/LineChart")} style={{ marginTop: 20 }}>
-          Go to LineChart
-        </Button>
-        <Button mode="contained" onPress={() => router.push("/BarChart")} style={{ marginTop: 20 }}>
-          Go to BarChart
-        </Button>
-        <Text style={[styles.header, { color: theme.colors.onBackground }]}>Health Summary</Text>
-        <FlatList
-          data={healthData}
-          keyExtractor={(item) => item.title}
-          renderItem={({ item }) => (
-            <HealthCard
-              title={item.title}
-              value={item.value}
-              icon={item.icon}
-              color={item.color}
-              onPress={item.onPress}
-            />
-          )}
-          showsVerticalScrollIndicator={false}
-        />
+        <Text style={[styles.header, { color: theme.colors.onBackground }]}>
+          {name ? `${name}'s Health Summary` : "Health Summary"}
+        </Text>
+        {email && <Text style={{ color: theme.colors.onSurface, marginBottom: 10 }}>{email}</Text>}
+
+        {isLoading ? (
+          <ActivityIndicator size="large" color={theme.colors.primary} style={{ marginTop: 30 }} />
+        ) : error ? (
+          <Text style={{ color: theme.colors.error, marginTop: 30, fontSize: 16 }}>
+            Failed to load health data.
+          </Text>
+        ) : (
+          <FlatList
+            data={healthData}
+            keyExtractor={(item) => item.title}
+            renderItem={({ item }) => <HealthCard {...item} />}
+            showsVerticalScrollIndicator={false}
+          />
+        )}
       </View>
     </SafeAreaView>
   );
@@ -110,7 +124,7 @@ const styles = StyleSheet.create({
   header: {
     fontSize: 28,
     fontWeight: "bold",
-    marginBottom: 20,
+    marginBottom: 5,
   },
   card: {
     flexDirection: "row",
@@ -122,7 +136,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
-    elevation: 5, // For Android
+    elevation: 5,
   },
   icon: {
     marginRight: 15,

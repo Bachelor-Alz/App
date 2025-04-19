@@ -28,6 +28,16 @@ export type StepsData = {
   timestamp: string;
 };
 
+export type DashboardData = {
+  id: number;
+  heartRate: number;
+  spO2: number;
+  steps: number;
+  distance: number;
+  allFall: number;
+  locationAdress: string;
+};
+
 export const fetchHeartRate = (
   elderEmail: string,
   date: string,
@@ -92,16 +102,9 @@ export const fetchSteps = (
     });
 };
 
-export const fetchDashBoardData = (
-  elderEmail: string
-): Promise<{
-  heartRate: HeartRateData[];
-  spo2: SPO2Data[];
-  distance: DistanceData[];
-  steps: StepsData[];
-}> => {
+export const fetchDashBoardData = (elderEmail: string): Promise<DashboardData> => {
   return axiosInstance
-    .get("/api/Health/Dashboard", {
+    .get<DashboardData>("/api/Health/Dashboard", {
       params: { elderEmail },
     })
     .then((response) => response.data)

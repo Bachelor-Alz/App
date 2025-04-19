@@ -1,7 +1,16 @@
 import React, { useState } from "react";
-import { StyleSheet, SafeAreaView, Text, View, FlatList, ActivityIndicator } from "react-native";
+import {
+  StyleSheet,
+  SafeAreaView,
+  Text,
+  View,
+  FlatList,
+  ActivityIndicator,
+  TouchableOpacity,
+} from "react-native";
 import { List, Searchbar, useTheme } from "react-native-paper";
 import { useEldersForCaregiver } from "@/hooks/useElders";
+import { router } from "expo-router";
 
 const ViewElders = () => {
   const theme = useTheme();
@@ -11,13 +20,25 @@ const ViewElders = () => {
   const filteredElders =
     elders?.filter((elder) => elder.name.toLowerCase().includes(searchQuery.toLowerCase())) || [];
 
+  const handleElderPress = (elder: { name: string; email: string }) => {
+    router.push({
+      pathname: "/(tabs)",
+      params: {
+        name: elder.name,
+        email: elder.email,
+      },
+    });
+  };
+
   const renderItem = ({ item }: { item: { name: string; email: string } }) => (
-    <List.Item
-      title={item.name}
-      description={item.email}
-      left={(props) => <List.Icon {...props} icon="account" />}
-      style={[styles.listItem, { borderBottomColor: theme.colors.outline }]}
-    />
+    <TouchableOpacity onPress={() => handleElderPress(item)}>
+      <List.Item
+        title={item.name}
+        description={item.email}
+        left={(props) => <List.Icon {...props} icon="account" />}
+        style={[styles.listItem, { borderBottomColor: theme.colors.outline }]}
+      />
+    </TouchableOpacity>
   );
 
   return (
