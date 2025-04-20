@@ -47,7 +47,7 @@ export type DashboardData = {
   steps: number;
   distance: number;
   allFall: number;
-  locationAdress: string;
+  locationAddress: string;
 };
 
 export const fetchHeartRate = (

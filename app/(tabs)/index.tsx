@@ -91,7 +91,7 @@ const HomeScreen = () => {
         },
         {
           title: "Location",
-          value: data.locationAdress ?? "N/A",
+          value: data.locationAddress ?? "N/A",
           icon: "location",
           color: "#ff6348",
         },

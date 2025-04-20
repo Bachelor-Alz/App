@@ -49,9 +49,9 @@ const SPO2Screen = () => {
       <View style={[styles.container, { backgroundColor }]}>
         <TimeRangeSelector onSelect={handleRangeSelect} />
 
-        <View style={[styles.heartContainer, { backgroundColor, borderColor: colorBlue }]}>
+        <View style={[styles.spo2Container, { backgroundColor, borderColor: colorBlue }]}>
           <FontAwesome5 name="tint" size={64} color={colorBlue} />
-          <Text style={[styles.heartRate, { color: theme.colors.onSurface }]}>{spo2}%</Text>
+          <Text style={[styles.spo2, { color: theme.colors.onSurface }]}>{spo2}</Text>
           <Text style={[styles.bpmText, { color: theme.colors.onSurface }]}>SpO2</Text>
         </View>
 
@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingTop: 40,
   },
-  heartContainer: {
+  spo2Container: {
     width: 250,
     height: 250,
     borderRadius: 150,
@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 5,
   },
-  heartRate: {
+  spo2: {
     fontSize: 40,
     fontWeight: "bold",
   },
