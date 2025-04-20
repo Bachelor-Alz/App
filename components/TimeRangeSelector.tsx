@@ -11,7 +11,7 @@ type TimeRangeSelectorProps = {
 const TimeRangeSelector: React.FC<TimeRangeSelectorProps> = ({ onSelect }) => {
   const colorScheme = useColorScheme();
   const theme = createTheme(colorScheme === "dark");
-  const [selectedRange, setSelectedRange] = useState("H");
+  const [selectedRange, setSelectedRange] = useState("Hour");
 
   const handlePress = (range: string) => {
     setSelectedRange(range);
