@@ -15,11 +15,17 @@ export type HeartRateData = {
 };
 
 export type SPO2Data = {
-  id: number;
-  spO2: number;
-  maxSpO2: number;
-  minSpO2: number;
-  timestamp: string;
+  spo2: {
+    id: number;
+    spO2: number;
+    maxSpO2: number;
+    minSpO2: number;
+    timestamp: string;
+  };
+  currentSpo2: {
+    spO2: number;
+    timestamp: string;
+  };
 };
 
 export type DistanceData = {

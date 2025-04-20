@@ -65,6 +65,11 @@ const HomeScreen = () => {
           value: data.spO2 != null ? `${Math.round(Number(data.spO2) * 100)}%` : "N/A",
           icon: "water",
           color: "#1e90ff",
+          onPress: () =>
+            router.push({
+              pathname: "/spo2",
+              params: { email: elderEmail },
+            }),
         },
         {
           title: "Steps",
