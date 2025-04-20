@@ -54,7 +54,11 @@ const HomeScreen = () => {
           value: `${data.heartRate ?? "N/A"} BPM`,
           icon: "heart",
           color: "#ff4757",
-          onPress: () => router.push("/heartrate"),
+          onPress: () =>
+            router.push({
+              pathname: "/heartrate",
+              params: { email: elderEmail },
+            }),
         },
         {
           title: "Blood Oxygen Level",

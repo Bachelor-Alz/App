@@ -1,64 +1,102 @@
-import React, { useState } from "react";
-import { Text, StyleSheet, View } from "react-native";
+import React, { useMemo, useState } from "react";
+import { Text, StyleSheet, View, ActivityIndicator } from "react-native";
 import { Ionicons, FontAwesome5 } from "@expo/vector-icons";
 import { useTheme, Provider as PaperProvider } from "react-native-paper";
+import { useLocalSearchParams } from "expo-router";
+import { useHeartRate } from "@/hooks/useHealth";
+import TimeRangeSelector from "@/components/TimeRangeSelector";
+import SmartAreaView from "@/components/SmartAreaView";
 
 const HeartRateScreen = () => {
-  const [heartRate] = useState(69);
-  const [minBPM] = useState(42);
-  const [maxBPM] = useState(131);
-  const [restingHeartRate] = useState(58);
-  const [heartRateVariability] = useState(110);
-
   const theme = useTheme();
+  const { email } = useLocalSearchParams<{ email?: string }>();
+  const elderEmail = email || "";
+
+  const [period, setPeriod] = useState<"Hour" | "Day" | "Week">("Hour");
+
+  const handleRangeSelect = (range: string) => {
+    if (range === "Hour") setPeriod("Hour");
+    else if (range === "Day") setPeriod("Day");
+    else if (range === "Week") setPeriod("Week");
+  };
+
+  const date = useMemo(() => new Date().toISOString(), []);
+  const { data, isLoading, error } = useHeartRate(elderEmail, date, period);
 
   const backgroundColor = theme.dark ? "#000000" : "#ffffff";
   const cardBackgroundColor = theme.dark ? "#1e1e1e" : "#f0f0f0";
 
+  if (isLoading) {
+    return <ActivityIndicator size="large" style={{ marginTop: 100 }} />;
+  }
+
+  if (error || !data || data.length === 0) {
+    return <Text style={{ marginTop: 100, textAlign: "center" }}>No heart rate data available.</Text>;
+  }
+
+  const latest = data[0];
+  const heartRate = latest.currentHeartRate?.heartrate ?? "N/A";
+  const minBPM = latest.heartrate?.minrate ?? "N/A";
+  const maxBPM = latest.heartrate?.maxrate ?? "N/A";
+  const restingHeartRate = latest.heartrate?.avgrate ?? "N/A";
+
   return (
-    <View style={[styles.container, { backgroundColor }]}>
-      <View style={[styles.heartContainer, { backgroundColor: backgroundColor, borderColor: "#ff4757" }]}>
-        <FontAwesome5 name="heartbeat" size={64} color="#ff4757" />
-        <Text style={[styles.heartRate, { color: theme.colors.onSurface }]}>{heartRate}</Text>
-        <Text style={[styles.bpmText, { color: theme.colors.onSurface }]}>BPM</Text>
-      </View>
+    <SmartAreaView>
+      <View style={[styles.container, { backgroundColor }]}>
+        <TimeRangeSelector onSelect={handleRangeSelect} />
 
-      <View style={styles.minMaxContainer}>
-        <Text style={[styles.minMaxText, { color: theme.colors.onBackground }]}>MIN: {minBPM} BPM</Text>
-        <Text style={[styles.minMaxText, { color: theme.colors.onBackground }]}>MAX: {maxBPM} BPM</Text>
-      </View>
+        <View style={[styles.heartContainer, { backgroundColor, borderColor: "#ff4757" }]}>
+          <FontAwesome5 name="heartbeat" size={64} color="#ff4757" />
+          <Text style={[styles.heartRate, { color: theme.colors.onSurface }]}>{heartRate}</Text>
+          <Text style={[styles.bpmText, { color: theme.colors.onSurface }]}>BPM</Text>
+        </View>
 
-      <View style={[styles.infoBox, { backgroundColor: cardBackgroundColor, borderColor: theme.colors.outline }]}>
-        <Text style={[styles.infoLabel, { color: theme.colors.onSurface }]}>Resting Heart Rate</Text>
-        <View style={styles.infoValue}>
-          <Text style={[styles.infoText, { color: theme.colors.onSurface }]}>{restingHeartRate} BPM</Text>
-          <Ionicons name="heart" size={20} color="#ff4757" />
+        <View
+          style={[
+            styles.infoBox,
+            { backgroundColor: cardBackgroundColor, borderColor: theme.colors.outline },
+          ]}>
+          <Text style={[styles.infoLabel, { color: theme.colors.onSurface }]}>Min Heart Rate</Text>
+          <View style={styles.infoValue}>
+            <Text style={[styles.infoText, { color: theme.colors.onSurface }]}>{minBPM} BPM</Text>
+            <Ionicons name="heart" size={20} color="#ff4757" />
+          </View>
+        </View>
+
+        <View
+          style={[
+            styles.infoBox,
+            { backgroundColor: cardBackgroundColor, borderColor: theme.colors.outline },
+          ]}>
+          <Text style={[styles.infoLabel, { color: theme.colors.onSurface }]}>Max Heart Rate</Text>
+          <View style={styles.infoValue}>
+            <Text style={[styles.infoText, { color: theme.colors.onSurface }]}>{maxBPM} BPM</Text>
+            <Ionicons name="heart" size={20} color="#ff4757" />
+          </View>
+        </View>
+
+        <View
+          style={[
+            styles.infoBox,
+            { backgroundColor: cardBackgroundColor, borderColor: theme.colors.outline },
+          ]}>
+          <Text style={[styles.infoLabel, { color: theme.colors.onSurface }]}>Resting Heart Rate</Text>
+          <View style={styles.infoValue}>
+            <Text style={[styles.infoText, { color: theme.colors.onSurface }]}>{restingHeartRate} BPM</Text>
+            <Ionicons name="heart" size={20} color="#ff4757" />
+          </View>
         </View>
       </View>
-
-      <View style={[styles.infoBox, { backgroundColor: cardBackgroundColor, borderColor: theme.colors.outline }]}>
-        <Text style={[styles.infoLabel, { color: theme.colors.onSurface }]}>Heart Rate Variability</Text>
-        <View style={styles.infoValue}>
-          <Text style={[styles.infoText, { color: theme.colors.onSurface }]}>{heartRateVariability} ms</Text>
-        </View>
-      </View>
-
-      <View style={[styles.infoBox, { backgroundColor: cardBackgroundColor, borderColor: theme.colors.outline }]}>
-        <Text style={[styles.infoLabel, { color: theme.colors.onSurface }]}>Walking Heart Rate</Text>
-        <View style={styles.infoValue}>
-          <Text style={[styles.infoText, { color: theme.colors.onSurface }]}>113 BPM</Text>
-        </View>
-      </View>
-    </View>
+    </SmartAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
     alignItems: "center",
     padding: 20,
+    paddingTop: 40,
   },
   heartContainer: {
     width: 250,
@@ -67,12 +105,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 2,
-    marginBottom: 20,
+    marginVertical: 20,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 2,
-    elevation: 5, // For Android
+    elevation: 5,
   },
   heartRate: {
     fontSize: 40,
@@ -80,15 +118,6 @@ const styles = StyleSheet.create({
   },
   bpmText: {
     fontSize: 18,
-  },
-  minMaxContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "90%",
-    marginBottom: 15,
-  },
-  minMaxText: {
-    fontSize: 16,
   },
   infoBox: {
     width: "90%",
@@ -100,7 +129,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 2,
-    elevation: 5, // For Android
+    elevation: 5,
   },
   infoLabel: {
     fontSize: 16,

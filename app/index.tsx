@@ -74,7 +74,12 @@ const LoginScreen = () => {
       if (role === 0) {
         router.push("/(tabs)/caregiveroverview");
       } else if (role === 1) {
-        router.push("/(tabs)");
+        router.push({
+          pathname: "/(tabs)",
+          params: {
+            email: data.email,
+          },
+        });
       }
     } catch (error) {
       console.error("Login failed:", error);
