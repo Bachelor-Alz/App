@@ -1,38 +1,58 @@
 import React from "react";
 import { SafeAreaView, StyleSheet, View, TouchableOpacity } from "react-native";
-import { Text } from "react-native-paper";
-import { PaperProvider, RadioButton, useTheme } from "react-native-paper";
+import { Text, RadioButton, useTheme } from "react-native-paper";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useWatch } from "react-hook-form";
 import FormField from "@/components/forms/Formfield";
 import SubmitButton from "@/components/forms/SubmitButton";
 import FormContainer from "@/components/forms/FormContainer";
 import { useAuthentication } from "@/providers/AuthenticationProvider";
 import { router } from "expo-router";
+import useLocationResolver from "@/hooks/useLocationResolver";
+import { useDebounce } from "@uidotdev/usehooks";
 
-const schema = z
-  .object({
-    email: z.string().email("Indtast en gyldig e-mailadresse").trim(),
-    name: z.string().trim().min(2, "Dit navn skal være mindst 2 bogstaver").trim(),
-    password: z
-      .string()
-      .regex(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{8,}$/, {
-        message: "Adgangskode skal indeholde mindst 8 tegn, et stort bogstav, et lille bogstav, et tal og et specialtegn",
-      })
-      .trim(),
-    confirmPassword: z.string().trim(),
-    role: z.union([z.literal(0), z.literal(1)]),
-  })
-  .superRefine((data, ctx) => {
-    if (data.password !== data.confirmPassword) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["confirmPassword"],
-        message: "Adgangskoderne stemmer ikke overens",
-      });
-    }
-  });
+const baseFields = {
+  email: z.string().email("Indtast en gyldig e-mailadresse").trim(),
+  name: z.string().min(2, "Dit navn skal være mindst 2 bogstaver").trim(),
+  password: z
+    .string()
+    .regex(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{8,}$/, {
+      message:
+        "Adgangskode skal indeholde mindst 8 tegn, et stort bogstav, et lille bogstav, et tal og et specialtegn",
+    })
+    .trim(),
+  confirmPassword: z.string().trim(),
+};
+
+const caregiverSchema = z.object({
+  role: z.literal(0),
+  ...baseFields,
+});
+
+const elderSchema = z.object({
+  role: z.literal(1),
+  ...baseFields,
+  address: z
+    .string()
+    .trim()
+    .refine(
+      (val) => /^(?:[A-Za-zæøåÆØÅ\s]+,\s?)?[A-Za-zæøåÆØÅ\s]+\s\d{1,5}(?:\s[A-Za-zæøåÆØÅ\s]+)?$/.test(val),
+      { message: "Indtast en gyldig adresse" }
+    ),
+  lat: z.number(),
+  lon: z.number(),
+});
+
+const schema = z.discriminatedUnion("role", [caregiverSchema, elderSchema]).superRefine((data, ctx) => {
+  if (data.password !== data.confirmPassword) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["confirmPassword"],
+      message: "Adgangskoderne stemmer ikke overens",
+    });
+  }
+});
 
 export type RegisterForm = z.infer<typeof schema>;
 
@@ -43,92 +63,92 @@ const RegisterScreen = () => {
   const {
     control,
     getValues,
-    formState: { isSubmitting, isValid },
+    setValue,
+    formState: { isSubmitting, isValid, errors },
   } = useForm<RegisterForm>({
     resolver: zodResolver(schema),
     mode: "onChange",
+    defaultValues: { role: 1 },
   });
 
+  const role = useWatch({ control, name: "role" });
+  const address = useWatch({ control, name: "address" });
+  const isElder = role === 1;
+
+  const debouncedAddress = useDebounce(address, 500);
+
+  const { data: suggestions } = useLocationResolver(debouncedAddress, isElder);
+
   const handleRegister = () => {
+    console.log("HELLO");
     const form = getValues();
     register(form).then(() => {
       router.navigate("/");
     });
-  }
+  };
 
   return (
-    <PaperProvider theme={theme}>
-      <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.background }]}>
-        <FormContainer>
-          <Text variant="headlineLarge">Register</Text>
-
-          <FormField
-            control={control}
-            name="name"
-            placeholder="Name"
-          />
-
-          <FormField
-            control={control}
-            name="email"
-            placeholder="Email"
-          />
-
-          <FormField
-            control={control}
-            name="password"
-            placeholder="Password"
-            secureTextEntry
-          />
-
-          <FormField
-            control={control}
-            name="confirmPassword"
-            placeholder="Confirm Password"
-            secureTextEntry
-          />
-
-          {/* Role Selection */}
-          <Text style={[styles.radioLabel]}>Select Role:</Text>
-          <Controller
-            control={control}
-            name="role"
-            render={({ field }) => (
-              <View style={styles.radioGroup}>
-                {/* Caregiver Option */}
-                <TouchableOpacity style={styles.radioItem} onPress={() => field.onChange(0)}>
-                  <View style={[styles.radioCircle, { borderColor: field.value === 0 ? theme.colors.primary : "#888" }]}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.background }]}>
+      <FormContainer>
+        <Text variant="headlineLarge">Register</Text>
+        <Controller
+          control={control}
+          name="role"
+          render={({ field }) => (
+            <View style={styles.radioGroup}>
+              {[
+                { label: "Caregiver", value: 0 },
+                { label: "Elder", value: 1 },
+              ].map(({ label, value }) => (
+                <TouchableOpacity key={value} style={styles.radioItem} onPress={() => field.onChange(value)}>
+                  <View
+                    style={[
+                      styles.radioCircle,
+                      { borderColor: field.value === value ? theme.colors.primary : "#888" },
+                    ]}>
                     <RadioButton
-                      value="0"
-                      status={field.value === 0 ? "checked" : "unchecked"}
+                      value={String(value)}
+                      status={field.value === value ? "checked" : "unchecked"}
                     />
                   </View>
-                  <Text style={styles.radioText}>Caregiver</Text>
+                  <Text style={styles.radioText}>{label}</Text>
                 </TouchableOpacity>
+              ))}
+            </View>
+          )}
+        />
 
-                {/* Elder Option */}
-                <TouchableOpacity style={styles.radioItem} onPress={() => field.onChange(1)}>
-                  <View style={[styles.radioCircle, { borderColor: field.value === 1 ? theme.colors.primary : "#888" }]}>
-                    <RadioButton
-                      value="1"
-                      status={field.value === 1 ? "checked" : "unchecked"}
-                    />
-                  </View>
-                  <Text style={styles.radioText}>Elder</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-          />
+        <FormField control={control} name="name" placeholder="Name" />
+        <FormField control={control} name="email" placeholder="Email" />
+        <FormField control={control} name="password" placeholder="Password" secureTextEntry />
+        <FormField control={control} name="confirmPassword" placeholder="Confirm Password" secureTextEntry />
 
-          <SubmitButton
-            isValid={isValid}
-            isSubmitting={isSubmitting}
-            handleSubmit={handleRegister}
-            label="Register"
-          />
-        </FormContainer>
-      </SafeAreaView>
-    </PaperProvider>
+        {isElder && (
+          <>
+            <FormField control={control} name="address" placeholder="Address (Visionsvej 21 Aalborg)" />
+            {suggestions?.map((item, index) => (
+              <Text
+                key={index}
+                style={{ marginVertical: 5 }}
+                onPress={() => {
+                  setValue("address", item.fullAddress);
+                  setValue("lat", Number(item.lat));
+                  setValue("lon", Number(item.lon));
+                }}>
+                {item.fullAddress}
+              </Text>
+            ))}
+          </>
+        )}
+
+        <SubmitButton
+          isValid={isValid}
+          isSubmitting={isSubmitting}
+          handleSubmit={handleRegister}
+          label="Register"
+        />
+      </FormContainer>
+    </SafeAreaView>
   );
 };
 
@@ -138,19 +158,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  header: {
-    fontSize: 26,
-    fontWeight: "bold",
-    marginBottom: 20,
-  },
-  radioLabel: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginBottom: 5,
-  },
   radioGroup: {
-    flexDirection: "column",
-    gap: 10,
+    flexDirection: "row",
+    gap: 30,
     marginBottom: 15,
   },
   radioItem: {
