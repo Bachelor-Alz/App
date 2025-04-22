@@ -3,17 +3,17 @@ import { Text, StyleSheet, View, ActivityIndicator } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme, Provider as PaperProvider } from "react-native-paper";
 import { useLocalSearchParams } from "expo-router";
-import { useSteps } from "@/hooks/useHealth";
+import { useDistance } from "@/hooks/useHealth";
 import TimeRangeSelector from "@/components/TimeRangeSelector";
 import SmartAreaView from "@/components/SmartAreaView";
 import MetricCircle from "@/components/MetricCircle";
 
-const StepsScreen = () => {
+const DistanceScreen = () => {
   const theme = useTheme();
   const { email } = useLocalSearchParams<{ email?: string }>();
   const elderEmail = email || "";
 
-  const [period, setPeriod] = useState<"Hour" | "Day" | "Week">("Day");
+  const [period, setPeriod] = useState<"Hour" | "Day" | "Week">("Hour");
 
   const handleRangeSelect = (range: string) => {
     if (range === "Hour") setPeriod("Hour");
@@ -22,22 +22,22 @@ const StepsScreen = () => {
   };
 
   const date = useMemo(() => new Date().toISOString(), []);
-  const { data, isLoading, error } = useSteps(elderEmail, date, period);
+  const { data, isLoading, error } = useDistance(elderEmail, date, period);
 
   const backgroundColor = theme.dark ? "#000000" : "#ffffff";
-  const colorGreen = "#2ed573";
+  const colorOrange = "#ff7f50";
 
   if (isLoading) {
     return <ActivityIndicator size="large" style={{ marginTop: 100 }} />;
   }
 
   if (error || !data || data.length === 0) {
-    return <Text style={{ marginTop: 100, textAlign: "center" }}>No Steps data available.</Text>;
+    return <Text style={{ marginTop: 100, textAlign: "center" }}>No Distance data available.</Text>;
   }
 
   const latest = data[0];
 
-  const steps = latest.stepsCount != null ? `${Math.round(Number(latest.stepsCount))} steps` : "N/A";
+  const distance = latest.distance != null ? `${Math.round(Number(latest.distance))} km` : "N/A";
 
   return (
     <SmartAreaView>
@@ -45,10 +45,10 @@ const StepsScreen = () => {
         <TimeRangeSelector onSelect={handleRangeSelect} />
 
         <MetricCircle
-          icon={<Ionicons name="footsteps" size={64} color={colorGreen} />}
-          value={steps}
-          label="Steps"
-          color={colorGreen}
+          icon={<Ionicons name="walk" size={64} color={colorOrange} />}
+          value={distance}
+          label="Distance"
+          color={colorOrange}
         />
       </View>
     </SmartAreaView>
@@ -61,27 +61,26 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  heartContainer: {
-    width: "90%",
+  distanceContainer: {
+    width: 200,
     height: 200,
-    borderRadius: 10,
+    borderRadius: 100,
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 2,
-    marginBottom: 20,
   },
-  heartRate: {
+  distance: {
     fontSize: 32,
     fontWeight: "bold",
   },
-  bpmText: {
-    fontSize: 18,
-    color: "#888",
+  text: {
+    fontSize: 16,
+    marginTop: 5,
   },
 });
 
 export default () => (
   <PaperProvider>
-    <StepsScreen />
+    <DistanceScreen />
   </PaperProvider>
 );

@@ -71,6 +71,7 @@ const HomeScreen = () => {
           value: `${data.steps ?? "N/A"}`,
           icon: "footsteps",
           color: "#2ed573",
+          onPress: () => router.push({ pathname: "/stepscount", params: { email: elderEmail } }),
           theme,
         },
         {
@@ -85,6 +86,7 @@ const HomeScreen = () => {
           value: `${data.distance ?? "N/A"} km`,
           icon: "walk",
           color: "#ff7f50",
+          onPress: () => router.push({ pathname: "/distance", params: { email: elderEmail } }),
           theme,
         },
         {
