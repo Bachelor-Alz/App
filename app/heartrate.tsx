@@ -1,27 +1,15 @@
-import React, { useMemo, useState } from "react";
+import React from "react";
 import { Text, StyleSheet, View, ActivityIndicator } from "react-native";
 import { Ionicons, FontAwesome5 } from "@expo/vector-icons";
 import { useTheme, Provider as PaperProvider } from "react-native-paper";
-import { useLocalSearchParams } from "expo-router";
-import { useHeartRate } from "@/hooks/useHealth";
 import TimeRangeSelector from "@/components/TimeRangeSelector";
 import SmartAreaView from "@/components/SmartAreaView";
+import { useHeartRateDisplayData } from "@/hooks/useHeartRateDisplayData";
 
 const HeartRateScreen = () => {
   const theme = useTheme();
-  const { email } = useLocalSearchParams<{ email?: string }>();
-  const elderEmail = email || "";
-
-  const [period, setPeriod] = useState<"Hour" | "Day" | "Week">("Hour");
-
-  const handleRangeSelect = (range: string) => {
-    if (range === "Hour") setPeriod("Hour");
-    else if (range === "Day") setPeriod("Day");
-    else if (range === "Week") setPeriod("Week");
-  };
-
-  const date = useMemo(() => new Date().toISOString(), []);
-  const { data, isLoading, error } = useHeartRate(elderEmail, date, period);
+  const { setPeriod, isLoading, error, hasData, heartRate, minBPM, maxBPM, restingHeartRate } =
+    useHeartRateDisplayData();
 
   const backgroundColor = theme.dark ? "#000000" : "#ffffff";
   const cardBackgroundColor = theme.dark ? "#1e1e1e" : "#f0f0f0";
@@ -30,62 +18,38 @@ const HeartRateScreen = () => {
     return <ActivityIndicator size="large" style={{ marginTop: 100 }} />;
   }
 
-  if (error || !data || data.length === 0) {
+  if (error || !hasData) {
     return <Text style={{ marginTop: 100, textAlign: "center" }}>No heart rate data available.</Text>;
   }
-
-  const latest = data[0];
-  const heartRate = latest.currentHeartRate?.heartrate ?? "N/A";
-  const minBPM = latest.heartrate?.minrate ?? "N/A";
-  const maxBPM = latest.heartrate?.maxrate ?? "N/A";
-  const restingHeartRate = latest.heartrate?.avgrate ?? "N/A";
 
   return (
     <SmartAreaView>
       <View style={[styles.container, { backgroundColor }]}>
-        <TimeRangeSelector onSelect={handleRangeSelect} />
-
+        <TimeRangeSelector onSelect={(range: string) => setPeriod(range as "Hour" | "Day" | "Week")} />
         <View style={[styles.heartContainer, { backgroundColor, borderColor: "#ff4757" }]}>
           <FontAwesome5 name="heartbeat" size={64} color="#ff4757" />
           <Text style={[styles.heartRate, { color: theme.colors.onSurface }]}>{heartRate}</Text>
           <Text style={[styles.bpmText, { color: theme.colors.onSurface }]}>BPM</Text>
         </View>
 
-        <View
-          style={[
-            styles.infoBox,
-            { backgroundColor: cardBackgroundColor, borderColor: theme.colors.outline },
-          ]}>
-          <Text style={[styles.infoLabel, { color: theme.colors.onSurface }]}>Min Heart Rate</Text>
-          <View style={styles.infoValue}>
-            <Text style={[styles.infoText, { color: theme.colors.onSurface }]}>{minBPM} BPM</Text>
-            <Ionicons name="heart" size={20} color="#ff4757" />
+        {[
+          { label: "Min Heart Rate", value: `${minBPM} BPM` },
+          { label: "Max Heart Rate", value: `${maxBPM} BPM` },
+          { label: "Resting Heart Rate", value: `${restingHeartRate} BPM` },
+        ].map(({ label, value }) => (
+          <View
+            key={label}
+            style={[
+              styles.infoBox,
+              { backgroundColor: cardBackgroundColor, borderColor: theme.colors.outline },
+            ]}>
+            <Text style={[styles.infoLabel, { color: theme.colors.onSurface }]}>{label}</Text>
+            <View style={styles.infoValue}>
+              <Text style={[styles.infoText, { color: theme.colors.onSurface }]}>{value}</Text>
+              <Ionicons name="heart" size={20} color="#ff4757" />
+            </View>
           </View>
-        </View>
-
-        <View
-          style={[
-            styles.infoBox,
-            { backgroundColor: cardBackgroundColor, borderColor: theme.colors.outline },
-          ]}>
-          <Text style={[styles.infoLabel, { color: theme.colors.onSurface }]}>Max Heart Rate</Text>
-          <View style={styles.infoValue}>
-            <Text style={[styles.infoText, { color: theme.colors.onSurface }]}>{maxBPM} BPM</Text>
-            <Ionicons name="heart" size={20} color="#ff4757" />
-          </View>
-        </View>
-
-        <View
-          style={[
-            styles.infoBox,
-            { backgroundColor: cardBackgroundColor, borderColor: theme.colors.outline },
-          ]}>
-          <Text style={[styles.infoLabel, { color: theme.colors.onSurface }]}>Resting Heart Rate</Text>
-          <View style={styles.infoValue}>
-            <Text style={[styles.infoText, { color: theme.colors.onSurface }]}>{restingHeartRate} BPM</Text>
-            <Ionicons name="heart" size={20} color="#ff4757" />
-          </View>
-        </View>
+        ))}
       </View>
     </SmartAreaView>
   );

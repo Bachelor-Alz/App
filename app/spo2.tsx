@@ -1,27 +1,14 @@
-import React, { useMemo, useState } from "react";
+import React from "react";
 import { Text, StyleSheet, View, ActivityIndicator } from "react-native";
 import { Ionicons, FontAwesome5 } from "@expo/vector-icons";
 import { useTheme, Provider as PaperProvider } from "react-native-paper";
-import { useLocalSearchParams } from "expo-router";
-import { useSPO2 } from "@/hooks/useHealth";
 import TimeRangeSelector from "@/components/TimeRangeSelector";
 import SmartAreaView from "@/components/SmartAreaView";
+import { useSPO2DisplayData } from "@/hooks/useSPO2DisplayData";
 
 const SPO2Screen = () => {
   const theme = useTheme();
-  const { email } = useLocalSearchParams<{ email?: string }>();
-  const elderEmail = email || "";
-
-  const [period, setPeriod] = useState<"Hour" | "Day" | "Week">("Hour");
-
-  const handleRangeSelect = (range: string) => {
-    if (range === "Hour") setPeriod("Hour");
-    else if (range === "Day") setPeriod("Day");
-    else if (range === "Week") setPeriod("Week");
-  };
-
-  const date = useMemo(() => new Date().toISOString(), []);
-  const { data, isLoading, error } = useSPO2(elderEmail, date, period);
+  const { setPeriod, isLoading, error, hasData, spo2, minSPO2, maxSPO2 } = useSPO2DisplayData();
 
   const backgroundColor = theme.dark ? "#000000" : "#ffffff";
   const cardBackgroundColor = theme.dark ? "#1e1e1e" : "#f0f0f0";
@@ -31,23 +18,14 @@ const SPO2Screen = () => {
     return <ActivityIndicator size="large" style={{ marginTop: 100 }} />;
   }
 
-  if (error || !data || data.length === 0) {
+  if (error || !hasData) {
     return <Text style={{ marginTop: 100, textAlign: "center" }}>No SpO2 data available.</Text>;
   }
-
-  const latest = data[0];
-
-  const spo2 =
-    latest.currentSpo2?.spO2 != null ? `${Math.round(Number(latest.currentSpo2.spO2) * 100)}%` : "N/A";
-
-  const minSPO2 = latest.spo2?.minSpO2 != null ? `${Math.round(Number(latest.spo2.minSpO2) * 100)}%` : "N/A";
-
-  const maxSPO2 = latest.spo2?.maxSpO2 != null ? `${Math.round(Number(latest.spo2.maxSpO2) * 100)}%` : "N/A";
 
   return (
     <SmartAreaView>
       <View style={[styles.container, { backgroundColor }]}>
-        <TimeRangeSelector onSelect={handleRangeSelect} />
+        <TimeRangeSelector onSelect={(range: string) => setPeriod(range as "Hour" | "Day" | "Week")} />
 
         <View style={[styles.spo2Container, { backgroundColor, borderColor: colorBlue }]}>
           <FontAwesome5 name="tint" size={64} color={colorBlue} />
@@ -55,29 +33,23 @@ const SPO2Screen = () => {
           <Text style={[styles.bpmText, { color: theme.colors.onSurface }]}>SpO2</Text>
         </View>
 
-        <View
-          style={[
-            styles.infoBox,
-            { backgroundColor: cardBackgroundColor, borderColor: theme.colors.outline },
-          ]}>
-          <Text style={[styles.infoLabel, { color: theme.colors.onSurface }]}>Min SpO2</Text>
-          <View style={styles.infoValue}>
-            <Text style={[styles.infoText, { color: theme.colors.onSurface }]}>{minSPO2}%</Text>
-            <Ionicons name="water" size={20} color={colorBlue} />
+        {[
+          { label: "Min SpO2", value: minSPO2 },
+          { label: "Max SpO2", value: maxSPO2 },
+        ].map(({ label, value }) => (
+          <View
+            key={label}
+            style={[
+              styles.infoBox,
+              { backgroundColor: cardBackgroundColor, borderColor: theme.colors.outline },
+            ]}>
+            <Text style={[styles.infoLabel, { color: theme.colors.onSurface }]}>{label}</Text>
+            <View style={styles.infoValue}>
+              <Text style={[styles.infoText, { color: theme.colors.onSurface }]}>{value}</Text>
+              <Ionicons name="water" size={20} color={colorBlue} />
+            </View>
           </View>
-        </View>
-
-        <View
-          style={[
-            styles.infoBox,
-            { backgroundColor: cardBackgroundColor, borderColor: theme.colors.outline },
-          ]}>
-          <Text style={[styles.infoLabel, { color: theme.colors.onSurface }]}>Max SpO2</Text>
-          <View style={styles.infoValue}>
-            <Text style={[styles.infoText, { color: theme.colors.onSurface }]}>{maxSPO2}%</Text>
-            <Ionicons name="water" size={20} color={colorBlue} />
-          </View>
-        </View>
+        ))}
       </View>
     </SmartAreaView>
   );

@@ -11,6 +11,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import { useTheme, Provider as PaperProvider } from "react-native-paper";
+import { MD3Theme as Theme } from "react-native-paper";
 import { useDashBoardData } from "@/hooks/useHealth";
 
 type HealthData = {
@@ -19,10 +20,10 @@ type HealthData = {
   onPress?: () => void;
   icon: keyof typeof Ionicons.glyphMap;
   color: string;
+  theme: Theme;
 };
 
-const HealthCard: React.FC<HealthData> = ({ title, value, icon, color, onPress }) => {
-  const theme = useTheme();
+const HealthCard: React.FC<HealthData> = ({ title, value, icon, color, onPress, theme }) => {
   const cardBackgroundColor = theme.dark ? "#1e1e1e" : "#ffffff";
 
   return (
@@ -39,7 +40,7 @@ const HealthCard: React.FC<HealthData> = ({ title, value, icon, color, onPress }
 };
 
 const HomeScreen = () => {
-  const theme = useTheme();
+  const theme: Theme = useTheme();
   const backgroundColor = theme.dark ? "#000000" : "#f9f9f9";
 
   const { name, email } = useLocalSearchParams<{ name?: string; email?: string }>();
@@ -54,46 +55,44 @@ const HomeScreen = () => {
           value: `${data.heartRate ?? "N/A"} BPM`,
           icon: "heart",
           color: "#ff4757",
-          onPress: () =>
-            router.push({
-              pathname: "/heartrate",
-              params: { email: elderEmail },
-            }),
+          onPress: () => router.push({ pathname: "/heartrate", params: { email: elderEmail } }),
+          theme,
         },
         {
           title: "Blood Oxygen Level",
           value: data.spO2 != null ? `${Math.round(Number(data.spO2) * 100)}%` : "N/A",
           icon: "water",
           color: "#1e90ff",
-          onPress: () =>
-            router.push({
-              pathname: "/spo2",
-              params: { email: elderEmail },
-            }),
+          onPress: () => router.push({ pathname: "/spo2", params: { email: elderEmail } }),
+          theme,
         },
         {
           title: "Steps",
           value: `${data.steps ?? "N/A"}`,
           icon: "footsteps",
           color: "#2ed573",
+          theme,
         },
         {
           title: "Recorded Falls",
           value: `${data.allFall ?? "N/A"}`,
           icon: "alert-circle",
           color: "#ffa502",
+          theme,
         },
         {
           title: "Distance Walked",
           value: `${data.distance ?? "N/A"} km`,
           icon: "walk",
           color: "#ff7f50",
+          theme,
         },
         {
           title: "Location",
           value: data.locationAddress ?? "N/A",
           icon: "location",
           color: "#ff6348",
+          theme,
         },
       ]
     : [];
