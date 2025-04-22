@@ -1,19 +1,31 @@
 import { axiosInstance } from "./axiosConfig";
 
 export type HeartRateData = {
-  id: number;
-  maxrate: number;
-  minrate: number;
-  avgrate: number;
-  timestamp: string;
+  heartrate: {
+    id: number;
+    maxrate: number;
+    minrate: number;
+    avgrate: number;
+    timestamp: string;
+  };
+  currentHeartRate: {
+    timestamp: string;
+    heartrate: number;
+  };
 };
 
 export type SPO2Data = {
-  id: number;
-  spO2: number;
-  maxSpO2: number;
-  minSpO2: number;
-  timestamp: string;
+  spo2: {
+    id: number;
+    spO2: number;
+    maxSpO2: number;
+    minSpO2: number;
+    timestamp: string;
+  };
+  currentSpo2: {
+    spO2: number;
+    timestamp: string;
+  };
 };
 
 export type DistanceData = {
@@ -26,6 +38,16 @@ export type StepsData = {
   id: number;
   stepsCount: number;
   timestamp: string;
+};
+
+export type DashboardData = {
+  id: number;
+  heartRate: number;
+  spO2: number;
+  steps: number;
+  distance: number;
+  allFall: number;
+  locationAddress: string;
 };
 
 export const fetchHeartRate = (
@@ -92,16 +114,9 @@ export const fetchSteps = (
     });
 };
 
-export const fetchDashBoardData = (
-  elderEmail: string
-): Promise<{
-  heartRate: HeartRateData[];
-  spo2: SPO2Data[];
-  distance: DistanceData[];
-  steps: StepsData[];
-}> => {
+export const fetchDashBoardData = (elderEmail: string): Promise<DashboardData> => {
   return axiosInstance
-    .get("/api/Health/Dashboard", {
+    .get<DashboardData>("/api/Health/Dashboard", {
       params: { elderEmail },
     })
     .then((response) => response.data)
