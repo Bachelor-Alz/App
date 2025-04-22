@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, TextStyle, useColorScheme, View } from "react-native";
+import { TextStyle, useColorScheme, View } from "react-native";
 import { Control, Controller, FieldPath, FieldValues, useFormState } from "react-hook-form";
 import { createTheme } from "@/constants/CreateTheme";
 import { TextInput, Text, TextInputProps } from "react-native-paper";
@@ -10,7 +10,12 @@ type FormFieldProps<T extends FieldValues> = {
   errorStyle?: TextStyle;
 } & TextInputProps;
 
-const FormField = <T extends FieldValues>({ control, name, errorStyle, ...inputProps }: FormFieldProps<T>) => {
+const FormField = <T extends FieldValues>({
+  control,
+  name,
+  errorStyle,
+  ...inputProps
+}: FormFieldProps<T>) => {
   const { errors } = useFormState({ control });
   const colorScheme = useColorScheme();
   const theme = createTheme(colorScheme === "dark");
@@ -24,19 +29,15 @@ const FormField = <T extends FieldValues>({ control, name, errorStyle, ...inputP
           <TextInput
             value={value}
             onChangeText={onChange}
-            mode="outlined" 
-            style={[
-              styles.inputBase,
-              { color: theme.colors.onSurface }, 
-              errors[name] ? { borderColor: theme.colors.error } : { borderColor: theme.colors.outline },
-              inputProps.style,
-            ]}
-            selectionColor={theme.colors.onSurface as string} 
+            mode="outlined"
+            style={inputProps.style}
+            error={!!errors[name]}
+            selectionColor={theme.colors.onSurface as string}
             placeholderTextColor={theme.colors.onSurface as string}
             {...inputProps}
-/>
+          />
           {errors[name] && (
-            <Text  style={[errorStyle]}>
+            <Text style={[errorStyle]}>
               {typeof errors[name]?.message === "string" ? errors[name]?.message : ""}
             </Text>
           )}
@@ -45,14 +46,5 @@ const FormField = <T extends FieldValues>({ control, name, errorStyle, ...inputP
     />
   );
 };
-
-
-const styles = StyleSheet.create({
-  inputBase: {
-    borderWidth: 1,
-    borderRadius: 8,
-    marginBottom: 1,
-  },
-});
 
 export default FormField;
