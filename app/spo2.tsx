@@ -38,13 +38,13 @@ const SPO2Screen = () => {
         <InfoBox
           label="Min SpO2"
           value={`${minSPO2} %`}
-          icon={<Ionicons name="heart" size={20} color={colorBlue} />}
+          icon={<Ionicons name="water" size={20} color={colorBlue} />}
         />
 
         <InfoBox
           label="Max SpO2"
           value={`${maxSPO2} %`}
-          icon={<Ionicons name="heart" size={20} color={colorBlue} />}
+          icon={<Ionicons name="water" size={20} color={colorBlue} />}
         />
       </View>
     </SmartAreaView>
