@@ -13,13 +13,13 @@ import useLocationResolver from "@/hooks/useLocationResolver";
 import { useDebounce } from "@uidotdev/usehooks";
 
 const baseFields = {
-  email: z.string().email("Indtast en gyldig e-mailadresse").trim(),
-  name: z.string().min(2, "Dit navn skal være mindst 2 bogstaver").trim(),
+  email: z.string().email("Must be a valid email address").trim(),
+  name: z.string().min(2, "Name must be at least 2 characters long").trim(),
   password: z
     .string()
     .regex(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{8,}$/, {
       message:
-        "Adgangskode skal indeholde mindst 8 tegn, et stort bogstav, et lille bogstav, et tal og et specialtegn",
+        "The password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.",
     })
     .trim(),
   confirmPassword: z.string().trim(),
@@ -38,7 +38,7 @@ const elderSchema = z.object({
     .trim()
     .refine(
       (val) => /^(?:[A-Za-zæøåÆØÅ\s]+,\s?)?[A-Za-zæøåÆØÅ\s]+\s\d{1,5}(?:\s[A-Za-zæøåÆØÅ\s]+)?$/.test(val),
-      { message: "Indtast en gyldig adresse" }
+      { message: "The address is not valid" }
     ),
   lat: z.number(),
   lon: z.number(),
@@ -49,7 +49,7 @@ const schema = z.discriminatedUnion("role", [caregiverSchema, elderSchema]).supe
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       path: ["confirmPassword"],
-      message: "Adgangskoderne stemmer ikke overens",
+      message: "The passwords do not match",
     });
   }
 });
@@ -80,7 +80,6 @@ const RegisterScreen = () => {
   const { data: suggestions } = useLocationResolver(debouncedAddress, isElder);
 
   const handleRegister = () => {
-    console.log("HELLO");
     const form = getValues();
     register(form).then(() => {
       router.navigate("/");

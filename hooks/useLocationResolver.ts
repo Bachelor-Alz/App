@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { axiosInstance } from "@/apis/axiosConfig";
 
-type LocatonRepose = {
+type LocationResponse = {
   address: {
     city: string | undefined;
     road: string | undefined;
@@ -14,7 +14,7 @@ type LocatonRepose = {
 
 const fetchLocation = async (address: string) => {
   const res = await axiosInstance
-    .get<LocatonRepose[]>(
+    .get<LocationResponse[]>(
       `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&q=${address}`
     )
     .then((response) => response.data)
