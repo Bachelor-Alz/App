@@ -27,6 +27,13 @@ const caregiverOptions: CaregiverOption[] = [
     color: "#2ed573",
     onPress: () => router.push("/viewelder"),
   },
+  {
+    title: "Elder Map",
+    subtitle: "View your associated elders on a map",
+    icon: "map",
+    color: "#ff4757",
+    onPress: () => router.push("/map"),
+  },
 ];
 
 const CaregiverCard: React.FC<CaregiverOption> = ({ title, subtitle, icon, color, onPress }) => {
