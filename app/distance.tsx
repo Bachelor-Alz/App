@@ -1,86 +1,126 @@
-import React, { useMemo, useState } from "react";
-import { Text, StyleSheet, View, ActivityIndicator } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { useTheme, Provider as PaperProvider } from "react-native-paper";
-import { useLocalSearchParams } from "expo-router";
-import { useDistance } from "@/hooks/useHealth";
-import TimeRangeSelector from "@/components/TimeRangeSelector";
+import { View, StyleSheet } from "react-native";
+import { useFont } from "@shopify/react-native-skia";
+import { Icon, SegmentedButtons, Text, useTheme } from "react-native-paper";
 import SmartAreaView from "@/components/SmartAreaView";
-import MetricCircle from "@/components/MetricCircle";
+import ChartComponent from "@/components/charts/Chart";
+import { StatCard } from "@/components/charts/StatsCard";
+import { useLocalSearchParams } from "expo-router";
+import useGetVisualizationData from "@/hooks/useGetVisualizationData";
+import { fetchDistance } from "@/apis/healthAPI";
 
-const DistanceScreen = () => {
+type TimeRange = "Hour" | "Day" | "Week";
+
+function DistanceScreen() {
   const theme = useTheme();
+  const font = useFont(require("../assets/fonts/Quicksand-Medium.ttf"), 15);
+  const boldFont = useFont(require("../assets/fonts/Quicksand-Bold.ttf"), 15);
   const { email } = useLocalSearchParams<{ email?: string }>();
   const elderEmail = email || "";
 
-  const [period, setPeriod] = useState<"Hour" | "Day" | "Week">("Hour");
+  const { isError, isLoading, data, setTimeRange, timeRange } = useGetVisualizationData(
+    elderEmail,
+    fetchDistance,
+    "distance"
+  );
 
-  const handleRangeSelect = (range: string) => {
-    if (range === "Hour") setPeriod("Hour");
-    else if (range === "Day") setPeriod("Day");
-    else if (range === "Week") setPeriod("Week");
-  };
-
-  const date = useMemo(() => new Date().toISOString(), []);
-  const { data, isLoading, error } = useDistance(elderEmail, date, period);
-
-  const backgroundColor = theme.dark ? "#000000" : "#ffffff";
-  const colorOrange = "#ff7f50";
+  if (!font || !boldFont) return null;
 
   if (isLoading) {
-    return <ActivityIndicator size="large" style={{ marginTop: 100 }} />;
+    return <Text style={styles.centeredText}>Loading...</Text>;
   }
 
-  if (error || !data || data.length === 0) {
-    return <Text style={{ marginTop: 100, textAlign: "center" }}>No Distance data available.</Text>;
+  if (isError || !data || data.length === 0) {
+    return <Text style={styles.centeredText}>No Distance data available</Text>;
   }
 
-  const latest = data[0];
+  const distanceValues = data.map((d) => Number(d.distance || 0));
+  const avg = distanceValues.reduce((sum, val) => sum + val, 0) / distanceValues.length;
+  const max = Math.max(...distanceValues);
 
-  const distance = latest.distance != null ? `${Math.round(Number(latest.distance))} km` : "N/A";
+  const stats = [
+    {
+      label: "Avg",
+      value: avg,
+      icon: "trophy" as const,
+      color: theme.colors.primary,
+    },
+    {
+      label: "Max",
+      value: max,
+      icon: "arrow-up" as const,
+      color: theme.colors.tertiary,
+    },
+  ];
 
   return (
     <SmartAreaView>
-      <View style={[styles.container, { backgroundColor }]}>
-        <TimeRangeSelector onSelect={handleRangeSelect} />
+      <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+        <View style={styles.header}>
+          <Text variant="headlineLarge" style={styles.title}>
+            Distance
+          </Text>
+          <Icon size={50} source="walk" color={"#ff7f50"} />
+        </View>
 
-        <MetricCircle
-          icon={<Ionicons name="walk" size={64} color={colorOrange} />}
-          value={distance}
-          label="Distance"
-          color={colorOrange}
+        <View style={styles.chartContainer}>
+          <ChartComponent
+            data={data.map((item) => ({
+              day: new Date(item.timestamp).getTime(),
+              min: 0,
+              avg: Number(item.distance),
+              max: Number(item.distance),
+            }))}
+            theme={theme}
+            font={font}
+            boldFont={boldFont}
+            timeRange={timeRange}
+          />
+        </View>
+
+        <SegmentedButtons
+          style={styles.segmentedButtons}
+          value={timeRange}
+          onValueChange={(value) => setTimeRange(value as TimeRange)}
+          buttons={[
+            { value: "Hour", label: "Hour" },
+            { value: "Day", label: "Day" },
+            { value: "Week", label: "Week" },
+          ]}
         />
+
+        <StatCard title="Statistics" stats={stats} icon="chart-line" color="#ff7f50" />
       </View>
     </SmartAreaView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    padding: 10,
+  },
+  header: {
+    flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
+    marginBottom: 10,
   },
-  distanceContainer: {
-    width: 200,
-    height: 200,
-    borderRadius: 100,
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 2,
+  title: {
+    paddingRight: 10,
   },
-  distance: {
-    fontSize: 32,
-    fontWeight: "bold",
+  chartContainer: {
+    flex: 1,
+    marginBottom: 20,
   },
-  text: {
-    fontSize: 16,
-    marginTop: 5,
+  segmentedButtons: {
+    alignSelf: "center",
+    marginBottom: 20,
+    maxWidth: "90%",
+  },
+  centeredText: {
+    textAlign: "center",
+    marginTop: 20,
   },
 });
 
-export default () => (
-  <PaperProvider>
-    <DistanceScreen />
-  </PaperProvider>
-);
+export default DistanceScreen;
