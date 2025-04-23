@@ -64,6 +64,7 @@ const RegisterScreen = () => {
     control,
     getValues,
     setValue,
+    trigger,
     formState: { isSubmitting, isValid, errors },
   } = useForm<RegisterForm>({
     resolver: zodResolver(schema),
@@ -133,6 +134,7 @@ const RegisterScreen = () => {
                   setValue("address", item.fullAddress);
                   setValue("lat", Number(item.lat));
                   setValue("lon", Number(item.lon));
+                  trigger("address");
                 }}>
                 {item.fullAddress}
               </Text>

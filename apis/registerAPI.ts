@@ -4,6 +4,7 @@ type CreateUserRequestProps = {
   name: string;
   email: string;
   password: string;
+  confirmPassword: string;
   latitude?: number;
   longitude?: number;
   address?: string;
@@ -18,7 +19,7 @@ type CreateUserResponseProps = {
 };
 
 export const createUserRequest = (userData: CreateUserRequestProps): Promise<CreateUserResponseProps> => {
-  const { address, ...rest } = userData;
+  const { address, confirmPassword, ...rest } = userData;
   return axiosInstance
     .post(`/api/User/register`, rest)
     .then((res) => res.data)
