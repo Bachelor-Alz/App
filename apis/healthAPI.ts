@@ -17,7 +17,7 @@ export type HeartRateData = {
 export type SPO2Data = {
   spo2: {
     id: number;
-    spO2: number;
+    avgSpO2: number;
     maxSpO2: number;
     minSpO2: number;
     timestamp: string;

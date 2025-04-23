@@ -1,71 +1,139 @@
-import React from "react";
-import { Text, StyleSheet, View, ActivityIndicator } from "react-native";
-import { Ionicons, FontAwesome5 } from "@expo/vector-icons";
-import { useTheme, Provider as PaperProvider } from "react-native-paper";
-import TimeRangeSelector from "@/components/TimeRangeSelector";
+import { View, StyleSheet } from "react-native";
+import { useFont } from "@shopify/react-native-skia";
+import { Icon, SegmentedButtons, Text, useTheme } from "react-native-paper";
+import { StatCard } from "@/components/charts/StatsCard";
 import SmartAreaView from "@/components/SmartAreaView";
-import { useHeartRateDisplayData } from "@/hooks/useHeartRateDisplayData";
-import MetricCircle from "@/components/MetricCircle";
-import InfoBox from "@/components/InfoBox";
+import ChartComponent from "@/components/charts/Chart";
+import useGetVisualizationData from "@/hooks/useGetVisualizationData";
+import { useLocalSearchParams } from "expo-router";
+import { fetchHeartRate } from "@/apis/healthAPI";
 
-const HeartRateScreen = () => {
+type TimeRange = "Hour" | "Day" | "Week";
+
+function HeartRateScreen() {
   const theme = useTheme();
-  const { setPeriod, isLoading, error, hasData, heartRate, minBPM, maxBPM, restingHeartRate } =
-    useHeartRateDisplayData();
+  const font = useFont(require("../assets/fonts/Quicksand-Medium.ttf"), 15);
+  const boldFont = useFont(require("../assets/fonts/Quicksand-Bold.ttf"), 15);
+  const { email } = useLocalSearchParams<{ email?: string }>();
+  const elderEmail = email || "";
 
-  const backgroundColor = theme.dark ? "#000000" : "#ffffff";
+  const { isError, isLoading, data, setTimeRange, timeRange } = useGetVisualizationData(
+    elderEmail,
+    fetchHeartRate,
+    "heartRate"
+  );
+
+  if (!font || !boldFont) return null;
+
+  if (isError) {
+    return <Text style={styles.centeredText}>Error loading data</Text>;
+  }
 
   if (isLoading) {
-    return <ActivityIndicator size="large" style={{ marginTop: 100 }} />;
+    return <Text style={styles.centeredText}>Loading...</Text>;
   }
 
-  if (error || !hasData) {
-    return <Text style={{ marginTop: 100, textAlign: "center" }}>No heart rate data available.</Text>;
+  if (!data || data.length === 0) {
+    return <Text style={styles.centeredText}>No heart rate data available</Text>;
   }
+
+  const min = Math.min(...data.map((d) => d.heartrate.minrate));
+  const avg = data.reduce((sum, item) => sum + item.heartrate.avgrate, 0) / data.length;
+  const max = Math.max(...data.map((d) => d.heartrate.maxrate));
+
+  const stats = [
+    {
+      label: "Min",
+      value: Math.round(min),
+      icon: "arrow-down" as const,
+      color: theme.colors.primary,
+    },
+    {
+      label: "Avg",
+      value: Math.round(avg),
+      icon: "trophy" as const,
+      color: theme.colors.secondary,
+    },
+    {
+      label: "Max",
+      value: Math.round(max),
+      icon: "arrow-up" as const,
+      color: theme.colors.tertiary,
+    },
+  ];
 
   return (
     <SmartAreaView>
-      <View style={[styles.container, { backgroundColor }]}>
-        <TimeRangeSelector onSelect={(range: string) => setPeriod(range as "Hour" | "Day" | "Week")} />
+      <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+        <View style={styles.header}>
+          <Text variant="headlineLarge" style={styles.title}>
+            Heart Rate
+          </Text>
+          <Icon size={50} source="heart" color={theme.colors.error} />
+        </View>
+        <View style={styles.chartContainer}>
+          <ChartComponent
+            data={data.map((item) => ({
+              day: new Date(item.heartrate.timestamp).getTime(),
+              min: item.heartrate.minrate,
+              avg: item.heartrate.avgrate,
+              max: item.heartrate.maxrate,
+            }))}
+            theme={theme}
+            font={font}
+            boldFont={boldFont}
+            timeRange={timeRange}
+          />
+        </View>
 
-        <MetricCircle
-          icon={<FontAwesome5 name="heartbeat" size={64} color="#ff4757" />}
-          value={heartRate}
-          label="BPM"
-          color="#ff4757"
+        <SegmentedButtons
+          style={styles.segmentedButtons}
+          value={timeRange}
+          onValueChange={(value) => setTimeRange(value as TimeRange)}
+          buttons={[
+            { value: "Hour", label: "Hour" },
+            { value: "Day", label: "Day" },
+            { value: "Week", label: "Week" },
+          ]}
         />
 
-        <InfoBox
-          label="Min Heart Rate"
-          value={`${minBPM} BPM`}
-          icon={<Ionicons name="heart" size={20} color="#ff4757" />}
-        />
-        <InfoBox
-          label="Max Heart Rate"
-          value={`${maxBPM} BPM`}
-          icon={<Ionicons name="heart" size={20} color="#ff4757" />}
-        />
-        <InfoBox
-          label="Resting Heart Rate"
-          value={`${restingHeartRate} BPM`}
-          icon={<Ionicons name="heart" size={20} color="#ff4757" />}
-        />
+        <StatCard title="Statistics" stats={stats} icon="chart-line" color="blue" />
       </View>
     </SmartAreaView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    padding: 10,
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "center",
     alignItems: "center",
-    padding: 20,
-    paddingTop: 40,
+    marginBottom: 10,
+  },
+  title: {
+    paddingRight: 10,
+  },
+  chartContainer: {
+    flex: 1,
+    marginBottom: 20,
+  },
+  segmentedButtons: {
+    alignSelf: "center",
+    marginBottom: 20,
+    maxWidth: "90%",
+  },
+  centeredText: {
+    textAlign: "center",
+    marginTop: 20,
+  },
+  timestampContainer: {
+    alignItems: "center",
+    marginBottom: 15,
   },
 });
 
-export default () => (
-  <PaperProvider>
-    <HeartRateScreen />
-  </PaperProvider>
-);
+export default HeartRateScreen;
