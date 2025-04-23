@@ -77,17 +77,15 @@ const useMap = () => {
   const { data, isLoading, isError } = query;
 
   const handleNextElder = () => {
-    if (elderFocus === null) {
-      if (data && data.length > 0) {
-        const firstElder = data[0];
-        setElderFocus(firstElder.elderEmail);
-        animateToElder(firstElder);
-        markerRefs.current[firstElder.elderEmail]?.current?.showCallout();
-      }
+    if (!data) return;
+    if (elderFocus === null && data.length > 0) {
+      const firstElder = data[0];
+      markerRefs.current[firstElder.elderEmail]?.current?.showCallout();
+      setElderFocus(firstElder.elderEmail);
+      animateToElder(firstElder);
       return;
     }
 
-    if (!data) return;
     const currentIndex = data.findIndex((elder) => elder.elderEmail === elderFocus);
     const nextElder = data[(currentIndex + 1) % data.length];
     markerRefs.current[nextElder.elderEmail]?.current?.showCallout();
@@ -100,8 +98,8 @@ const useMap = () => {
       mapRef.current.animateToRegion({
         latitude: elder.elderLatitude,
         longitude: elder.elderLongitude,
-        latitudeDelta: zoomDelta.latitudeDelta,
-        longitudeDelta: zoomDelta.longitudeDelta,
+        latitudeDelta: zoomDelta.latitudeDelta / 30,
+        longitudeDelta: zoomDelta.longitudeDelta / 30,
       });
     }
   };
@@ -148,8 +146,8 @@ const useMap = () => {
       mapRef.current.animateToRegion({
         latitude: elder.perimeter.latitude,
         longitude: elder.perimeter.longitude,
-        latitudeDelta: elder.perimeter.radius / 100,
-        longitudeDelta: elder.perimeter.radius / 100,
+        latitudeDelta: elder.perimeter.radius / 30,
+        longitudeDelta: elder.perimeter.radius / 30,
       });
 
       setHomePerimeter(() => ({
