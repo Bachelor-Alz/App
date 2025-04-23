@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import MapView, { CalloutSubview, Marker } from "react-native-maps";
+import MapView, { MapMarker, Marker } from "react-native-maps";
 import { axiosInstance } from "@/apis/axiosConfig";
 import { useRef, useState } from "react";
 
@@ -8,6 +8,14 @@ type elderLocations = {
   elderName: string;
   elderLatitude: number;
   elderLongitude: number;
+  sent: Date;
+  perimeter: Perimeter;
+};
+
+type Perimeter = {
+  latitude: number;
+  longitude: number;
+  radius: number;
 };
 //TODO USE WHEN WE GET DATA
 const fetchElderLocations = async () => {
@@ -21,23 +29,44 @@ const fetchElderLocationsFake = async () => {
       elderName: "John Doe",
       elderLatitude: 37.78825,
       elderLongitude: -122.4324,
+      sent: new Date(),
+      perimeter: {
+        latitude: 37.78825,
+        longitude: -122.43,
+        radius: 5,
+      },
     },
     {
       elderEmail: "newexample@example.com",
       elderName: "Jane Smith",
       elderLatitude: 38,
       elderLongitude: -122,
+      sent: new Date(),
+      perimeter: {
+        latitude: 38,
+        longitude: -122.5,
+        radius: 5,
+      },
     },
   ];
 };
 
+const updatePerimeter = (value: number, email: string | null) => {
+  console.log(value, email);
+  if (!email || !value) return;
+};
+
 const useMap = () => {
   const [zoomDelta, setZoomDelta] = useState({
-    latitudeDelta: 0.0922,
-    longitudeDelta: 0.0421,
+    latitudeDelta: 1,
+    longitudeDelta: 1,
   });
+  const [sliderValue, setSliderValue] = useState(0);
   const [elderFocus, setElderFocus] = useState<string | null>(null);
+  const [homePerimeter, setHomePerimeter] = useState<Perimeter | null>(null);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
   const mapRef = useRef<MapView>(null);
+  const markerRefs = useRef<{ [key: string]: React.RefObject<MapMarker> }>({});
 
   const query = useQuery({
     queryKey: ["elderLocations"],
@@ -53,6 +82,7 @@ const useMap = () => {
         const firstElder = data[0];
         setElderFocus(firstElder.elderEmail);
         animateToElder(firstElder);
+        markerRefs.current[firstElder.elderEmail]?.current?.showCallout();
       }
       return;
     }
@@ -60,6 +90,7 @@ const useMap = () => {
     if (!data) return;
     const currentIndex = data.findIndex((elder) => elder.elderEmail === elderFocus);
     const nextElder = data[(currentIndex + 1) % data.length];
+    markerRefs.current[nextElder.elderEmail]?.current?.showCallout();
     setElderFocus(nextElder.elderEmail);
     animateToElder(nextElder);
   };
@@ -76,7 +107,7 @@ const useMap = () => {
   };
 
   const handleZoom = (zoomIn: boolean) => {
-    const zoomFactor = zoomIn ? 0.5 : 2.0; // zoomIn shrinks delta, zoomOut expands
+    const zoomFactor = zoomIn ? 0.5 : 1.5; // zoomIn shrinks delta, zoomOut expands
     const newLatDelta = Math.max(0.001, zoomDelta.latitudeDelta * zoomFactor);
     const newLngDelta = Math.max(0.001, zoomDelta.longitudeDelta * zoomFactor);
 
@@ -110,14 +141,74 @@ const useMap = () => {
     }
   };
 
+  const showHomePerimeter = (elderEmail: string) => {
+    const elder = data?.find((location) => location.elderEmail === elderEmail);
+    setSliderValue(elder?.perimeter.radius || 0);
+    if (elder && mapRef.current) {
+      mapRef.current.animateToRegion({
+        latitude: elder.perimeter.latitude,
+        longitude: elder.perimeter.longitude,
+        latitudeDelta: elder.perimeter.radius / 100,
+        longitudeDelta: elder.perimeter.radius / 100,
+      });
+
+      setHomePerimeter(() => ({
+        latitude: elder.perimeter.latitude,
+        longitude: elder.perimeter.longitude,
+        radius: elder.perimeter.radius,
+      }));
+    }
+  };
+
+  const resetHomePerimeter = () => {
+    setHomePerimeter(null);
+  };
+
+  const handleSlide = (value: number) => {
+    if (!homePerimeter) return;
+    setSliderValue(value);
+
+    if (mapRef.current) {
+      mapRef.current.animateToRegion(
+        {
+          latitude: homePerimeter.latitude,
+          longitude: homePerimeter.longitude,
+          latitudeDelta: value / 25,
+          longitudeDelta: value / 25,
+        },
+        0
+      );
+    }
+    if (homePerimeter) {
+      setHomePerimeter((prev) => ({
+        ...prev!,
+        radius: value,
+      }));
+    }
+
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+    debounceRef.current = setTimeout(() => {
+      updatePerimeter(value, elderFocus);
+    }, 5000);
+  };
+
   return {
     mapRef,
+    markerRefs,
     data,
     isLoading,
     isError,
+    homePerimeter,
+    sliderValue,
+    setElderFocus,
     handleNextElder,
     handleZoom,
     fitToMarkers,
+    showHomePerimeter,
+    resetHomePerimeter,
+    handleSlide,
   };
 };
 
