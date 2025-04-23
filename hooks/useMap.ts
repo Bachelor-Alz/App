@@ -57,16 +57,16 @@ const updatePerimeter = (value: number, email: string | null) => {
 };
 
 const useMap = () => {
-  const [zoomDelta, setZoomDelta] = useState({
-    latitudeDelta: 1,
-    longitudeDelta: 1,
-  });
   const [sliderValue, setSliderValue] = useState(0);
-  const [elderFocus, setElderFocus] = useState<string | null>(null);
   const [homePerimeter, setHomePerimeter] = useState<Perimeter | null>(null);
+  const elderFocus = useRef<string | null>(null);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
   const mapRef = useRef<MapView>(null);
   const markerRefs = useRef<{ [key: string]: React.RefObject<MapMarker> }>({});
+  const zoomDeltaRef = useRef({
+    latitudeDelta: 1,
+    longitudeDelta: 1,
+  });
 
   const query = useQuery({
     queryKey: ["elderLocations"],
@@ -74,22 +74,22 @@ const useMap = () => {
     staleTime: 1000 * 60 * 5,
   });
 
-  const { data, isLoading, isError } = query;
+  const { data: elderLocations } = query;
 
   const handleNextElder = () => {
-    if (!data) return;
-    if (elderFocus === null && data.length > 0) {
-      const firstElder = data[0];
+    if (!elderLocations) return;
+    if (elderFocus.current === null && elderLocations.length > 0) {
+      const firstElder = elderLocations[0];
       markerRefs.current[firstElder.elderEmail]?.current?.showCallout();
-      setElderFocus(firstElder.elderEmail);
+      elderFocus.current = firstElder.elderEmail;
       animateToElder(firstElder);
       return;
     }
 
-    const currentIndex = data.findIndex((elder) => elder.elderEmail === elderFocus);
-    const nextElder = data[(currentIndex + 1) % data.length];
+    const currentIndex = elderLocations.findIndex((elder) => elder.elderEmail === elderFocus.current);
+    const nextElder = elderLocations[(currentIndex + 1) % elderLocations.length];
     markerRefs.current[nextElder.elderEmail]?.current?.showCallout();
-    setElderFocus(nextElder.elderEmail);
+    elderFocus.current = nextElder.elderEmail;
     animateToElder(nextElder);
   };
 
@@ -98,21 +98,19 @@ const useMap = () => {
       mapRef.current.animateToRegion({
         latitude: elder.elderLatitude,
         longitude: elder.elderLongitude,
-        latitudeDelta: zoomDelta.latitudeDelta / 30,
-        longitudeDelta: zoomDelta.longitudeDelta / 30,
+        latitudeDelta: zoomDeltaRef.current.latitudeDelta / 30,
+        longitudeDelta: zoomDeltaRef.current.longitudeDelta / 30,
       });
     }
   };
 
   const handleZoom = (zoomIn: boolean) => {
     const zoomFactor = zoomIn ? 0.5 : 1.5; // zoomIn shrinks delta, zoomOut expands
-    const newLatDelta = Math.max(0.001, zoomDelta.latitudeDelta * zoomFactor);
-    const newLngDelta = Math.max(0.001, zoomDelta.longitudeDelta * zoomFactor);
+    const newLatDelta = Math.max(0.001, zoomDeltaRef.current.latitudeDelta * zoomFactor);
+    const newLngDelta = Math.max(0.001, zoomDeltaRef.current.longitudeDelta * zoomFactor);
 
-    setZoomDelta({
-      latitudeDelta: newLatDelta,
-      longitudeDelta: newLngDelta,
-    });
+    zoomDeltaRef.current.latitudeDelta = newLatDelta;
+    zoomDeltaRef.current.longitudeDelta = newLngDelta;
 
     mapRef.current?.getCamera().then((camera) => {
       mapRef.current?.animateToRegion({
@@ -125,8 +123,8 @@ const useMap = () => {
   };
 
   const fitToMarkers = () => {
-    if (!data) return;
-    const coordinates = data.map((location) => ({
+    if (!elderLocations) return;
+    const coordinates = elderLocations.map((location) => ({
       latitude: location.elderLatitude,
       longitude: location.elderLongitude,
     }));
@@ -140,7 +138,7 @@ const useMap = () => {
   };
 
   const showHomePerimeter = (elderEmail: string) => {
-    const elder = data?.find((location) => location.elderEmail === elderEmail);
+    const elder = elderLocations?.find((location) => location.elderEmail === elderEmail);
     setSliderValue(elder?.perimeter.radius || 0);
     if (elder && mapRef.current) {
       mapRef.current.animateToRegion({
@@ -177,30 +175,28 @@ const useMap = () => {
         0
       );
     }
-    if (homePerimeter) {
-      setHomePerimeter((prev) => ({
-        ...prev!,
-        radius: value,
-      }));
-    }
+
+    setHomePerimeter((prev) => ({
+      ...prev!,
+      radius: value,
+    }));
 
     if (debounceRef.current) {
       clearTimeout(debounceRef.current);
     }
+
     debounceRef.current = setTimeout(() => {
-      updatePerimeter(value, elderFocus);
+      updatePerimeter(value, elderFocus.current);
     }, 5000);
   };
 
   return {
     mapRef,
     markerRefs,
-    data,
-    isLoading,
-    isError,
+    ...query,
     homePerimeter,
     sliderValue,
-    setElderFocus,
+    elderFocus,
     handleNextElder,
     handleZoom,
     fitToMarkers,

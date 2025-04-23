@@ -14,12 +14,12 @@ const map = () => {
   const {
     mapRef,
     markerRefs,
-    data,
+    data: elderLocations,
     isLoading,
     isError,
     homePerimeter,
     sliderValue,
-    setElderFocus,
+    elderFocus,
     handleNextElder,
     handleZoom,
     fitToMarkers,
@@ -34,30 +34,30 @@ const map = () => {
   if (isError) {
     return <View style={styles.container}></View>;
   }
-  if (!data) {
+  if (!elderLocations) {
     return <View style={styles.container}></View>;
   }
 
   return (
     <View style={styles.container}>
       <MapView ref={mapRef} style={styles.map} onMapReady={fitToMarkers}>
-        {data.map((location) => (
+        {elderLocations.map((l) => (
           <Marker
             ref={(ref) => {
-              if (ref && !markerRefs.current[location.elderEmail]) {
-                markerRefs.current[location.elderEmail] = { current: ref };
+              if (ref && !markerRefs.current[l.elderEmail]) {
+                markerRefs.current[l.elderEmail] = { current: ref };
               }
             }}
-            id={location.elderEmail}
-            key={location.elderEmail}
-            onPress={() => setElderFocus(location.elderEmail)}
-            onCalloutPress={() => showHomePerimeter(location.elderEmail)}
+            id={l.elderEmail}
+            key={l.elderEmail}
+            onPress={() => (elderFocus.current = l.elderEmail)}
+            onCalloutPress={() => showHomePerimeter(l.elderEmail)}
             coordinate={{
-              latitude: location.elderLatitude,
-              longitude: location.elderLongitude,
+              latitude: l.elderLatitude,
+              longitude: l.elderLongitude,
             }}
-            title={location.elderName + " " + formatDate(location.sent)}
-            description={location.elderEmail}
+            title={l.elderName + " " + formatDate(l.sent)}
+            description={l.elderEmail}
           />
         ))}
         {homePerimeter && (
