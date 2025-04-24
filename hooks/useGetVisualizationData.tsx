@@ -7,7 +7,7 @@ function useGetVisualizationData<T>(
   elderEmail: string,
   fetchFn: (elderEmail: string, date: string, period: TimeRange) => Promise<T>,
   metricKey: string,
-  prefetch: boolean = false,
+  prefetch: boolean = true,
   initialDate?: Date
 ) {
   const [date, setDate] = useState(initialDate ?? new Date());
