@@ -25,7 +25,7 @@ const Toast = ({ title, message, onClose, type, theme }: ToastProps) => {
         <Text style={styles.toastMessage}>{message}</Text>
       </View>
       <Button onPress={onClose}>
-        <Icon size={20} source="close" />
+        <Icon size={25} source="close" />
       </Button>
     </Animated.View>
   );
@@ -37,12 +37,16 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     width: "90%",
     alignItems: "center",
-    padding: 16,
+    padding: 15,
+    paddingRight: 0,
     margin: 10,
     backgroundColor: "#fff",
     borderRadius: 8,
     elevation: 4,
     borderLeftWidth: 5,
+    shadowColor: "#000",
+    shadowRadius: 10,
+    shadowOpacity: 0.1,
   },
   toastTitle: {
     fontSize: 18,
