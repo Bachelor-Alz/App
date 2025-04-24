@@ -7,9 +7,10 @@ function useGetVisualizationData<T>(
   elderEmail: string,
   fetchFn: (elderEmail: string, date: string, period: TimeRange) => Promise<T>,
   metricKey: string,
-  prefetch: boolean = false
+  prefetch: boolean = false,
+  initialDate?: Date
 ) {
-  const [date, setDate] = useState(new Date());
+  const [date, setDate] = useState(initialDate ?? new Date());
   const [timeRange, setTimeRange] = useState<TimeRange>("Day");
   const queryClient = useQueryClient();
 
@@ -33,14 +34,20 @@ function useGetVisualizationData<T>(
 
   useEffect(() => {
     if (!prefetch || !elderEmail) return;
-    ["Hour", "Day", "Week"].forEach((range) => {
-      if (range !== timeRange) {
-        queryClient.prefetchQuery({
-          queryKey: [metricKey, elderEmail, range, date.toISOString()],
-          queryFn: () => fetchFn(elderEmail, date.toISOString(), range as TimeRange),
-        });
-      }
-    });
+
+    (async () => {
+      const ranges: TimeRange[] = ["Hour", "Day", "Week"];
+      await Promise.all(
+        ranges
+          .filter((range) => range !== timeRange)
+          .map((range) =>
+            queryClient.prefetchQuery({
+              queryKey: [metricKey, elderEmail, range, date.toISOString()],
+              queryFn: () => fetchFn(elderEmail, date.toISOString(), range),
+            })
+          )
+      );
+    })();
   }, [elderEmail, timeRange, date, prefetch, queryClient]);
 
   return {

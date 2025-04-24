@@ -13,7 +13,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useTheme, Provider as PaperProvider } from "react-native-paper";
 import { MD3Theme as Theme } from "react-native-paper";
 import useGetVisualizationData from "@/hooks/useGetVisualizationData";
-import { fetchDashBoardData, fetchSPO2 } from "@/apis/healthAPI";
+import { fetchDashBoardData } from "@/apis/healthAPI";
 
 type HealthData = {
   title: string;

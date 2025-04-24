@@ -56,94 +56,103 @@ export type FallData = {
   fallCount: number;
 };
 
-export const fetchHeartRate = (
+export const fetchHeartRate = async (
   elderEmail: string,
   date: string,
   period: "Hour" | "Day" | "Week"
 ): Promise<HeartRateData[]> => {
-  return axiosInstance
-    .get<HeartRateData[]>("/api/Health/Heartrate", {
+  try {
+    let response = await axiosInstance.get<HeartRateData[]>("/api/Health/Heartrate", {
       params: { elderEmail, date, period },
-    })
-    .then((response) => response.data)
-    .catch((error) => {
-      console.error("Error fetching heart rate:", error);
-      throw error;
     });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching heart rate:", error);
+    throw error;
+  }
 };
 
-export const fetchSPO2 = (
+export const fetchSPO2 = async (
   elderEmail: string,
   date: string,
   period: "Hour" | "Day" | "Week"
 ): Promise<SPO2Data[]> => {
-  return axiosInstance
-    .get<SPO2Data[]>("/api/Health/SPO2", {
+  try {
+    let response = await axiosInstance.get<SPO2Data[]>("/api/Health/SPO2", {
       params: { elderEmail, date, period },
-    })
-    .then((response) => response.data)
-    .catch((error) => {
-      console.error("Error fetching SPO2:", error);
-      throw error;
     });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching SPO2:", error);
+    throw error;
+  }
 };
 
-export const fetchDistance = (
+export const fetchDistance = async (
   elderEmail: string,
   date: string,
   period: "Hour" | "Day" | "Week"
 ): Promise<DistanceData[]> => {
-  return axiosInstance
-    .get<DistanceData[]>("/api/Health/Distance", {
+  try {
+    let response = await axiosInstance.get<DistanceData[]>("/api/Health/Distance", {
       params: { elderEmail, date, period },
-    })
-    .then((response) => response.data)
-    .catch((error) => {
-      console.error("Error fetching distance:", error);
-      throw error;
     });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching distance:", error);
+    throw error;
+  }
 };
 
-export const fetchSteps = (
+export const fetchSteps = async (
   elderEmail: string,
   date: string,
   period: "Hour" | "Day" | "Week"
 ): Promise<StepsData[]> => {
-  return axiosInstance
-    .get<StepsData[]>("/api/Health/Steps", {
+  try {
+    let response = await axiosInstance.get<StepsData[]>("/api/Health/Steps", {
       params: { elderEmail, date, period },
-    })
-    .then((response) => response.data)
-    .catch((error) => {
-      console.error("Error fetching steps:", error);
-      throw error;
     });
+    const data = response.data;
+    return data.filter((step) => {
+      const dateObj = new Date(step.timestamp);
+      const currentDate = new Date(date);
+      return (
+        dateObj.getDate() === currentDate.getDate() &&
+        dateObj.getMonth() === currentDate.getMonth() &&
+        dateObj.getFullYear() === currentDate.getFullYear()
+      );
+    });
+  } catch (error) {
+    console.error("Error fetching steps:", error);
+    throw error;
+  }
 };
 
-export const fetchDashBoardData = (elderEmail: string): Promise<DashboardData> => {
-  return axiosInstance
-    .get<DashboardData>("/api/Health/Dashboard", {
+export const fetchDashBoardData = async (elderEmail: string): Promise<DashboardData> => {
+  try {
+    let response = await axiosInstance.get<DashboardData>("/api/Health/Dashboard", {
       params: { elderEmail },
-    })
-    .then((response) => response.data)
-    .catch((error) => {
-      console.error("Error fetching dashboard data:", error);
-      throw error;
     });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching dashboard data:", error);
+    throw error;
+  }
 };
 
-export const fetchFallsData = (
+export const fetchFallsData = async (
   elderEmail: string,
   date: string,
   period: "Hour" | "Day" | "Week"
 ): Promise<FallData[]> => {
-  return axiosInstance
-    .get("/api/Health/Falls", {
+  try {
+    let response = await axiosInstance.get("/api/Health/Falls", {
       params: { elderEmail, date, period },
-    })
-    .then((response) => response.data)
-    .catch((error) => {
-      console.error("Error fetching falls data:", error);
-      throw error;
     });
+    return await response.data;
+  } catch (error) {
+    console.error("Error fetching falls data:", error);
+    throw error;
+  }
 };

@@ -2,11 +2,12 @@ import { View, StyleSheet } from "react-native";
 import { useFont } from "@shopify/react-native-skia";
 import { Icon, SegmentedButtons, Text, useTheme } from "react-native-paper";
 import SmartAreaView from "@/components/SmartAreaView";
-import ChartComponent from "@/components/charts/Chart";
 import { StatCard } from "@/components/charts/StatsCard";
 import { useLocalSearchParams } from "expo-router";
 import useGetVisualizationData from "@/hooks/useGetVisualizationData";
 import { fetchSteps } from "@/apis/healthAPI";
+import VictoryChart from "@/components/charts/VictoryChart";
+import ChartComponent from "@/components/charts/Chart";
 
 type TimeRange = "Hour" | "Day" | "Week";
 
@@ -62,20 +63,35 @@ function StepsScreen() {
           <Icon size={50} source="walk" color={"#2ed573"} />
         </View>
 
-        <View style={styles.chartContainer}>
-          <ChartComponent
-            data={data.map((item) => ({
-              day: new Date(item.timestamp).getTime(),
-              min: 0,
-              avg: Number(item.stepsCount),
-              max: Number(item.stepsCount),
-            }))}
-            theme={theme}
-            font={font}
-            boldFont={boldFont}
-            timeRange={timeRange}
-          />
-        </View>
+        {timeRange === "Day" ? (
+          <View style={styles.chartContainer}>
+            <VictoryChart
+              data={data.map((item) => ({
+                day: new Date(item.timestamp).getTime(),
+                count: Number(item.stepsCount),
+              }))}
+              theme={theme}
+              font={font}
+              boldFont={boldFont}
+              timeRange={timeRange}
+            />
+          </View>
+        ) : (
+          <View style={styles.chartContainer}>
+            <ChartComponent
+              data={data.map((item) => ({
+                day: new Date(item.timestamp).getTime(),
+                min: 0,
+                avg: Number(item.stepsCount),
+                max: Number(item.stepsCount),
+              }))}
+              theme={theme}
+              font={font}
+              boldFont={boldFont}
+              timeRange={timeRange}
+            />
+          </View>
+        )}
 
         <SegmentedButtons
           style={styles.segmentedButtons}
