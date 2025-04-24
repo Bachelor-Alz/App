@@ -132,7 +132,6 @@ const useMap = () => {
     if (mapRef.current && coordinates.length > 0) {
       mapRef.current.fitToCoordinates(coordinates, {
         edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
-        animated: true,
       });
     }
   };
@@ -141,28 +140,29 @@ const useMap = () => {
     const elder = elderLocations?.find((location) => location.elderEmail === elderEmail);
     setSliderValue(elder?.perimeter.radius || 0);
     if (elder && mapRef.current) {
+      setHomePerimeter(() => ({
+        latitude: elder.perimeter.latitude,
+        longitude: elder.perimeter.longitude,
+        radius: elder.perimeter.radius,
+      }));
+
       mapRef.current.animateToRegion({
         latitude: elder.perimeter.latitude,
         longitude: elder.perimeter.longitude,
         latitudeDelta: elder.perimeter.radius / 30,
         longitudeDelta: elder.perimeter.radius / 30,
       });
-
-      setHomePerimeter(() => ({
-        latitude: elder.perimeter.latitude,
-        longitude: elder.perimeter.longitude,
-        radius: elder.perimeter.radius,
-      }));
     }
-  };
-
-  const resetHomePerimeter = () => {
-    setHomePerimeter(null);
   };
 
   const handleSlide = (value: number) => {
     if (!homePerimeter) return;
     setSliderValue(value);
+
+    setHomePerimeter((prev) => ({
+      ...prev!,
+      radius: value,
+    }));
 
     if (mapRef.current) {
       mapRef.current.animateToRegion(
@@ -175,11 +175,6 @@ const useMap = () => {
         0
       );
     }
-
-    setHomePerimeter((prev) => ({
-      ...prev!,
-      radius: value,
-    }));
 
     if (debounceRef.current) {
       clearTimeout(debounceRef.current);
@@ -201,7 +196,7 @@ const useMap = () => {
     handleZoom,
     fitToMarkers,
     showHomePerimeter,
-    resetHomePerimeter,
+    resetHomePerimeter: () => setHomePerimeter(null),
     handleSlide,
   };
 };
