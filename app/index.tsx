@@ -48,7 +48,7 @@ const LoginScreen = () => {
 
         login({ email: savedEmail, password: savedPassword })
           .then(() => {
-            router.navigate("/(tabs)");
+            router.navigate({ pathname: "/(tabs)", params: { email: savedEmail } });
           })
           .catch((error) => {
             console.error("Auto-login failed:", error);
