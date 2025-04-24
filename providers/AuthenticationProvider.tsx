@@ -6,6 +6,7 @@ import { loginUserRequest } from "@/apis/loginAPI";
 import { setBearer } from "@/apis/axiosConfig";
 import * as SecureStore from "expo-secure-store";
 import { router } from "expo-router";
+import { useToast } from "./ToastProvider";
 
 type AuthenticationProviderProps = {
   register: (form: RegisterForm) => Promise<string | null>;
@@ -20,35 +21,36 @@ const AuthenticationContext = createContext<AuthenticationProviderProps | undefi
 const AuthenticationProvider = ({ children }: { children: React.ReactNode }) => {
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [role, setRole] = useState<number | undefined>(undefined);
+  const { handlePromise } = useToast();
 
-  const register = useCallback(async (form: RegisterForm) => {
-    try {
-      const res = await createUserRequest(form);
-      return res.id;
-    } catch (error) {
-      throw new Error("Failed to register user");
-    }
-  }, []);
+  const register = useCallback(
+    (form: RegisterForm) => {
+      return handlePromise({
+        title: "Registration",
+        promise: createUserRequest(form).then((res) => res.id),
+      });
+    },
+    [handlePromise]
+  );
 
-  const login = useCallback(async (form: LoginForm): Promise<number> => {
-    try {
-      const response = await loginUserRequest(form);
-
-      if (!response?.token || !response.email || response.role === undefined) {
-        throw new Error("Login failed: Missing token, email or role.");
-      }
-
-      const { token, email, role } = response;
-      setBearer(token);
-      setUserEmail(email);
-      setRole(role);
-
-      return role;
-    } catch (error) {
-      console.log(error);
-      throw error;
-    }
-  }, []);
+  const login = useCallback(
+    (form: LoginForm) => {
+      return handlePromise({
+        title: "Login",
+        promise: loginUserRequest(form).then((response) => {
+          if (!response?.token || !response.email || response.role === undefined) {
+            throw new Error("Login failed: Missing token, email or role.");
+          }
+          const { token, email, role } = response;
+          setBearer(token);
+          setUserEmail(email);
+          setRole(role);
+          return role;
+        }),
+      });
+    },
+    [handlePromise]
+  );
 
   const logout = useCallback(async () => {
     try {
