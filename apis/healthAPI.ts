@@ -50,6 +50,12 @@ export type DashboardData = {
   locationAddress: string;
 };
 
+export type FallData = {
+  id: number;
+  timestamp: string;
+  fallCount: number;
+};
+
 export const fetchHeartRate = (
   elderEmail: string,
   date: string,
@@ -130,7 +136,7 @@ export const fetchFallsData = (
   elderEmail: string,
   date: string,
   period: "Hour" | "Day" | "Week"
-): Promise<{ id: number; timestamp: string }[]> => {
+): Promise<FallData[]> => {
   return axiosInstance
     .get("/api/Health/Falls", {
       params: { elderEmail, date, period },

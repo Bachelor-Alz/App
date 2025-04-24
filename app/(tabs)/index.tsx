@@ -79,21 +79,15 @@ const HomeScreen = () => {
           value: `${data.allFall ?? "N/A"}`,
           icon: "alert-circle",
           color: "#ffa502",
+          onPress: () => router.push({ pathname: "/fallscount", params: { email: elderEmail } }),
           theme,
         },
         {
           title: "Distance Walked",
-          value: `${data.distance ?? "N/A"} km`,
+          value: `${data.distance?.toFixed(2) ?? "N/A"} km`,
           icon: "walk",
           color: "#ff7f50",
           onPress: () => router.push({ pathname: "/distance", params: { email: elderEmail } }),
-          theme,
-        },
-        {
-          title: "Location",
-          value: data.locationAddress ?? "N/A",
-          icon: "location",
-          color: "#ff6348",
           theme,
         },
       ]
