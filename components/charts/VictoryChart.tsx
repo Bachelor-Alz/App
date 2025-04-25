@@ -35,54 +35,52 @@ const VictoryChart: React.FC<VictoryChartComponentProps> = ({ data, theme, font,
   };
 
   return (
-    <View style={{ width: "100%", height: "90%", padding: 10 }}>
-      <CartesianChart
-        data={data}
-        frame={{
-          lineColor: color,
-        }}
-        domainPadding={{ left: 5, right: 5, bottom: 15, top: 15 }}
-        padding={{ left: 10, top: 5, bottom: 5, right: 20 }}
-        xKey="day"
-        yKeys={["count"]}
-        chartPressState={firstPress}
-        transformState={state}
-        xAxis={{
+    <CartesianChart
+      data={data}
+      frame={{
+        lineColor: color,
+      }}
+      domainPadding={{ left: 5, right: 5, bottom: 15, top: 15 }}
+      padding={{ left: 10, top: 5, bottom: 5, right: 20 }}
+      xKey="day"
+      yKeys={["count"]}
+      chartPressState={firstPress}
+      transformState={state}
+      xAxis={{
+        lineColor: color,
+        labelColor: color,
+        font,
+        labelRotate: -30,
+        formatXLabel: formatLabel,
+        tickCount: 10,
+      }}
+      yAxis={[
+        {
           lineColor: color,
           labelColor: color,
           font,
-          labelRotate: -30,
-          formatXLabel: formatLabel,
-          tickCount: 10,
-        }}
-        yAxis={[
-          {
-            lineColor: color,
-            labelColor: color,
-            font,
-            labelOffset: 10,
-          },
-        ]}>
-        {({ points }) => (
-          <>
-            <Line points={points.count} color={theme.colors.primary} strokeWidth={3} />
-            {isFirstPressActive && (
-              <ToolTip
-                x={firstPress.x}
-                theme={theme}
-                font={boldFont}
-                y={{
-                  data: [firstPress.y.count],
-                  labels: ["Steps"],
-                  colors: [theme.colors.tertiary],
-                }}
-                labels={{ x: "Date: " }}
-              />
-            )}
-          </>
-        )}
-      </CartesianChart>
-    </View>
+          labelOffset: 10,
+        },
+      ]}>
+      {({ points }) => (
+        <>
+          <Line points={points.count} color={theme.colors.primary} strokeWidth={3} />
+          {isFirstPressActive && (
+            <ToolTip
+              x={firstPress.x}
+              theme={theme}
+              font={boldFont}
+              y={{
+                data: [firstPress.y.count],
+                labels: ["Steps"],
+                colors: [theme.colors.tertiary],
+              }}
+              labels={{ x: "Date: " }}
+            />
+          )}
+        </>
+      )}
+    </CartesianChart>
   );
 };
 

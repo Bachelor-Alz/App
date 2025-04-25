@@ -2,7 +2,7 @@ import { CartesianChart, useChartPressState, useChartTransformState } from "vict
 import { Path, SkFont } from "@shopify/react-native-skia";
 import { ToolTip } from "@/components/charts/Tooltip";
 import { MD3Theme } from "react-native-paper";
-import { format } from "date-fns"; // ✨ Format timestamps
+import { format } from "date-fns";
 
 const INIT_STATE = { x: 0, y: { min: 0, avg: 0, max: 0 } };
 
