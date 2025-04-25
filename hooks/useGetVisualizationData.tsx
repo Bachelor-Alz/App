@@ -1,24 +1,16 @@
-import { axiosInstance } from "@/apis/axiosConfig";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
 type TimeRange = "Hour" | "Day" | "Week";
 
-type DataPoint = {
-  timestamp: Date;
-  min: number;
-  avg: number;
-  max: number;
-};
-
-async function fetchData(endpoint: string, timeRange: TimeRange, date: Date): Promise<DataPoint[]> {
-  const isoDate = date.toISOString();
-  const response = await axiosInstance.get(`${endpoint}?range=${timeRange.toLowerCase()}&date=${isoDate}`);
-  return response.data;
-}
-
-function useGetVisualizationData(endpoint: string, prefetch: boolean = false) {
-  const [date, setDate] = useState(new Date());
+function useGetVisualizationData<T>(
+  elderEmail: string,
+  fetchFn: (elderEmail: string, date: string, period: TimeRange) => Promise<T>,
+  metricKey: string,
+  prefetch: boolean = true,
+  initialDate?: Date
+) {
+  const [date, setDate] = useState(initialDate ?? new Date());
   const [timeRange, setTimeRange] = useState<TimeRange>("Day");
   const queryClient = useQueryClient();
 
@@ -33,23 +25,30 @@ function useGetVisualizationData(endpoint: string, prefetch: boolean = false) {
   };
 
   const query = useQuery({
-    queryKey: [endpoint, timeRange, date.toISOString()],
-    queryFn: () => fetchData(endpoint, timeRange, date),
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    queryKey: [metricKey, elderEmail, timeRange, date.toISOString()],
+    queryFn: () => fetchFn(elderEmail, date.toISOString(), timeRange),
+    enabled: !!elderEmail,
+    staleTime: 5 * 60 * 1000,
     retry: 2,
   });
 
   useEffect(() => {
-    if (!prefetch) return;
-    ["Hour", "Day", "Week"].forEach((range) => {
-      if (range !== timeRange) {
-        queryClient.prefetchQuery({
-          queryKey: [endpoint, range, date.toISOString()],
-          queryFn: () => fetchData(endpoint, range as TimeRange, date),
-        });
-      }
-    });
-  }, [endpoint, timeRange, date, queryClient]);
+    if (!prefetch || !elderEmail) return;
+
+    (async () => {
+      const ranges: TimeRange[] = ["Hour", "Day", "Week"];
+      await Promise.all(
+        ranges
+          .filter((range) => range !== timeRange)
+          .map((range) =>
+            queryClient.prefetchQuery({
+              queryKey: [metricKey, elderEmail, range, date.toISOString()],
+              queryFn: () => fetchFn(elderEmail, date.toISOString(), range),
+            })
+          )
+      );
+    })();
+  }, [elderEmail, timeRange, date, prefetch, queryClient]);
 
   return {
     ...query,

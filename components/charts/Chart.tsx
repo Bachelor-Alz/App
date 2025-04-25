@@ -2,25 +2,43 @@ import { CartesianChart, useChartPressState, useChartTransformState } from "vict
 import { Path, SkFont } from "@shopify/react-native-skia";
 import { ToolTip } from "@/components/charts/Tooltip";
 import { MD3Theme } from "react-native-paper";
+import { format } from "date-fns";
 
 const INIT_STATE = { x: 0, y: { min: 0, avg: 0, max: 0 } };
 
 type ChartData = { day: number; min: number; avg: number; max: number }[];
+type TimeRange = "Hour" | "Day" | "Week";
 
 const ChartComponent = ({
   data,
   theme,
   font,
   boldFont,
+  timeRange,
 }: {
   data: ChartData;
   theme: MD3Theme;
   font: SkFont;
   boldFont: SkFont;
+  timeRange: TimeRange;
 }) => {
   const { state: firstPress, isActive: isFirstPressActive } = useChartPressState(INIT_STATE);
   const { state } = useChartTransformState();
   const color = theme.colors.onSurface;
+
+  const formatLabel = (timestamp: number) => {
+    const date = new Date(timestamp);
+    switch (timeRange) {
+      case "Hour":
+        return format(date, "h:mm");
+      case "Day":
+        return format(date, "ha");
+      case "Week":
+        return format(date, "MM-dd");
+      default:
+        return format(date, "PP");
+    }
+  };
 
   return (
     <CartesianChart
@@ -36,8 +54,9 @@ const ChartComponent = ({
         lineColor: color,
         labelColor: color,
         font,
-        labelRotate: -30,
-        formatXLabel: (label) => "Date: " + label,
+        labelRotate: -50,
+        formatXLabel: formatLabel,
+        tickCount: 10,
       }}
       yAxis={[
         {

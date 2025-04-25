@@ -19,7 +19,7 @@ type StatCardProps = {
 
 export function StatCard({ title, stats, icon, color }: StatCardProps) {
   return (
-    <Card style={{ margin: 10, padding: 10, width: "90%" }}>
+    <Card style={{ margin: 10, padding: 10, width: "90%", justifyContent: "center", alignSelf: "center" }}>
       <Card.Content>
         <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 13 }}>
           <MaterialCommunityIcons
