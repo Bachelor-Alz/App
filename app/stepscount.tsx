@@ -13,7 +13,6 @@ type TimeRange = "Hour" | "Day" | "Week";
 
 const accumulateData = (data: StepsData[]) => {
   let accumulated = 0;
-
   for (let i = 0; i < data.length; i++) {
     accumulated += data[i].stepsCount;
     data[i].stepsCount = accumulated;
@@ -28,11 +27,16 @@ function StepsScreen() {
   const { email } = useLocalSearchParams<{ email?: string }>();
   const elderEmail = email || "";
 
-  const { isError, isLoading, data, setTimeRange, timeRange } = useGetVisualizationData({
+  const {
+    isError,
+    isLoading,
+    data: rawData,
+    setTimeRange,
+    timeRange,
+  } = useGetVisualizationData({
     elderEmail,
     fetchFn: fetchSteps,
     metricKey: "steps",
-    select: accumulateData,
   });
 
   if (!font || !boldFont) return null;
@@ -41,9 +45,11 @@ function StepsScreen() {
     return <Text style={styles.centeredText}>Loading...</Text>;
   }
 
-  if (isError || !data || data.length === 0) {
+  if (isError || !rawData || rawData.length === 0) {
     return <Text style={styles.centeredText}>No Steps data available</Text>;
   }
+
+  const data = timeRange === "Day" ? accumulateData([...rawData]) : rawData;
 
   const stepsValues = data.map((d) => Number(d.stepsCount || 0));
   const avg = stepsValues.reduce((sum, val) => sum + val, 0) / stepsValues.length;
@@ -74,8 +80,8 @@ function StepsScreen() {
           <Icon size={50} source="walk" color={"#2ed573"} />
         </View>
 
-        {timeRange === "Day" ? (
-          <View style={styles.chartContainer}>
+        <View style={styles.chartContainer}>
+          {timeRange === "Day" ? (
             <VictoryChart
               data={data.map((item) => ({
                 day: new Date(item.timestamp).getTime(),
@@ -86,9 +92,7 @@ function StepsScreen() {
               boldFont={boldFont}
               timeRange={timeRange}
             />
-          </View>
-        ) : (
-          <View style={styles.chartContainer}>
+          ) : (
             <ChartComponent
               data={data.map((item) => ({
                 day: new Date(item.timestamp).getTime(),
@@ -101,8 +105,8 @@ function StepsScreen() {
               boldFont={boldFont}
               timeRange={timeRange}
             />
-          </View>
-        )}
+          )}
+        </View>
 
         <SegmentedButtons
           style={styles.segmentedButtons}

@@ -109,24 +109,15 @@ export const fetchSteps = async (
   date: string,
   period: "Hour" | "Day" | "Week"
 ): Promise<StepsData[]> => {
-  try {
-    let response = await axiosInstance.get<StepsData[]>("/api/Health/Steps", {
+  return axiosInstance
+    .get<StepsData[]>("/api/Health/Steps", {
       params: { elderEmail, date, period },
+    })
+    .then((response) => response.data)
+    .catch((error) => {
+      console.error("Error fetching steps:", error);
+      throw error;
     });
-    const data = response.data;
-    return data.filter((step) => {
-      const dateObj = new Date(step.timestamp);
-      const currentDate = new Date(date);
-      return (
-        dateObj.getDate() === currentDate.getDate() &&
-        dateObj.getMonth() === currentDate.getMonth() &&
-        dateObj.getFullYear() === currentDate.getFullYear()
-      );
-    });
-  } catch (error) {
-    console.error("Error fetching steps:", error);
-    throw error;
-  }
 };
 
 export const fetchDashBoardData = async (elderEmail: string): Promise<DashboardData> => {
