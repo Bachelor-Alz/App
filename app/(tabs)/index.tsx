@@ -47,7 +47,11 @@ const HomeScreen = () => {
   const { name, email } = useLocalSearchParams<{ name?: string; email?: string }>();
   const elderEmail = email || "";
 
-  const { error, isLoading, data } = useGetVisualizationData(elderEmail, fetchDashBoardData, "dashboard");
+  const { error, isLoading, data } = useGetVisualizationData({
+    elderEmail,
+    fetchFn: fetchDashBoardData,
+    metricKey: "dashboard",
+  });
   const healthData: HealthData[] = data
     ? [
         {

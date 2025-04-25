@@ -45,7 +45,14 @@ describe("useGetVisualizationData hook", () => {
     const testDate = new Date("2025-04-01T10:00:00.000Z");
 
     const { result } = renderHook(
-      () => useGetVisualizationData(testEmail, fetchHeartRate, "heartRate", false, testDate),
+      () =>
+        useGetVisualizationData({
+          elderEmail: testEmail,
+          fetchFn: fetchHeartRate,
+          metricKey: "heartRate",
+          prefetch: false,
+          select: testDate,
+        }),
       { wrapper }
     );
 
@@ -73,9 +80,12 @@ describe("useGetVisualizationData hook", () => {
 
     (fetchSPO2 as jest.Mock).mockResolvedValue(mockSPO2Data);
 
-    const { result } = renderHook(() => useGetVisualizationData(testEmail, fetchSPO2, "spo2"), {
-      wrapper,
-    });
+    const { result } = renderHook(
+      () => useGetVisualizationData({ elderEmail: testEmail, fetchFn: fetchSPO2, metricKey: "spo2" }),
+      {
+        wrapper,
+      }
+    );
 
     await waitFor(() => result.current.isSuccess);
 
@@ -88,9 +98,12 @@ describe("useGetVisualizationData hook", () => {
 
     (fetchDistance as jest.Mock).mockResolvedValue(mockDistanceData);
 
-    const { result } = renderHook(() => useGetVisualizationData(testEmail, fetchDistance, "distance"), {
-      wrapper,
-    });
+    const { result } = renderHook(
+      () => useGetVisualizationData({ elderEmail: testEmail, fetchFn: fetchDistance, metricKey: "distance" }),
+      {
+        wrapper,
+      }
+    );
 
     await waitFor(() => result.current.isSuccess);
 
@@ -103,9 +116,12 @@ describe("useGetVisualizationData hook", () => {
 
     (fetchSteps as jest.Mock).mockResolvedValue(mockStepsData);
 
-    const { result } = renderHook(() => useGetVisualizationData(testEmail, fetchSteps, "steps"), {
-      wrapper,
-    });
+    const { result } = renderHook(
+      () => useGetVisualizationData({ elderEmail: testEmail, fetchFn: fetchSteps, metricKey: "steps" }),
+      {
+        wrapper,
+      }
+    );
 
     await waitFor(() => result.current.isSuccess);
 
@@ -118,9 +134,12 @@ describe("useGetVisualizationData hook", () => {
 
     (fetchFallsData as jest.Mock).mockResolvedValue(mockFallsData);
 
-    const { result } = renderHook(() => useGetVisualizationData(testEmail, fetchFallsData, "falls"), {
-      wrapper,
-    });
+    const { result } = renderHook(
+      () => useGetVisualizationData({ elderEmail: testEmail, fetchFn: fetchFallsData, metricKey: "falls" }),
+      {
+        wrapper,
+      }
+    );
 
     await waitFor(() => result.current.isSuccess);
 
@@ -129,9 +148,13 @@ describe("useGetVisualizationData hook", () => {
   });
 
   it("should handle the navigation of time range", async () => {
-    const { result } = renderHook(() => useGetVisualizationData(testEmail, fetchHeartRate, "heartRate"), {
-      wrapper,
-    });
+    const { result } = renderHook(
+      () =>
+        useGetVisualizationData({ elderEmail: testEmail, fetchFn: fetchHeartRate, metricKey: "heartRate" }),
+      {
+        wrapper,
+      }
+    );
 
     expect(result.current.timeRange).toBe("Day");
 
