@@ -5,11 +5,21 @@ import SmartAreaView from "@/components/SmartAreaView";
 import { StatCard } from "@/components/charts/StatsCard";
 import { useLocalSearchParams } from "expo-router";
 import useGetVisualizationData from "@/hooks/useGetVisualizationData";
-import { fetchSteps } from "@/apis/healthAPI";
+import { fetchSteps, StepsData } from "@/apis/healthAPI";
 import VictoryChart from "@/components/charts/VictoryChart";
 import ChartComponent from "@/components/charts/Chart";
 
 type TimeRange = "Hour" | "Day" | "Week";
+
+const accumulateData = (data: StepsData[]) => {
+  let accumulated = 0;
+
+  for (let i = 0; i < data.length; i++) {
+    accumulated += data[i].stepsCount;
+    data[i].stepsCount = accumulated;
+  }
+  return data;
+};
 
 function StepsScreen() {
   const theme = useTheme();
@@ -18,11 +28,12 @@ function StepsScreen() {
   const { email } = useLocalSearchParams<{ email?: string }>();
   const elderEmail = email || "";
 
-  const { isError, isLoading, data, setTimeRange, timeRange } = useGetVisualizationData(
+  const { isError, isLoading, data, setTimeRange, timeRange } = useGetVisualizationData({
     elderEmail,
-    fetchSteps,
-    "steps"
-  );
+    fetchFn: fetchSteps,
+    metricKey: "steps",
+    select: accumulateData,
+  });
 
   if (!font || !boldFont) return null;
 

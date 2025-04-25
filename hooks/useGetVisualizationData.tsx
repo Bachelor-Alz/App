@@ -3,13 +3,21 @@ import { useEffect, useState } from "react";
 
 type TimeRange = "Hour" | "Day" | "Week";
 
-function useGetVisualizationData<T>(
-  elderEmail: string,
-  fetchFn: (elderEmail: string, date: string, period: TimeRange) => Promise<T>,
-  metricKey: string,
-  prefetch: boolean = true,
-  initialDate?: Date
-) {
+function useGetVisualizationData<T>({
+  elderEmail,
+  fetchFn,
+  metricKey,
+  prefetch = true,
+  select,
+  initialDate,
+}: {
+  elderEmail: string;
+  fetchFn: (elderEmail: string, date: string, period: TimeRange) => Promise<T>;
+  metricKey: string;
+  prefetch?: boolean;
+  select?: (data: T) => T;
+  initialDate?: Date;
+}) {
   const [date, setDate] = useState(initialDate ?? new Date());
   const [timeRange, setTimeRange] = useState<TimeRange>("Day");
   const queryClient = useQueryClient();
@@ -30,6 +38,10 @@ function useGetVisualizationData<T>(
     enabled: !!elderEmail,
     staleTime: 5 * 60 * 1000,
     retry: 2,
+    select: (data) => {
+      if (select) return select(data);
+      return data;
+    },
   });
 
   useEffect(() => {

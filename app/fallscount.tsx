@@ -18,11 +18,11 @@ const FallsCountScreen = () => {
   const { email } = useLocalSearchParams<{ email?: string }>();
   const elderEmail = email || "";
 
-  const { isError, isLoading, data, setTimeRange, timeRange } = useGetVisualizationData(
+  const { isError, isLoading, data, setTimeRange, timeRange } = useGetVisualizationData({
     elderEmail,
-    fetchFallsData,
-    "falls"
-  );
+    fetchFn: fetchFallsData,
+    metricKey: "falls",
+  });
 
   const filteredData = useLatestFallData(data || [], timeRange);
 

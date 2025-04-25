@@ -17,11 +17,11 @@ function HeartRateScreen() {
   const { email } = useLocalSearchParams<{ email?: string }>();
   const elderEmail = email || "";
 
-  const { isError, isLoading, data, setTimeRange, timeRange } = useGetVisualizationData(
+  const { isError, isLoading, data, setTimeRange, timeRange } = useGetVisualizationData({
     elderEmail,
-    fetchHeartRate,
-    "heartRate"
-  );
+    fetchFn: fetchHeartRate,
+    metricKey: "heartRate",
+  });
 
   if (!font || !boldFont) return null;
 

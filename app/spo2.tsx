@@ -17,11 +17,11 @@ function SPO2Screen() {
   const { email } = useLocalSearchParams<{ email?: string }>();
   const elderEmail = email || "";
 
-  const { isError, isLoading, data, setTimeRange, timeRange } = useGetVisualizationData(
+  const { isError, isLoading, data, setTimeRange, timeRange } = useGetVisualizationData({
     elderEmail,
-    fetchSPO2,
-    "spo2"
-  );
+    fetchFn: fetchSPO2,
+    metricKey: "spo2",
+  });
 
   if (!font || !boldFont) return null;
 

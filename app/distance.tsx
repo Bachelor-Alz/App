@@ -17,11 +17,11 @@ function DistanceScreen() {
   const { email } = useLocalSearchParams<{ email?: string }>();
   const elderEmail = email || "";
 
-  const { isError, isLoading, data, setTimeRange, timeRange } = useGetVisualizationData(
+  const { isError, isLoading, data, setTimeRange, timeRange } = useGetVisualizationData({
     elderEmail,
-    fetchDistance,
-    "distance"
-  );
+    fetchFn: fetchDistance,
+    metricKey: "distance",
+  });
 
   if (!font || !boldFont) return null;
 
