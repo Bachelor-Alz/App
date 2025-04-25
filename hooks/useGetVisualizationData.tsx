@@ -38,10 +38,6 @@ function useGetVisualizationData<T>({
     enabled: !!elderEmail,
     staleTime: 5 * 60 * 1000,
     retry: 2,
-    select: (data) => {
-      if (select) return select(data);
-      return data;
-    },
   });
 
   useEffect(() => {

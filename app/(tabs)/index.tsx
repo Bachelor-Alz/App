@@ -12,8 +12,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import { useTheme, Provider as PaperProvider } from "react-native-paper";
 import { MD3Theme as Theme } from "react-native-paper";
-import useGetVisualizationData from "@/hooks/useGetVisualizationData";
-import { fetchDashBoardData } from "@/apis/healthAPI";
+import { useDashBoardData } from "@/hooks/useGetDashboardData";
 
 type HealthData = {
   title: string;
@@ -47,11 +46,7 @@ const HomeScreen = () => {
   const { name, email } = useLocalSearchParams<{ name?: string; email?: string }>();
   const elderEmail = email || "";
 
-  const { error, isLoading, data } = useGetVisualizationData({
-    elderEmail,
-    fetchFn: fetchDashBoardData,
-    metricKey: "dashboard",
-  });
+  const { error, isLoading, data } = useDashBoardData(elderEmail);
   const healthData: HealthData[] = data
     ? [
         {
