@@ -1,5 +1,5 @@
 import React from "react";
-import { SafeAreaView, View, Alert } from "react-native";
+import { View, Alert } from "react-native";
 import { Text, useTheme, Button } from "react-native-paper";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -8,6 +8,7 @@ import FormField from "@/components/forms/Formfield";
 import FormContainer from "@/components/forms/FormContainer";
 import { useAuthentication } from "@/providers/AuthenticationProvider";
 import { assignCaregiverToElder } from "@/apis/elderAPI";
+import SmartAreaView from "@/components/SmartAreaView";
 
 const schema = z.object({
   caregiverEmail: z.string().email("Please enter a valid email address").trim(),
@@ -43,13 +44,7 @@ const AssignCaregiverScreen = () => {
   };
 
   return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: theme.colors.background,
-      }}>
+    <SmartAreaView>
       <FormContainer>
         <Text
           variant="headlineLarge"
@@ -69,7 +64,7 @@ const AssignCaregiverScreen = () => {
           Assign
         </Button>
       </FormContainer>
-    </SafeAreaView>
+    </SmartAreaView>
   );
 };
 

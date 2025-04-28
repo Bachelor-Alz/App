@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, SafeAreaView } from "react-native";
+import { View } from "react-native";
 import { Text, Checkbox } from "react-native-paper";
 import { Button, useTheme } from "react-native-paper";
 import { router } from "expo-router";
@@ -10,6 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import FormField from "@/components/forms/Formfield";
 import FormContainer from "@/components/forms/FormContainer";
 import { useAuthentication } from "@/providers/AuthenticationProvider";
+import SmartAreaView from "@/components/SmartAreaView";
 
 const schema = z.object({
   email: z.string().email("Indtast en gyldig e-mailadresse").trim(),
@@ -79,52 +80,48 @@ const LoginScreen = () => {
   };
 
   return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: theme.colors.background,
-      }}>
-      <FormContainer>
-        <Text
-          variant="headlineLarge"
-          style={{ fontWeight: "bold", marginBottom: 20, color: theme.colors.onSurface }}>
-          Login
-        </Text>
-        <FormField name="email" control={control} placeholder="Enter your email" />
-        <FormField name="password" control={control} placeholder="Enter your password" secureTextEntry />
-
-        {/* Remember Me Checkbox */}
-        <View style={{ flexDirection: "row", alignItems: "center", marginVertical: 10 }}>
-          <Checkbox.Android
-            status={rememberMe ? "checked" : "unchecked"}
-            onPress={() => setRememberMe(!rememberMe)}
-          />
-          <Text style={{ color: theme.colors.onSurface }}>Remember Me</Text>
-        </View>
-
-        <View style={{ flexDirection: "row", gap: 10, alignItems: "center" }}>
-          <Button
-            mode="outlined"
-            textColor={theme.colors.onSurface}
-            disabled={!isValid}
-            style={{ marginTop: 10 }}
-            icon={"key"}
-            onPress={handleSubmit(onSubmit)}>
+    <SmartAreaView>
+      <View style={{ justifyContent: "center", alignItems: "center", flex: 1 }}>
+        <FormContainer>
+          <Text
+            variant="headlineLarge"
+            style={{ fontWeight: "bold", marginBottom: 20, color: theme.colors.onSurface }}>
             Login
-          </Button>
-          <Button
-            mode="outlined"
-            textColor={theme.colors.onSurface}
-            style={{ marginTop: 5 }}
-            icon={"account-plus"}
-            onPress={() => router.push("/register")}>
-            Register
-          </Button>
-        </View>
-      </FormContainer>
-    </SafeAreaView>
+          </Text>
+          <FormField name="email" control={control} placeholder="Enter your email" />
+          <FormField name="password" control={control} placeholder="Enter your password" secureTextEntry />
+
+          {/* Remember Me Checkbox */}
+          <View style={{ flexDirection: "row", alignItems: "center", marginVertical: 10 }}>
+            <Checkbox.Android
+              status={rememberMe ? "checked" : "unchecked"}
+              onPress={() => setRememberMe(!rememberMe)}
+            />
+            <Text style={{ color: theme.colors.onSurface }}>Remember Me</Text>
+          </View>
+
+          <View style={{ flexDirection: "row", gap: 10, alignItems: "center" }}>
+            <Button
+              mode="outlined"
+              textColor={theme.colors.onSurface}
+              disabled={!isValid}
+              style={{ marginTop: 10 }}
+              icon={"key"}
+              onPress={handleSubmit(onSubmit)}>
+              Login
+            </Button>
+            <Button
+              mode="outlined"
+              textColor={theme.colors.onSurface}
+              style={{ marginTop: 5 }}
+              icon={"account-plus"}
+              onPress={() => router.push("/register")}>
+              Register
+            </Button>
+          </View>
+        </FormContainer>
+      </View>
+    </SmartAreaView>
   );
 };
 
