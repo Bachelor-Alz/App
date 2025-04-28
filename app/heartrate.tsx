@@ -1,8 +1,8 @@
 import { View, StyleSheet } from "react-native";
 import { useFont } from "@shopify/react-native-skia";
 import { Icon, SegmentedButtons, Text, useTheme } from "react-native-paper";
-import { StatCard } from "@/components/charts/StatsCard";
 import SmartAreaView from "@/components/SmartAreaView";
+import { StatCard } from "@/components/charts/StatsCard";
 import ChartComponent from "@/components/charts/Chart";
 import useGetVisualizationData from "@/hooks/useGetVisualizationData";
 import { useLocalSearchParams } from "expo-router";
@@ -27,16 +27,34 @@ function HeartRateScreen() {
 
   if (!font || !boldFont) return null;
 
-  if (isError) {
-    return <Text style={styles.centeredText}>Error loading data</Text>;
+  if (isLoading) {
+    return (
+      <SmartAreaView>
+        <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+          <Text style={styles.centeredText}>Loading...</Text>
+        </View>
+      </SmartAreaView>
+    );
   }
 
-  if (isLoading) {
-    return <Text style={styles.centeredText}>Loading...</Text>;
+  if (isError) {
+    return (
+      <SmartAreaView>
+        <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+          <Text style={styles.centeredText}>Error loading data</Text>
+        </View>
+      </SmartAreaView>
+    );
   }
 
   if (!data || data.length === 0) {
-    return <Text style={styles.centeredText}>No heart rate data available</Text>;
+    return (
+      <SmartAreaView>
+        <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+          <Text style={styles.centeredText}>No heart rate data available</Text>
+        </View>
+      </SmartAreaView>
+    );
   }
 
   const min = Math.min(...data.map((d) => d.heartrate.minrate));
@@ -112,15 +130,6 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
   },
-  header: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  title: {
-    paddingRight: 10,
-  },
   chartContainer: {
     flex: 1,
     marginBottom: 20,
@@ -133,10 +142,6 @@ const styles = StyleSheet.create({
   centeredText: {
     textAlign: "center",
     marginTop: 20,
-  },
-  timestampContainer: {
-    alignItems: "center",
-    marginBottom: 15,
   },
 });
 

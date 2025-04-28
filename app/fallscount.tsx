@@ -2,10 +2,10 @@ import { View, StyleSheet } from "react-native";
 import { useFont } from "@shopify/react-native-skia";
 import { Icon, SegmentedButtons, Text, useTheme } from "react-native-paper";
 import SmartAreaView from "@/components/SmartAreaView";
-import ChartComponent from "@/components/charts/Chart";
 import { StatCard } from "@/components/charts/StatsCard";
-import { useLocalSearchParams } from "expo-router";
+import ChartComponent from "@/components/charts/Chart";
 import useGetVisualizationData from "@/hooks/useGetVisualizationData";
+import { useLocalSearchParams } from "expo-router";
 import { fetchFallsData } from "@/apis/healthAPI";
 import useLatestFallData from "@/hooks/useLatestFallData";
 import ChartTitle from "@/components/charts/ChartTitle";
@@ -31,11 +31,23 @@ const FallsCountScreen = () => {
   if (!font || !boldFont) return null;
 
   if (isLoading) {
-    return <Text style={styles.centeredText}>Loading...</Text>;
+    return (
+      <SmartAreaView>
+        <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+          <Text style={styles.centeredText}>Loading...</Text>
+        </View>
+      </SmartAreaView>
+    );
   }
 
   if (isError || !filteredData || filteredData.length === 0) {
-    return <Text style={styles.centeredText}>No Falls data available</Text>;
+    return (
+      <SmartAreaView>
+        <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+          <Text style={styles.centeredText}>No Falls data available</Text>
+        </View>
+      </SmartAreaView>
+    );
   }
 
   const fallsValues = filteredData.map((d) => Number(d.fallCount || 0));
@@ -106,19 +118,14 @@ const styles = StyleSheet.create({
     padding: 20,
     justifyContent: "center",
   },
-  header: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-  },
   chartContainer: {
     flex: 1,
     marginBottom: 20,
+  },
+  segmentedButtons: {
+    alignSelf: "center",
+    marginBottom: 20,
+    maxWidth: "90%",
   },
   centeredText: {
     textAlign: "center",

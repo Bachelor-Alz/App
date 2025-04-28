@@ -28,11 +28,23 @@ function DistanceScreen() {
   if (!font || !boldFont) return null;
 
   if (isLoading) {
-    return <Text style={styles.centeredText}>Loading...</Text>;
+    return (
+      <SmartAreaView>
+        <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+          <Text style={styles.centeredText}>Loading...</Text>
+        </View>
+      </SmartAreaView>
+    );
   }
 
   if (isError || !data || data.length === 0) {
-    return <Text style={styles.centeredText}>No Distance data available</Text>;
+    return (
+      <SmartAreaView>
+        <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+          <Text style={styles.centeredText}>No Distance data available</Text>
+        </View>
+      </SmartAreaView>
+    );
   }
 
   const distanceValues = data.map((d) => Number(d.distance || 0));
@@ -101,15 +113,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 10,
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  title: {
-    paddingRight: 10,
   },
   chartContainer: {
     flex: 1,
