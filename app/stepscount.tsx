@@ -14,11 +14,15 @@ type TimeRange = "Hour" | "Day" | "Week";
 
 const accumulateData = (data: StepsData[]) => {
   let accumulated = 0;
+  let accumulatedData: StepsData[] = [];
   for (let i = 0; i < data.length; i++) {
     accumulated += data[i].stepsCount;
-    data[i].stepsCount = accumulated;
+    accumulatedData.push({
+      ...data[i],
+      stepsCount: accumulated,
+    });
   }
-  return data;
+  return accumulatedData;
 };
 
 function StepsScreen() {
@@ -51,10 +55,10 @@ function StepsScreen() {
   if (isError || !rawData || rawData.length === 0) {
     return <Text style={styles.centeredText}>No Steps data available</Text>;
   }
+  console.log(rawData);
+  const accumulated = timeRange === "Day" ? accumulateData([...rawData]) : rawData;
 
-  const data = timeRange === "Day" ? accumulateData([...rawData]) : rawData;
-
-  const stepsValues = data.map((d) => Number(d.stepsCount || 0));
+  const stepsValues = rawData.map((d) => Number(d.stepsCount || 0));
   const avg = stepsValues.reduce((sum, val) => sum + val, 0) / stepsValues.length;
   const max = Math.max(...stepsValues);
 
@@ -88,7 +92,7 @@ function StepsScreen() {
         <View style={styles.chartContainer}>
           {timeRange === "Day" ? (
             <VictoryChart
-              data={data.map((item) => ({
+              data={accumulated.map((item) => ({
                 day: new Date(item.timestamp).getTime(),
                 count: Number(item.stepsCount),
               }))}
@@ -99,7 +103,7 @@ function StepsScreen() {
             />
           ) : (
             <ChartComponent
-              data={data.map((item) => ({
+              data={accumulated.map((item) => ({
                 day: new Date(item.timestamp).getTime(),
                 min: 0,
                 avg: Number(item.stepsCount),
