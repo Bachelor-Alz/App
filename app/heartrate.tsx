@@ -7,6 +7,7 @@ import ChartComponent from "@/components/charts/Chart";
 import useGetVisualizationData from "@/hooks/useGetVisualizationData";
 import { useLocalSearchParams } from "expo-router";
 import { fetchHeartRate } from "@/apis/healthAPI";
+import ChartTitle from "@/components/charts/ChartTitle";
 
 type TimeRange = "Hour" | "Day" | "Week";
 
@@ -17,11 +18,12 @@ function HeartRateScreen() {
   const { email } = useLocalSearchParams<{ email?: string }>();
   const elderEmail = email || "";
 
-  const { isError, isLoading, data, setTimeRange, timeRange } = useGetVisualizationData({
-    elderEmail,
-    fetchFn: fetchHeartRate,
-    metricKey: "heartRate",
-  });
+  const { isError, isLoading, data, setTimeRange, timeRange, timeFormat, navigateTime } =
+    useGetVisualizationData({
+      elderEmail,
+      fetchFn: fetchHeartRate,
+      metricKey: "heartRate",
+    });
 
   if (!font || !boldFont) return null;
 
@@ -65,12 +67,14 @@ function HeartRateScreen() {
   return (
     <SmartAreaView>
       <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
-        <View style={styles.header}>
-          <Text variant="headlineLarge" style={styles.title}>
-            Heart Rate
-          </Text>
-          <Icon size={50} source="heart" color={theme.colors.error} />
-        </View>
+        <ChartTitle
+          title="Heart Rate"
+          timePeriod={timeFormat}
+          icon="heart"
+          iconColor={theme.colors.error}
+          navigateTime={navigateTime}
+          theme={theme}
+        />
         <View style={styles.chartContainer}>
           <ChartComponent
             data={data.map((item) => ({
