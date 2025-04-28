@@ -4,10 +4,12 @@ import { Text, useTheme, List, Button } from "react-native-paper";
 import SmartAreaView from "@/components/SmartAreaView";
 import { useArduino } from "@/hooks/useElders";
 import { assignArduinoToElder } from "@/apis/elderAPI";
+import { useToast } from "@/providers/ToastProvider";
 
 const ViewArduino = () => {
   const theme = useTheme();
   const { data: arduino, isLoading, error, refetch } = useArduino();
+  const { addToast } = useToast();
 
   if (isLoading) {
     return (
@@ -46,9 +48,8 @@ const ViewArduino = () => {
             try {
               await assignArduinoToElder(item.macAddress);
               await refetch();
-              console.log("Arduino assigned successfully");
             } catch (err) {
-              console.error("Failed to assign Arduino:", err);
+              addToast("Error", "Failed to assign Arduino.");
             }
           }}
           compact
