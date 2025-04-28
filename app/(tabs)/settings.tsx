@@ -14,13 +14,23 @@ const Settings = () => {
           <List.Subheader style={styles.header}>Settings</List.Subheader>
 
           {role === 1 && (
-            <List.Item
-              title="Assign Caregiver"
-              titleStyle={styles.title}
-              left={() => <List.Icon icon="account-group" />}
-              onPress={() => router.push("/assigncaregiver")}
-              style={styles.item}
-            />
+            <>
+              <List.Item
+                title="Assign Caregiver"
+                titleStyle={styles.title}
+                left={() => <List.Icon icon="account-group" />}
+                onPress={() => router.push("/assigncaregiver")}
+                style={styles.item}
+              />
+              <Divider style={styles.divider} />
+              <List.Item
+                title="Assign Arduino"
+                titleStyle={styles.title}
+                left={() => <List.Icon icon="bluetooth" />}
+                onPress={() => router.push("/viewarduino")}
+                style={styles.item}
+              />
+            </>
           )}
 
           <Divider style={styles.divider} />
