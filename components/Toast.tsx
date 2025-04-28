@@ -2,24 +2,20 @@ import { View, StyleSheet } from "react-native";
 import { Button, Icon, MD3Theme, Text } from "react-native-paper";
 import Animated, { FadeInUp, FadeOutRight, LinearTransition } from "react-native-reanimated";
 
-export type ToastType = "success" | "error";
-
 type ToastProps = {
   title: string;
   message: string;
   onClose?: () => void;
-  type: ToastType;
   theme: MD3Theme;
 };
 
-const Toast = ({ title, message, onClose, type, theme }: ToastProps) => {
-  const color = type === "success" ? theme.colors.primary : theme.colors.error;
+const Toast = ({ title, message, onClose, theme }: ToastProps) => {
   return (
     <Animated.View
       layout={LinearTransition}
       entering={FadeInUp}
       exiting={FadeOutRight}
-      style={[styles.toastContainer, { borderLeftColor: color }]}>
+      style={[styles.toastContainer, { borderLeftColor: theme.colors.error }]}>
       <View>
         <Text style={styles.toastTitle}>{title}</Text>
         <Text style={styles.toastMessage}>{message}</Text>

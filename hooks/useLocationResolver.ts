@@ -19,7 +19,6 @@ const fetchLocation = async (address: string) => {
     )
     .then((response) => response.data)
     .catch((error) => {
-      console.error("Error fetching location:", error);
       throw error;
     });
 

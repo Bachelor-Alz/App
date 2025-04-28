@@ -67,7 +67,6 @@ export const fetchHeartRate = async (
     });
     return response.data;
   } catch (error) {
-    console.error("Error fetching heart rate:", error);
     throw error;
   }
 };
@@ -83,7 +82,6 @@ export const fetchSPO2 = async (
     });
     return response.data;
   } catch (error) {
-    console.error("Error fetching SPO2:", error);
     throw error;
   }
 };
@@ -99,7 +97,6 @@ export const fetchDistance = async (
     });
     return response.data;
   } catch (error) {
-    console.error("Error fetching distance:", error);
     throw error;
   }
 };
@@ -115,7 +112,6 @@ export const fetchSteps = async (
     })
     .then((response) => response.data)
     .catch((error) => {
-      console.error("Error fetching steps:", error);
       throw error;
     });
 };
@@ -127,7 +123,6 @@ export const fetchDashBoardData = async (elderEmail: string): Promise<DashboardD
     });
     return response.data;
   } catch (error) {
-    console.error("Error fetching dashboard data:", error);
     throw error;
   }
 };
@@ -143,7 +138,6 @@ export const fetchFallsData = async (
     });
     return await response.data;
   } catch (error) {
-    console.error("Error fetching falls data:", error);
     throw error;
   }
 };

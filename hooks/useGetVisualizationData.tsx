@@ -1,14 +1,14 @@
+import { useToast } from "@/providers/ToastProvider";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
-type TimeRange = "Hour" | "Day" | "Week";
+export type TimeRange = "Hour" | "Day" | "Week";
 
 function useGetVisualizationData<T>({
   elderEmail,
   fetchFn,
   metricKey,
   prefetch = true,
-  select,
   initialDate,
 }: {
   elderEmail: string;
@@ -21,6 +21,7 @@ function useGetVisualizationData<T>({
   const [date, setDate] = useState(initialDate ?? new Date());
   const [timeRange, setTimeRange] = useState<TimeRange>("Day");
   const queryClient = useQueryClient();
+  const { addToast } = useToast();
 
   const navigateTime = (direction: "prev" | "next") => {
     setDate((prevDate) => {
@@ -34,7 +35,12 @@ function useGetVisualizationData<T>({
 
   const query = useQuery({
     queryKey: [metricKey, elderEmail, timeRange, date.toISOString()],
-    queryFn: () => fetchFn(elderEmail, date.toISOString(), timeRange),
+    queryFn: () =>
+      fetchFn(elderEmail, date.toISOString(), timeRange).catch((e) => {
+        addToast("Error", e.message);
+        throw e;
+      }),
+
     enabled: !!elderEmail,
     staleTime: 5 * 60 * 1000,
     retry: 2,
