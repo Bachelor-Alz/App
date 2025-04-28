@@ -10,7 +10,7 @@ import { useToast } from "./ToastProvider";
 
 type AuthenticationProviderProps = {
   register: (form: RegisterForm) => Promise<string | null>;
-  login: (form: LoginForm) => Promise<number>;
+  login: (form: LoginForm) => Promise<number | undefined>;
   logout: () => Promise<void>;
   userEmail: string | null;
   role: number | undefined;
@@ -21,35 +21,38 @@ const AuthenticationContext = createContext<AuthenticationProviderProps | undefi
 const AuthenticationProvider = ({ children }: { children: React.ReactNode }) => {
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [role, setRole] = useState<number | undefined>(undefined);
-  const { handlePromise } = useToast();
+  const { addToast } = useToast();
 
   const register = useCallback(
-    (form: RegisterForm) => {
-      return handlePromise({
-        title: "Registration",
-        promise: createUserRequest(form).then((res) => res.id),
-      });
+    async (form: RegisterForm): Promise<string | null> => {
+      try {
+        const res = await createUserRequest(form);
+        return res.id;
+      } catch (e: any) {
+        addToast("Error", e.message);
+        return null;
+      }
     },
-    [handlePromise]
+    [addToast]
   );
 
   const login = useCallback(
-    (form: LoginForm) => {
-      return handlePromise({
-        title: "Login",
-        promise: loginUserRequest(form).then((response) => {
-          if (!response?.token || !response.email || response.role === undefined) {
-            throw new Error("Login failed: Missing token, email or role.");
-          }
-          const { token, email, role } = response;
-          setBearer(token);
-          setUserEmail(email);
-          setRole(role);
-          return role;
-        }),
-      });
+    async (form: LoginForm): Promise<number | undefined> => {
+      try {
+        const res = await loginUserRequest(form);
+        if (!res?.token || !res.email || res.role === undefined) {
+          addToast("Error", "Invalid response from server");
+        }
+        const { token, email, role } = res;
+        setBearer(token);
+        setUserEmail(email);
+        setRole(role);
+        return role;
+      } catch (e: any) {
+        addToast("Error", e.message);
+      }
     },
-    [handlePromise]
+    [addToast]
   );
 
   const logout = useCallback(async () => {
@@ -60,7 +63,7 @@ const AuthenticationProvider = ({ children }: { children: React.ReactNode }) => 
       setRole(undefined);
       router.dismissAll();
     } catch (error) {
-      console.log(error);
+      addToast("Error", "Failed to log out");
     }
   }, []);
 

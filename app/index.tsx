@@ -46,13 +46,9 @@ const LoginScreen = () => {
       if (savedEmail && savedPassword) {
         setValue("password", savedPassword);
 
-        login({ email: savedEmail, password: savedPassword })
-          .then(() => {
-            router.navigate({ pathname: "/(tabs)", params: { email: savedEmail } });
-          })
-          .catch((error) => {
-            console.error("Auto-login failed:", error);
-          });
+        login({ email: savedEmail, password: savedPassword }).then(() => {
+          router.navigate({ pathname: "/(tabs)", params: { email: savedEmail } });
+        });
       }
     };
 
@@ -68,21 +64,17 @@ const LoginScreen = () => {
       await SecureStore.deleteItemAsync("password");
     }
 
-    try {
-      const role = await login(data);
+    const role = await login(data);
 
-      if (role === 0) {
-        router.push("/(tabs)/caregiveroverview");
-      } else if (role === 1) {
-        router.push({
-          pathname: "/(tabs)",
-          params: {
-            email: data.email,
-          },
-        });
-      }
-    } catch (error) {
-      console.error("Login failed:", error);
+    if (role === 0) {
+      router.push("/(tabs)/caregiveroverview");
+    } else if (role === 1) {
+      router.push({
+        pathname: "/(tabs)",
+        params: {
+          email: data.email,
+        },
+      });
     }
   };
 
