@@ -3,11 +3,13 @@ import { StyleSheet, SafeAreaView, Text, View, FlatList, ActivityIndicator } fro
 import { Button, List, Searchbar, useTheme } from "react-native-paper";
 import { useCaregiverInvites } from "@/hooks/useElders";
 import { acceptCaregiverInvite } from "@/apis/elderAPI";
+import { useToast } from "@/providers/ToastProvider";
 
 const ViewCaregiverInvites = () => {
   const theme = useTheme();
   const { data: invites, isLoading, error, refetch } = useCaregiverInvites();
   const [searchQuery, setSearchQuery] = useState("");
+  const { addToast } = useToast();
 
   const filteredInvites =
     invites?.filter((invite) => invite.name.toLowerCase().includes(searchQuery.toLowerCase())) || [];
@@ -25,7 +27,7 @@ const ViewCaregiverInvites = () => {
               await acceptCaregiverInvite(item.email);
               refetch();
             } catch (err) {
-              console.error("Failed to accept invite:", err);
+              addToast("Error accepting invite", "The invite could not be accepted.");
             }
           }}
           compact

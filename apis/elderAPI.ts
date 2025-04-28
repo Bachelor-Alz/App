@@ -7,7 +7,6 @@ export const fetchAllElders = () => {
       return response.data;
     })
     .catch((error) => {
-      console.error("Error fetching elders:", error);
       throw error;
     });
 };
@@ -17,7 +16,6 @@ export const fetchEldersForCaregiver = async () => {
     const response = await axiosInstance.get("/api/User/users/getElders");
     return response.data;
   } catch (error) {
-    console.error("Error fetching elders:", error);
     throw error;
   }
 };
@@ -36,7 +34,6 @@ export const assignCaregiverToElder = async (elderEmail: string, caregiverEmail:
     );
     return response.data;
   } catch (error) {
-    console.error("Error assigning caregiver to elder:", error);
     throw error;
   }
 };
@@ -46,7 +43,6 @@ export const fetchCaregiverInvites = async () => {
     const response = await axiosInstance.get(`/api/User/caregiver/invites`);
     return response.data;
   } catch (error) {
-    console.error("Error fetching caregiver invites:", error);
     throw error;
   }
 };
@@ -58,7 +54,6 @@ export const acceptCaregiverInvite = async (elderEmail: string) => {
     });
     return response.data;
   } catch (error) {
-    console.error("Error accepting caregiver invite:", error);
     throw error;
   }
 };
