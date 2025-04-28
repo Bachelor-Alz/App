@@ -1,5 +1,5 @@
 import React from "react";
-import { SafeAreaView, StyleSheet, View, TouchableOpacity } from "react-native";
+import { StyleSheet, View, TouchableOpacity } from "react-native";
 import { Text, RadioButton, useTheme } from "react-native-paper";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,6 +11,7 @@ import { useAuthentication } from "@/providers/AuthenticationProvider";
 import { router } from "expo-router";
 import useLocationResolver from "@/hooks/useLocationResolver";
 import { useDebounce } from "@uidotdev/usehooks";
+import SmartAreaView from "@/components/SmartAreaView";
 
 const baseFields = {
   email: z.string().email("Must be a valid email address").trim(),
@@ -65,7 +66,7 @@ const RegisterScreen = () => {
     getValues,
     setValue,
     trigger,
-    formState: { isSubmitting, isValid, errors },
+    formState: { isSubmitting, isValid },
   } = useForm<RegisterForm>({
     resolver: zodResolver(schema),
     mode: "onChange",
@@ -88,77 +89,82 @@ const RegisterScreen = () => {
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.background }]}>
-      <FormContainer>
-        <Text variant="headlineLarge">Register</Text>
-        <Controller
-          control={control}
-          name="role"
-          render={({ field }) => (
-            <View style={styles.radioGroup}>
-              {[
-                { label: "Caregiver", value: 0 },
-                { label: "Elder", value: 1 },
-              ].map(({ label, value }) => (
-                <TouchableOpacity key={value} style={styles.radioItem} onPress={() => field.onChange(value)}>
-                  <View
-                    style={[
-                      styles.radioCircle,
-                      { borderColor: field.value === value ? theme.colors.primary : "#888" },
-                    ]}>
-                    <RadioButton
-                      value={String(value)}
-                      status={field.value === value ? "checked" : "unchecked"}
-                    />
-                  </View>
-                  <Text style={styles.radioText}>{label}</Text>
-                </TouchableOpacity>
+    <SmartAreaView>
+      <View style={{ justifyContent: "center", alignItems: "center", flex: 1 }}>
+        <FormContainer>
+          <Text variant="headlineLarge">Register</Text>
+          <Controller
+            control={control}
+            name="role"
+            render={({ field }) => (
+              <View style={styles.radioGroup}>
+                {[
+                  { label: "Caregiver", value: 0 },
+                  { label: "Elder", value: 1 },
+                ].map(({ label, value }) => (
+                  <TouchableOpacity
+                    key={value}
+                    style={styles.radioItem}
+                    onPress={() => field.onChange(value)}>
+                    <View
+                      style={[
+                        styles.radioCircle,
+                        { borderColor: field.value === value ? theme.colors.primary : "#888" },
+                      ]}>
+                      <RadioButton
+                        value={String(value)}
+                        status={field.value === value ? "checked" : "unchecked"}
+                      />
+                    </View>
+                    <Text style={styles.radioText}>{label}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+          />
+
+          <FormField control={control} name="name" placeholder="Name" />
+          <FormField control={control} name="email" placeholder="Email" />
+          <FormField control={control} name="password" placeholder="Password" secureTextEntry />
+          <FormField
+            control={control}
+            name="confirmPassword"
+            placeholder="Confirm Password"
+            secureTextEntry
+          />
+
+          {isElder && (
+            <>
+              <FormField control={control} name="address" placeholder="Address (Visionsvej 21 Aalborg)" />
+              {suggestions?.map((item, index) => (
+                <Text
+                  key={index}
+                  style={{ marginVertical: 5 }}
+                  onPress={() => {
+                    setValue("address", item.fullAddress);
+                    setValue("lat", Number(item.lat));
+                    setValue("lon", Number(item.lon));
+                    trigger("address");
+                  }}>
+                  {item.fullAddress}
+                </Text>
               ))}
-            </View>
+            </>
           )}
-        />
 
-        <FormField control={control} name="name" placeholder="Name" />
-        <FormField control={control} name="email" placeholder="Email" />
-        <FormField control={control} name="password" placeholder="Password" secureTextEntry />
-        <FormField control={control} name="confirmPassword" placeholder="Confirm Password" secureTextEntry />
-
-        {isElder && (
-          <>
-            <FormField control={control} name="address" placeholder="Address (Visionsvej 21 Aalborg)" />
-            {suggestions?.map((item, index) => (
-              <Text
-                key={index}
-                style={{ marginVertical: 5 }}
-                onPress={() => {
-                  setValue("address", item.fullAddress);
-                  setValue("lat", Number(item.lat));
-                  setValue("lon", Number(item.lon));
-                  trigger("address");
-                }}>
-                {item.fullAddress}
-              </Text>
-            ))}
-          </>
-        )}
-
-        <SubmitButton
-          isValid={isValid}
-          isSubmitting={isSubmitting}
-          handleSubmit={handleRegister}
-          label="Register"
-        />
-      </FormContainer>
-    </SafeAreaView>
+          <SubmitButton
+            isValid={isValid}
+            isSubmitting={isSubmitting}
+            handleSubmit={handleRegister}
+            label="Register"
+          />
+        </FormContainer>
+      </View>
+    </SmartAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
   radioGroup: {
     flexDirection: "row",
     gap: 30,

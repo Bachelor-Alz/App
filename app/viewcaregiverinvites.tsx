@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { StyleSheet, SafeAreaView, Text, View, FlatList, ActivityIndicator } from "react-native";
-import { Button, List, Searchbar, useTheme } from "react-native-paper";
+import { StyleSheet, View, FlatList } from "react-native";
+import { Button, List, Searchbar, Text, useTheme } from "react-native-paper";
+import SmartAreaView from "@/components/SmartAreaView";
 import { useCaregiverInvites } from "@/hooks/useElders";
 import { acceptCaregiverInvite } from "@/apis/elderAPI";
 import { useToast } from "@/providers/ToastProvider";
@@ -13,6 +14,26 @@ const ViewCaregiverInvites = () => {
 
   const filteredInvites =
     invites?.filter((invite) => invite.name.toLowerCase().includes(searchQuery.toLowerCase())) || [];
+
+  if (isLoading) {
+    return (
+      <SmartAreaView>
+        <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+          <Text style={styles.centeredText}>Loading...</Text>
+        </View>
+      </SmartAreaView>
+    );
+  }
+
+  if (error || !invites || invites.length === 0) {
+    return (
+      <SmartAreaView>
+        <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+          <Text style={styles.centeredText}>{error ? "Failed to load invites." : "No invites found."}</Text>
+        </View>
+      </SmartAreaView>
+    );
+  }
 
   const renderItem = ({ item }: { item: { name: string; email: string } }) => (
     <List.Item
@@ -40,52 +61,41 @@ const ViewCaregiverInvites = () => {
   );
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <Searchbar
-        placeholder="Search Invites"
-        onChangeText={setSearchQuery}
-        value={searchQuery}
-        style={[styles.searchbar, { backgroundColor: theme.colors.surface }]}
-      />
+    <SmartAreaView>
+      <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+        <Searchbar
+          placeholder="Search Invites"
+          onChangeText={setSearchQuery}
+          value={searchQuery}
+          style={[styles.searchbar, { backgroundColor: theme.colors.surface }]}
+        />
 
-      <View style={styles.listContainer}>
-        {isLoading ? (
-          <ActivityIndicator size="large" color={theme.colors.primary} />
-        ) : error ? (
-          <Text style={[styles.errorText, { color: theme.colors.error }]}>Failed to load invites.</Text>
-        ) : filteredInvites.length > 0 ? (
-          <FlatList
-            data={filteredInvites}
-            renderItem={renderItem}
-            keyExtractor={(item) => item.email}
-            contentContainerStyle={styles.flatListContainer}
-            refreshing={isLoading}
-            onRefresh={refetch}
-          />
-        ) : (
-          <Text style={[styles.noInvitesText, { color: theme.colors.onSurface }]}>
-            No caregiver invites found
-          </Text>
-        )}
+        <FlatList
+          data={filteredInvites}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.email}
+          contentContainerStyle={styles.flatListContainer}
+          refreshing={isLoading}
+          onRefresh={refetch}
+          ListEmptyComponent={
+            <Text style={[styles.centeredText, { color: theme.colors.onSurface }]}>
+              No invites match your search.
+            </Text>
+          }
+        />
       </View>
-    </SafeAreaView>
+    </SmartAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "flex-start",
-    paddingTop: 10,
-    alignItems: "center",
+    padding: 20,
+    justifyContent: "center",
   },
   searchbar: {
-    width: "90%",
     marginBottom: 20,
-  },
-  listContainer: {
-    width: "90%",
-    flex: 1,
   },
   flatListContainer: {
     paddingBottom: 20,
@@ -94,15 +104,10 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     borderBottomWidth: 1,
   },
-  noInvitesText: {
-    fontSize: 16,
+  centeredText: {
     textAlign: "center",
     marginTop: 20,
-  },
-  errorText: {
     fontSize: 16,
-    textAlign: "center",
-    marginTop: 20,
   },
 });
 
