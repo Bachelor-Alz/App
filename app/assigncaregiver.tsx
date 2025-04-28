@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Alert } from "react-native";
+import { Alert } from "react-native";
 import { Text, useTheme, Button } from "react-native-paper";
 import { useForm } from "react-hook-form";
 import { z } from "zod";

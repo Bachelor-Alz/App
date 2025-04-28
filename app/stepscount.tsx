@@ -1,6 +1,6 @@
 import { View, StyleSheet } from "react-native";
 import { useFont } from "@shopify/react-native-skia";
-import { Icon, SegmentedButtons, Text, useTheme } from "react-native-paper";
+import { SegmentedButtons, Text, useTheme } from "react-native-paper";
 import SmartAreaView from "@/components/SmartAreaView";
 import { StatCard } from "@/components/charts/StatsCard";
 import { useLocalSearchParams } from "expo-router";

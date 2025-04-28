@@ -66,7 +66,7 @@ const RegisterScreen = () => {
     getValues,
     setValue,
     trigger,
-    formState: { isSubmitting, isValid, errors },
+    formState: { isSubmitting, isValid },
   } = useForm<RegisterForm>({
     resolver: zodResolver(schema),
     mode: "onChange",
