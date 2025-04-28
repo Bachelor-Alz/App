@@ -1,19 +1,32 @@
 import React from "react";
 import { StyleSheet, View, FlatList } from "react-native";
-import { Text, useTheme, List } from "react-native-paper";
+import { Text, useTheme, List, Button } from "react-native-paper";
 import SmartAreaView from "@/components/SmartAreaView";
 import { useArduino } from "@/hooks/useElders";
+import { assignArduinoToElder } from "@/apis/elderAPI";
 
 const ViewArduino = () => {
   const theme = useTheme();
-  const { data: arduino, isLoading, error } = useArduino();
+  const { data: arduino, isLoading, error, refetch } = useArduino();
 
   if (isLoading) {
-    return <Text style={styles.centeredText}>Loading...</Text>;
+    return (
+      <SmartAreaView>
+        <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+          <Text style={styles.centeredText}>Loading...</Text>
+        </View>
+      </SmartAreaView>
+    );
   }
 
   if (error || !arduino || arduino.length === 0) {
-    return <Text style={styles.centeredText}>{error ? "Failed to find Arduino." : "No Arduino found."}</Text>;
+    return (
+      <SmartAreaView>
+        <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+          <Text style={styles.centeredText}>{error ? "Failed to find Arduino." : "No Arduino found."}</Text>
+        </View>
+      </SmartAreaView>
+    );
   }
   const renderItem = ({
     item,
@@ -26,6 +39,23 @@ const ViewArduino = () => {
       descriptionNumberOfLines={3}
       left={(props) => <List.Icon {...props} icon="bluetooth" />}
       style={[styles.listItem, { borderBottomColor: theme.colors.outline }]}
+      right={() => (
+        <Button
+          mode="contained"
+          onPress={async () => {
+            try {
+              await assignArduinoToElder(item.macAddress);
+              await refetch();
+              console.log("Arduino assigned successfully");
+            } catch (err) {
+              console.error("Failed to assign Arduino:", err);
+            }
+          }}
+          compact
+          style={{ alignSelf: "center" }}>
+          Assign
+        </Button>
+      )}
     />
   );
 

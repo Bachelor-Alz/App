@@ -68,7 +68,21 @@ export const fetchArduino = async () => {
     const response = await axiosInstance.get("/api/User/users/arduino");
     return response.data;
   } catch (error) {
-    console.error("Error fetching Arduino data:", error);
+    throw error;
+  }
+};
+
+export const assignArduinoToElder = async (arduinoAddress: string) => {
+  try {
+    const response = await axiosInstance.post(
+      "/api/User/users/arduino",
+      {},
+      {
+        params: { address: arduinoAddress },
+      }
+    );
+    return response.data;
+  } catch (error) {
     throw error;
   }
 };
