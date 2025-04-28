@@ -62,3 +62,13 @@ export const acceptCaregiverInvite = async (elderEmail: string) => {
     throw error;
   }
 };
+
+export const fetchArduino = async () => {
+  try {
+    const response = await axiosInstance.get("/api/User/users/arduino");
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching Arduino data:", error);
+    throw error;
+  }
+};

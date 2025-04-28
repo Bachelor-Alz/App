@@ -1,5 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { fetchAllElders, fetchEldersForCaregiver, fetchCaregiverInvites } from "@/apis/elderAPI";
+import {
+  fetchAllElders,
+  fetchEldersForCaregiver,
+  fetchCaregiverInvites,
+  fetchArduino,
+} from "@/apis/elderAPI";
 
 type Elder = {
   name: string;
@@ -33,6 +38,15 @@ export const useCaregiverInvites = () => {
   return useQuery<ElderInvite[]>({
     queryKey: ["caregiverInvites"],
     queryFn: fetchCaregiverInvites,
+    staleTime: 5 * 60 * 1000,
+    retry: 2,
+  });
+};
+
+export const useArduino = () => {
+  return useQuery<any[]>({
+    queryKey: ["arduino"],
+    queryFn: fetchArduino,
     staleTime: 5 * 60 * 1000,
     retry: 2,
   });
