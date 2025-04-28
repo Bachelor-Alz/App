@@ -7,6 +7,7 @@ import ChartComponent from "@/components/charts/Chart";
 import useGetVisualizationData from "@/hooks/useGetVisualizationData";
 import { useLocalSearchParams } from "expo-router";
 import { fetchSPO2 } from "@/apis/healthAPI";
+import ChartTitle from "@/components/charts/ChartTitle";
 
 type TimeRange = "Hour" | "Day" | "Week";
 
@@ -17,11 +18,12 @@ function SPO2Screen() {
   const { email } = useLocalSearchParams<{ email?: string }>();
   const elderEmail = email || "";
 
-  const { isError, isLoading, data, setTimeRange, timeRange } = useGetVisualizationData({
-    elderEmail,
-    fetchFn: fetchSPO2,
-    metricKey: "spo2",
-  });
+  const { isError, isLoading, data, setTimeRange, timeRange, timeFormat, navigateTime } =
+    useGetVisualizationData({
+      elderEmail,
+      fetchFn: fetchSPO2,
+      metricKey: "spo2",
+    });
 
   if (!font || !boldFont) return null;
 
@@ -65,12 +67,14 @@ function SPO2Screen() {
   return (
     <SmartAreaView>
       <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
-        <View style={styles.header}>
-          <Text variant="headlineLarge" style={styles.title}>
-            Blood Oxygen
-          </Text>
-          <Icon size={50} source="water" color={"#1e90ff"} />
-        </View>
+        <ChartTitle
+          title="Blood Oxygen"
+          timePeriod={timeFormat}
+          icon="water"
+          iconColor={"#1e90ff"}
+          navigateTime={navigateTime}
+          theme={theme}
+        />
         <View style={styles.chartContainer}>
           <ChartComponent
             data={data.map((item) => ({

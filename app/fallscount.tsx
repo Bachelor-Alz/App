@@ -8,6 +8,7 @@ import { useLocalSearchParams } from "expo-router";
 import useGetVisualizationData from "@/hooks/useGetVisualizationData";
 import { fetchFallsData } from "@/apis/healthAPI";
 import useLatestFallData from "@/hooks/useLatestFallData";
+import ChartTitle from "@/components/charts/ChartTitle";
 
 type TimeRange = "Hour" | "Day" | "Week";
 
@@ -18,11 +19,12 @@ const FallsCountScreen = () => {
   const { email } = useLocalSearchParams<{ email?: string }>();
   const elderEmail = email || "";
 
-  const { isError, isLoading, data, setTimeRange, timeRange } = useGetVisualizationData({
-    elderEmail,
-    fetchFn: fetchFallsData,
-    metricKey: "falls",
-  });
+  const { isError, isLoading, data, setTimeRange, timeRange, timeFormat, navigateTime } =
+    useGetVisualizationData({
+      elderEmail,
+      fetchFn: fetchFallsData,
+      metricKey: "falls",
+    });
 
   const filteredData = useLatestFallData(data || [], timeRange);
 
@@ -58,12 +60,14 @@ const FallsCountScreen = () => {
   return (
     <SmartAreaView>
       <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
-        <View style={styles.header}>
-          <Text variant="headlineLarge" style={styles.title}>
-            Falls
-          </Text>
-          <Icon size={50} source="alert-circle" color={"#ffa502"} />
-        </View>
+        <ChartTitle
+          title="Falls"
+          timePeriod={timeFormat}
+          icon="alert-circle"
+          iconColor={"#ffa502"}
+          navigateTime={navigateTime}
+          theme={theme}
+        />
         <View style={styles.chartContainer}>
           <ChartComponent
             data={filteredData.map((item) => ({

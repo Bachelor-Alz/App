@@ -8,6 +8,7 @@ import useGetVisualizationData from "@/hooks/useGetVisualizationData";
 import { fetchSteps, StepsData } from "@/apis/healthAPI";
 import VictoryChart from "@/components/charts/VictoryChart";
 import ChartComponent from "@/components/charts/Chart";
+import ChartTitle from "@/components/charts/ChartTitle";
 
 type TimeRange = "Hour" | "Day" | "Week";
 
@@ -33,6 +34,8 @@ function StepsScreen() {
     data: rawData,
     setTimeRange,
     timeRange,
+    timeFormat,
+    navigateTime,
   } = useGetVisualizationData({
     elderEmail,
     fetchFn: fetchSteps,
@@ -73,12 +76,14 @@ function StepsScreen() {
   return (
     <SmartAreaView>
       <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
-        <View style={styles.header}>
-          <Text variant="headlineLarge" style={styles.title}>
-            Steps
-          </Text>
-          <Icon size={50} source="walk" color={"#2ed573"} />
-        </View>
+        <ChartTitle
+          title="Steps"
+          timePeriod={timeFormat}
+          icon="walk"
+          iconColor={"#2ed573"}
+          navigateTime={navigateTime}
+          theme={theme}
+        />
 
         <View style={styles.chartContainer}>
           {timeRange === "Day" ? (

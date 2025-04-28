@@ -7,6 +7,7 @@ import { StatCard } from "@/components/charts/StatsCard";
 import { useLocalSearchParams } from "expo-router";
 import useGetVisualizationData from "@/hooks/useGetVisualizationData";
 import { fetchDistance } from "@/apis/healthAPI";
+import ChartTitle from "@/components/charts/ChartTitle";
 
 type TimeRange = "Hour" | "Day" | "Week";
 
@@ -17,11 +18,12 @@ function DistanceScreen() {
   const { email } = useLocalSearchParams<{ email?: string }>();
   const elderEmail = email || "";
 
-  const { isError, isLoading, data, setTimeRange, timeRange } = useGetVisualizationData({
-    elderEmail,
-    fetchFn: fetchDistance,
-    metricKey: "distance",
-  });
+  const { isError, isLoading, data, setTimeRange, timeRange, navigateTime, timeFormat } =
+    useGetVisualizationData({
+      elderEmail,
+      fetchFn: fetchDistance,
+      metricKey: "distance",
+    });
 
   if (!font || !boldFont) return null;
 
@@ -55,12 +57,14 @@ function DistanceScreen() {
   return (
     <SmartAreaView>
       <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
-        <View style={styles.header}>
-          <Text variant="headlineLarge" style={styles.title}>
-            Distance
-          </Text>
-          <Icon size={50} source="walk" color={"#ff7f50"} />
-        </View>
+        <ChartTitle
+          title="Distance"
+          timePeriod={timeFormat}
+          icon="walk"
+          iconColor={"#ff7f50"}
+          navigateTime={navigateTime}
+          theme={theme}
+        />
 
         <View style={styles.chartContainer}>
           <ChartComponent
@@ -76,7 +80,6 @@ function DistanceScreen() {
             timeRange={timeRange}
           />
         </View>
-
         <SegmentedButtons
           style={styles.segmentedButtons}
           value={timeRange}

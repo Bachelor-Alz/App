@@ -23,6 +23,24 @@ function useGetVisualizationData<T>({
   const queryClient = useQueryClient();
   const { addToast } = useToast();
 
+  const timeFormat = (): string => {
+    switch (timeRange) {
+      case "Hour":
+        return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      case "Day":
+        return date.toLocaleDateString([], { month: "2-digit", day: "2-digit" });
+      case "Week":
+        const weekAgoDate = new Date(date);
+        weekAgoDate.setDate(date.getDate() - 7);
+        return `${weekAgoDate.toLocaleDateString([], {
+          month: "2-digit",
+          year: "numeric",
+        })} - ${date.toLocaleDateString([], { month: "2-digit", year: "numeric" })}`;
+      default:
+        throw new Error(`Unexpected timeRange value: ${timeRange}`);
+    }
+  };
+
   const navigateTime = (direction: "prev" | "next") => {
     setDate((prevDate) => {
       const newDate = new Date(prevDate);
@@ -70,6 +88,7 @@ function useGetVisualizationData<T>({
     date,
     timeRange,
     setTimeRange,
+    timeFormat,
   };
 }
 
