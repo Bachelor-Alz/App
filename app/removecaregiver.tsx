@@ -52,7 +52,8 @@ const RemoveCaregiver = () => {
               addToast("Error", "Failed to remove caregiver.");
             }
           }}
-          style={{ alignSelf: "center" }}></IconButton>
+          style={{ alignSelf: "center" }}
+        />
       )}
     />
   );

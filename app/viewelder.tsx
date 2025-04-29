@@ -66,7 +66,8 @@ const ViewElders = () => {
                 addToast("Error while removing elders.", "The elder could not be removed.");
               }
             }}
-            style={{ alignSelf: "center" }}></IconButton>
+            style={{ alignSelf: "center" }}
+          />
         )}
       />
     </TouchableOpacity>

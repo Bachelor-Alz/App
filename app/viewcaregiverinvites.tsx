@@ -52,7 +52,8 @@ const ViewCaregiverInvites = () => {
               addToast("Error accepting invite", "The invite could not be accepted.");
             }
           }}
-          style={{ alignSelf: "center" }}></IconButton>
+          style={{ alignSelf: "center" }}
+        />
       )}
       style={[styles.listItem, { borderBottomColor: theme.colors.outline }]}
     />
