@@ -1,19 +1,15 @@
-import React, { useState } from "react";
+import React from "react";
 import { StyleSheet, View, FlatList } from "react-native";
-import { IconButton, List, Searchbar, Text, useTheme } from "react-native-paper";
+import { Text, useTheme, List, IconButton } from "react-native-paper";
 import SmartAreaView from "@/components/SmartAreaView";
-import { useCaregiverInvites } from "@/hooks/useElders";
-import { acceptCaregiverInvite } from "@/apis/elderAPI";
 import { useToast } from "@/providers/ToastProvider";
+import { useCaregiversForElder } from "@/hooks/useElders";
+import { removeCaregiverFromElder } from "@/apis/elderAPI";
 
-const ViewCaregiverInvites = () => {
+const RemoveCaregiver = () => {
   const theme = useTheme();
-  const { data: invites, isLoading, error, refetch } = useCaregiverInvites();
-  const [searchQuery, setSearchQuery] = useState("");
   const { addToast } = useToast();
-
-  const filteredInvites =
-    invites?.filter((invite) => invite.name.toLowerCase().includes(searchQuery.toLowerCase())) || [];
+  const { data: caregivers, isLoading, error, refetch } = useCaregiversForElder();
 
   if (isLoading) {
     return (
@@ -25,11 +21,13 @@ const ViewCaregiverInvites = () => {
     );
   }
 
-  if (error || !invites || invites.length === 0) {
+  if (error || !caregivers || caregivers.length === 0) {
     return (
       <SmartAreaView>
         <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
-          <Text style={styles.centeredText}>{error ? "Failed to load invites." : "No invites found."}</Text>
+          <Text style={styles.centeredText}>
+            {error ? "Failed to find caregivers." : "No caregivers found."}
+          </Text>
         </View>
       </SmartAreaView>
     );
@@ -40,47 +38,37 @@ const ViewCaregiverInvites = () => {
       title={item.name}
       description={item.email}
       left={(props) => <List.Icon {...props} icon="account" />}
+      style={[styles.listItem, { borderBottomColor: theme.colors.outline }]}
       right={() => (
         <IconButton
-          icon="check"
+          icon="delete"
           mode="outlined"
           onPress={async () => {
             try {
-              await acceptCaregiverInvite(item.email);
+              await removeCaregiverFromElder(item.email);
               await refetch();
+              addToast("Success", "Caregiver removed successfully.");
             } catch (err) {
-              addToast("Error accepting invite", "The invite could not be accepted.");
+              addToast("Error", "Failed to remove caregiver.");
             }
           }}
           style={{ alignSelf: "center" }}
         />
       )}
-      style={[styles.listItem, { borderBottomColor: theme.colors.outline }]}
     />
   );
 
   return (
     <SmartAreaView>
       <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
-        <Searchbar
-          placeholder="Search Invites"
-          onChangeText={setSearchQuery}
-          value={searchQuery}
-          style={[styles.searchbar, { backgroundColor: theme.colors.surface }]}
-        />
-
+        <View style={styles.header}>
+          <Text style={styles.title}>Remove Caregiver</Text>
+        </View>
         <FlatList
-          data={filteredInvites}
+          data={caregivers}
           renderItem={renderItem}
-          keyExtractor={(item) => item.email}
+          keyExtractor={(item) => item.email.toString()}
           contentContainerStyle={styles.flatListContainer}
-          refreshing={isLoading}
-          onRefresh={refetch}
-          ListEmptyComponent={
-            <Text style={[styles.centeredText, { color: theme.colors.onSurface }]}>
-              No invites match your search.
-            </Text>
-          }
         />
       </View>
     </SmartAreaView>
@@ -93,8 +81,15 @@ const styles = StyleSheet.create({
     padding: 20,
     justifyContent: "center",
   },
-  searchbar: {
-    marginBottom: 20,
+  header: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
   },
   flatListContainer: {
     paddingBottom: 20,
@@ -110,4 +105,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ViewCaregiverInvites;
+export default RemoveCaregiver;

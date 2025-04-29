@@ -81,3 +81,54 @@ export const assignArduinoToElder = async (arduinoAddress: string) => {
     throw error;
   }
 };
+
+export const fetchCaregiverForElder = async () => {
+  try {
+    const response = await axiosInstance.get(`/api/User/users/elder/caregiver`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const removeCaregiverFromElder = async (caregiverEmail: string) => {
+  try {
+    const response = await axiosInstance.delete(`/api/User/users/elder/removeCaregiver`, {
+      params: { caregiverEmail },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const removeElderFromCaregiver = async (elderEmail: string) => {
+  try {
+    const response = await axiosInstance.delete(`/api/User/users/caregiver/removeFromElder`, {
+      params: { elderEmail },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const testArduinoConnection = async (elderEmail: string): Promise<boolean> => {
+  try {
+    const response = await axiosInstance.get(`/api/User/connected`, {
+      params: { elderEmail },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const removeArduinoFromElder = async () => {
+  try {
+    const response = await axiosInstance.delete(`/api/User/users/arduino`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

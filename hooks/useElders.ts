@@ -4,6 +4,7 @@ import {
   fetchEldersForCaregiver,
   fetchCaregiverInvites,
   fetchArduino,
+  fetchCaregiverForElder,
 } from "@/apis/elderAPI";
 
 type Elder = {
@@ -13,6 +14,11 @@ type Elder = {
 };
 
 type ElderInvite = {
+  name: string;
+  email: string;
+};
+
+type Caregiver = {
   name: string;
   email: string;
 };
@@ -48,6 +54,27 @@ export const useArduino = () => {
   return useQuery<any[]>({
     queryKey: ["arduino"],
     queryFn: fetchArduino,
+    staleTime: 5 * 60 * 1000,
+    retry: 2,
+  });
+};
+
+export const useCaregiversForElder = () => {
+  return useQuery<Caregiver[]>({
+    queryKey: ["caregiversForElder"],
+    queryFn: () => fetchCaregiverForElder(),
+    staleTime: 5 * 60 * 1000,
+    retry: 2,
+  });
+};
+
+export const useTestArduinoConnection = (
+  elderEmail: string,
+  queryFn: (elderEmail: string) => Promise<boolean>
+) => {
+  return useQuery<boolean>({
+    queryKey: ["testArduinoConnection", elderEmail],
+    queryFn: () => queryFn(elderEmail),
     staleTime: 5 * 60 * 1000,
     retry: 2,
   });

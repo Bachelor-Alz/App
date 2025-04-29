@@ -1,14 +1,17 @@
 import React, { useState } from "react";
 import { StyleSheet, View, FlatList, TouchableOpacity } from "react-native";
-import { Text, List, Searchbar, useTheme } from "react-native-paper";
+import { Text, List, Searchbar, useTheme, IconButton } from "react-native-paper";
 import SmartAreaView from "@/components/SmartAreaView";
 import { useEldersForCaregiver } from "@/hooks/useElders";
 import { router } from "expo-router";
+import { removeElderFromCaregiver } from "@/apis/elderAPI";
+import { useToast } from "@/providers/ToastProvider";
 
 const ViewElders = () => {
   const theme = useTheme();
   const { data: elders, isLoading, error, refetch } = useEldersForCaregiver();
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const { addToast } = useToast();
 
   const filteredElders =
     elders?.filter((elder) => elder.name.toLowerCase().includes(searchQuery.toLowerCase())) || [];
@@ -51,6 +54,21 @@ const ViewElders = () => {
         description={item.email}
         left={(props) => <List.Icon {...props} icon="account" />}
         style={[styles.listItem, { borderBottomColor: theme.colors.outline }]}
+        right={() => (
+          <IconButton
+            icon="delete"
+            mode="outlined"
+            onPress={async () => {
+              try {
+                await removeElderFromCaregiver(item.email);
+                await refetch();
+              } catch (err) {
+                addToast("Error while removing elders.", "The elder could not be removed.");
+              }
+            }}
+            style={{ alignSelf: "center" }}
+          />
+        )}
       />
     </TouchableOpacity>
   );
