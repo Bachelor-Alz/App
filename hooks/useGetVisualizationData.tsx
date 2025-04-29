@@ -1,6 +1,7 @@
 import { useToast } from "@/providers/ToastProvider";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { addDays, addHours, format, subDays } from "date-fns";
+import { useEffect, useRef, useState } from "react";
 
 export type TimeRange = "Hour" | "Day" | "Week";
 
@@ -20,34 +21,33 @@ function useGetVisualizationData<T>({
 }) {
   const [date, setDate] = useState(initialDate ?? new Date());
   const [timeRange, setTimeRange] = useState<TimeRange>("Day");
+  const hasPrefetched = useRef(false);
   const queryClient = useQueryClient();
   const { addToast } = useToast();
 
   const timeFormat = (): string => {
     switch (timeRange) {
       case "Hour":
-        return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+        return format(date, "HH:mm");
       case "Day":
-        return date.toLocaleDateString([], { month: "2-digit", day: "2-digit" });
+        return format(date, "MM-dd");
       case "Week":
-        const weekAgoDate = new Date(date);
-        weekAgoDate.setDate(date.getDate() - 7);
-        return `${weekAgoDate.toLocaleDateString([], {
-          month: "2-digit",
-          year: "numeric",
-        })} - ${date.toLocaleDateString([], { month: "2-digit", year: "numeric" })}`;
+        const weekAgoDate = subDays(date, 7);
+        return `${format(weekAgoDate, "MM-yyyy")} - ${format(date, "MM-yyyy")}`;
       default:
         throw new Error(`Unexpected timeRange value: ${timeRange}`);
     }
   };
 
   const navigateTime = (direction: "prev" | "next") => {
+    const delta = direction === "next" ? 1 : -1;
+
     setDate((prevDate) => {
-      const newDate = new Date(prevDate);
-      if (timeRange === "Hour") newDate.setHours(newDate.getHours() + (direction === "next" ? 1 : -1));
-      else if (timeRange === "Day") newDate.setDate(newDate.getDate() + (direction === "next" ? 1 : -1));
-      else if (timeRange === "Week") newDate.setDate(newDate.getDate() + (direction === "next" ? 7 : -7));
-      return newDate;
+      if (timeRange === "Hour") return addHours(prevDate, delta);
+      if (timeRange === "Day") return addDays(prevDate, delta);
+      if (timeRange === "Week") return addDays(prevDate, delta * 7);
+
+      throw new Error(`Unexpected timeRange value: ${timeRange}`);
     });
   };
 
@@ -65,7 +65,9 @@ function useGetVisualizationData<T>({
   });
 
   useEffect(() => {
-    if (!prefetch || !elderEmail) return;
+    if (!prefetch || !elderEmail || hasPrefetched.current) return;
+
+    hasPrefetched.current = true;
 
     (async () => {
       const ranges: TimeRange[] = ["Hour", "Day", "Week"];
