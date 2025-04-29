@@ -30,10 +30,10 @@ function useGetVisualizationData<T>({
       case "Hour":
         return format(date, "HH:mm");
       case "Day":
-        return format(date, "MM-dd");
+        return format(date, "dd-MM");
       case "Week":
         const weekAgoDate = subDays(date, 7);
-        return `${format(weekAgoDate, "MM-yyyy")} - ${format(date, "MM-yyyy")}`;
+        return `${format(weekAgoDate, "dd-MM-yyyy")} - ${format(date, "dd-MM-yyyy")}`;
       default:
         throw new Error(`Unexpected timeRange value: ${timeRange}`);
     }
