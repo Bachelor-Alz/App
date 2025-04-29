@@ -57,9 +57,9 @@ function HeartRateScreen() {
     );
   }
 
-  const min = Math.min(...data.map((d) => d.heartrate.minrate));
-  const avg = data.reduce((sum, item) => sum + item.heartrate.avgrate, 0) / data.length;
-  const max = Math.max(...data.map((d) => d.heartrate.maxrate));
+  const min = Math.min(...data.map((d) => d.minrate));
+  const avg = data.reduce((sum, item) => sum + item.avgrate, 0) / data.length;
+  const max = Math.max(...data.map((d) => d.maxrate));
 
   const stats = [
     {
@@ -96,10 +96,10 @@ function HeartRateScreen() {
         <View style={styles.chartContainer}>
           <ChartComponent
             data={data.map((item) => ({
-              day: new Date(item.heartrate.timestamp).getTime(),
-              min: item.heartrate.minrate,
-              avg: item.heartrate.avgrate,
-              max: item.heartrate.maxrate,
+              day: new Date(item.timestamp).getTime(),
+              min: item.minrate,
+              avg: item.avgrate,
+              max: item.maxrate,
             }))}
             theme={theme}
             font={font}

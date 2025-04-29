@@ -1,31 +1,19 @@
 import { axiosInstance } from "./axiosConfig";
 
 export type HeartRateData = {
-  heartrate: {
-    id: number;
-    maxrate: number;
-    minrate: number;
-    avgrate: number;
-    timestamp: string;
-  };
-  currentHeartRate: {
-    timestamp: string;
-    heartrate: number;
-  };
+  id: number;
+  maxrate: number;
+  minrate: number;
+  avgrate: number;
+  timestamp: string;
 };
 
 export type SPO2Data = {
-  spo2: {
-    id: number;
-    avgSpO2: number;
-    maxSpO2: number;
-    minSpO2: number;
-    timestamp: string;
-  };
-  currentSpo2: {
-    spO2: number;
-    timestamp: string;
-  };
+  id: number;
+  avgSpO2: number;
+  maxSpO2: number;
+  minSpO2: number;
+  timestamp: string;
 };
 
 export type DistanceData = {

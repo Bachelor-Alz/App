@@ -57,9 +57,9 @@ function SPO2Screen() {
     );
   }
 
-  const min = Math.min(...data.map((d) => d.spo2.minSpO2 * 100));
-  const avg = data.reduce((sum, item) => sum + item.spo2.avgSpO2 * 100, 0) / data.length;
-  const max = Math.max(...data.map((d) => d.spo2.maxSpO2 * 100));
+  const min = Math.min(...data.map((d) => d.minSpO2 * 100));
+  const avg = data.reduce((sum, item) => sum + item.avgSpO2 * 100, 0) / data.length;
+  const max = Math.max(...data.map((d) => d.maxSpO2 * 100));
 
   const stats = [
     {
@@ -96,10 +96,10 @@ function SPO2Screen() {
         <View style={styles.chartContainer}>
           <ChartComponent
             data={data.map((item) => ({
-              day: new Date(item.spo2.timestamp).getTime(),
-              min: item.spo2.minSpO2 * 100,
-              avg: item.spo2.avgSpO2 * 100,
-              max: item.spo2.maxSpO2 * 100,
+              day: new Date(item.timestamp).getTime(),
+              min: item.minSpO2 * 100,
+              avg: item.avgSpO2 * 100,
+              max: item.maxSpO2 * 100,
             }))}
             theme={theme}
             font={font}
