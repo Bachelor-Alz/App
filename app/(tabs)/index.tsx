@@ -20,9 +20,7 @@ const MainPage = () => {
     if (email) {
       try {
         const res = await testArduinoConnection(email);
-        if (res) {
-          addToast("Arduino is connected", "success");
-        } else {
+        if (!res) {
           addToast("Arduino is not connected", "error");
         }
         return res;
