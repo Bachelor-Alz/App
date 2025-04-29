@@ -54,7 +54,7 @@ function StepsScreen() {
     );
   }
 
-  if (isError || !rawData || rawData.length === 0) {
+  if (isError || !rawData) {
     return (
       <SmartAreaView>
         <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
@@ -64,9 +64,25 @@ function StepsScreen() {
     );
   }
 
-  const data = timeRange === "Day" ? accumulateData([...rawData]) : rawData;
+  const isEmpty = rawData.length === 0;
+  const processedData = timeRange === "Day" ? accumulateData(rawData.map((d) => ({ ...d }))) : rawData;
 
-  const stepsValues = data.map((d) => Number(d.stepsCount || 0));
+  const chartData =
+    timeRange === "Day"
+      ? processedData.map((item) => ({
+          day: new Date(item.timestamp).getTime(),
+          count: Number(item.stepsCount),
+        }))
+      : isEmpty
+        ? [{ day: 0, min: 0, avg: 0, max: 0 }]
+        : processedData.map((item) => ({
+            day: new Date(item.timestamp).getTime(),
+            min: 0,
+            avg: Number(item.stepsCount),
+            max: Number(item.stepsCount),
+          }));
+
+  const stepsValues = isEmpty ? [0] : processedData.map((d) => Number(d.stepsCount || 0));
   const avg = stepsValues.reduce((sum, val) => sum + val, 0) / stepsValues.length;
   const max = Math.max(...stepsValues);
 
@@ -100,10 +116,7 @@ function StepsScreen() {
         <View style={styles.chartContainer}>
           {timeRange === "Day" ? (
             <VictoryChart
-              data={data.map((item) => ({
-                day: new Date(item.timestamp).getTime(),
-                count: Number(item.stepsCount),
-              }))}
+              data={chartData as { day: number; count: number }[]}
               theme={theme}
               font={font}
               boldFont={boldFont}
@@ -111,12 +124,7 @@ function StepsScreen() {
             />
           ) : (
             <ChartComponent
-              data={data.map((item) => ({
-                day: new Date(item.timestamp).getTime(),
-                min: 0,
-                avg: Number(item.stepsCount),
-                max: Number(item.stepsCount),
-              }))}
+              data={chartData as { day: number; min: number; avg: number; max: number }[]}
               theme={theme}
               font={font}
               boldFont={boldFont}

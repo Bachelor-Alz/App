@@ -40,7 +40,7 @@ const FallsCountScreen = () => {
     );
   }
 
-  if (isError || !filteredData || filteredData.length === 0) {
+  if (isError || !filteredData) {
     return (
       <SmartAreaView>
         <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
@@ -50,7 +50,18 @@ const FallsCountScreen = () => {
     );
   }
 
-  const fallsValues = filteredData.map((d) => Number(d.fallCount || 0));
+  const isEmpty = filteredData.length === 0;
+
+  const chartData = isEmpty
+    ? [{ day: 0, min: 0, avg: 0, max: 0 }]
+    : filteredData.map((item) => ({
+        day: new Date(item.timestamp).getTime(),
+        min: 0,
+        avg: Number(item.fallCount || 0),
+        max: Number(item.fallCount || 0),
+      }));
+
+  const fallsValues = isEmpty ? [0] : filteredData.map((d) => Number(d.fallCount || 0));
   const avg = fallsValues.reduce((sum, val) => sum + val, 0) / fallsValues.length;
   const max = Math.max(...fallsValues);
 
@@ -82,15 +93,7 @@ const FallsCountScreen = () => {
         />
         <View style={styles.chartContainer}>
           <ChartComponent
-            data={filteredData.map((item) => ({
-              day:
-                timeRange === "Week"
-                  ? new Date(item.timestamp).setHours(0, 0, 0, 0)
-                  : new Date(item.timestamp).getTime(),
-              min: 0,
-              avg: Number(item.fallCount || 0),
-              max: Number(item.fallCount || 0),
-            }))}
+            data={chartData}
             theme={theme}
             font={font}
             boldFont={boldFont}

@@ -37,7 +37,7 @@ function DistanceScreen() {
     );
   }
 
-  if (isError || !data || data.length === 0) {
+  if (isError || !data) {
     return (
       <SmartAreaView>
         <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
@@ -47,20 +47,31 @@ function DistanceScreen() {
     );
   }
 
-  const distanceValues = data.map((d) => Number(d.distance || 0));
+  const isEmpty = data?.length === 0;
+
+  const chartData = isEmpty
+    ? [{ day: 0, min: 0, avg: 0, max: 0 }]
+    : data.map((item) => ({
+        day: new Date(item.timestamp).getTime(),
+        min: 0,
+        avg: Number(item.distance),
+        max: Number(item.distance),
+      }));
+
+  const distanceValues = isEmpty ? [0] : data.map((d) => Number(d.distance || 0));
   const avg = distanceValues.reduce((sum, val) => sum + val, 0) / distanceValues.length;
   const max = Math.max(...distanceValues);
 
   const stats = [
     {
       label: "Avg",
-      value: avg,
+      value: Math.round(avg),
       icon: "trophy" as const,
       color: theme.colors.primary,
     },
     {
       label: "Max",
-      value: max,
+      value: Math.round(max),
       icon: "arrow-up" as const,
       color: theme.colors.tertiary,
     },
@@ -80,12 +91,7 @@ function DistanceScreen() {
 
         <View style={styles.chartContainer}>
           <ChartComponent
-            data={data.map((item) => ({
-              day: new Date(item.timestamp).getTime(),
-              min: 0,
-              avg: Number(item.distance),
-              max: Number(item.distance),
-            }))}
+            data={chartData}
             theme={theme}
             font={font}
             boldFont={boldFont}
