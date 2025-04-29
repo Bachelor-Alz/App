@@ -4,11 +4,12 @@ import { Text, useTheme, List, Button } from "react-native-paper";
 import SmartAreaView from "@/components/SmartAreaView";
 import { useToast } from "@/providers/ToastProvider";
 import { useCaregiversForElder } from "@/hooks/useElders";
+import { removeCaregiver } from "@/apis/elderAPI";
 
 const RemoveCaregiver = () => {
   const theme = useTheme();
   const { addToast } = useToast();
-  const { data: caregivers, isLoading, error } = useCaregiversForElder();
+  const { data: caregivers, isLoading, error, refetch } = useCaregiversForElder();
 
   if (isLoading) {
     return (
@@ -43,8 +44,8 @@ const RemoveCaregiver = () => {
           mode="contained"
           onPress={async () => {
             try {
-              // Call the API to remove the caregiver
-              // await removeCaregiver(item.email);
+              await removeCaregiver(item.email);
+              await refetch();
               addToast("Success", "Caregiver removed successfully.");
             } catch (err) {
               addToast("Error", "Failed to remove caregiver.");

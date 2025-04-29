@@ -90,3 +90,14 @@ export const fetchCaregiverForElder = async () => {
     throw error;
   }
 };
+
+export const removeCaregiver = async (caregiverEmail: string) => {
+  try {
+    const response = await axiosInstance.delete(`/api/User/users/elder/removeCaregiver`, {
+      params: { caregiverEmail },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
