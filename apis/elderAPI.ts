@@ -112,3 +112,14 @@ export const removeElderFromCaregiver = async (elderEmail: string) => {
     throw error;
   }
 };
+
+export const testArduinoConnection = async (elderEmail: string): Promise<boolean> => {
+  try {
+    const response = await axiosInstance.get(`/api/User/connected`, {
+      params: { elderEmail },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

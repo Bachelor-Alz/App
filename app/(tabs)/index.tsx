@@ -1,16 +1,19 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, Text, SafeAreaView, ActivityIndicator, StyleSheet } from "react-native";
-import { Icon, useTheme, Provider as PaperProvider } from "react-native-paper";
+import { useTheme, Provider as PaperProvider } from "react-native-paper";
 import { useDashBoardData } from "@/hooks/useGetDashboardData";
 import { router, useLocalSearchParams } from "expo-router";
 import { CaregiverCardList } from "@/components/CaregiverCardList";
 import { HealthCardList } from "@/components/HealthCardList";
 import { useAuthentication } from "@/providers/AuthenticationProvider";
 import { Ionicons } from "@expo/vector-icons";
+import { useTestArduinoConnection } from "@/hooks/useElders";
+import { useToast } from "@/providers/ToastProvider";
 
 const MainPage = () => {
   const theme = useTheme();
   const backgroundColor = theme.dark ? "#000000" : "#f9f9f9";
+  const { addToast } = useToast();
 
   const {
     name,
@@ -29,6 +32,13 @@ const MainPage = () => {
   const elderEmail = email || "";
 
   const { error, isLoading, data } = useDashBoardData(elderEmail);
+  const { data: arduinoStatus, isLoading: arduinoLoading } = useTestArduinoConnection(elderEmail);
+
+  useEffect(() => {
+    if (!arduinoLoading && arduinoStatus === false) {
+      addToast("Arduino is not connected", "error");
+    }
+  }, [arduinoLoading, arduinoStatus]);
 
   const healthData = data
     ? [
@@ -97,9 +107,17 @@ const MainPage = () => {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor }}>
       <View style={styles.container}>
-        <Text style={[styles.header, { color: theme.colors.onBackground }]}>
-          {name ? `${name}'s Dashboard` : "Dashboard"}
-        </Text>
+        <View style={styles.topRow}>
+          <Text style={[styles.header, { color: theme.colors.onBackground }]}>
+            {name ? `${name}'s Dashboard` : "Dashboard"}
+          </Text>
+          <Ionicons
+            name="bluetooth"
+            size={34}
+            color={arduinoLoading ? theme.colors.outline : arduinoStatus ? "#2ed573" : theme.colors.error}
+            style={styles.statusIcon}
+          />
+        </View>
         {email && <Text style={{ color: theme.colors.onSurface, marginBottom: 10 }}>{email}</Text>}
 
         {isLoading ? (
@@ -131,6 +149,15 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: "bold",
     marginBottom: 5,
+  },
+  topRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 5,
+  },
+  statusIcon: {
+    marginLeft: 20,
   },
 });
 
