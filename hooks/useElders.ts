@@ -5,7 +5,6 @@ import {
   fetchCaregiverInvites,
   fetchArduino,
   fetchCaregiverForElder,
-  testArduinoConnection,
 } from "@/apis/elderAPI";
 
 type Elder = {
@@ -69,10 +68,13 @@ export const useCaregiversForElder = () => {
   });
 };
 
-export const useTestArduinoConnection = (elderEmail: string) => {
+export const useTestArduinoConnection = (
+  elderEmail: string,
+  queryFn: (elderEmail: string) => Promise<boolean>
+) => {
   return useQuery<boolean>({
     queryKey: ["testArduinoConnection", elderEmail],
-    queryFn: () => testArduinoConnection(elderEmail),
+    queryFn: () => queryFn(elderEmail),
     staleTime: 5 * 60 * 1000,
     retry: 2,
   });

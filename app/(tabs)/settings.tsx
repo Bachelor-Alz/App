@@ -1,8 +1,9 @@
 import React from "react";
-import { View, SafeAreaView, StyleSheet } from "react-native";
+import { View, SafeAreaView, StyleSheet, Alert } from "react-native";
 import { List, Divider, Switch } from "react-native-paper";
 import { useAuthentication } from "@/providers/AuthenticationProvider";
 import { router } from "expo-router";
+import { removeArduinoFromElder } from "@/apis/elderAPI";
 
 const Settings = () => {
   const { role, logout } = useAuthentication();
@@ -36,6 +37,26 @@ const Settings = () => {
                 titleStyle={styles.title}
                 left={() => <List.Icon icon="bluetooth" />}
                 onPress={() => router.push("/viewarduino")}
+                style={styles.item}
+              />
+              <Divider style={styles.divider} />
+              <List.Item
+                title="Remove Arduino"
+                titleStyle={styles.title}
+                left={() => <List.Icon icon="bluetooth-off" />}
+                onPress={() => {
+                  Alert.alert("Confirm Removal", "Are you sure you want to remove your Arduino connection?", [
+                    {
+                      text: "Cancel",
+                      style: "cancel",
+                    },
+                    {
+                      text: "Remove",
+                      style: "destructive",
+                      onPress: () => removeArduinoFromElder(),
+                    },
+                  ]);
+                }}
                 style={styles.item}
               />
             </>

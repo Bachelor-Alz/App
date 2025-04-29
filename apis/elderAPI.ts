@@ -123,3 +123,12 @@ export const testArduinoConnection = async (elderEmail: string): Promise<boolean
     throw error;
   }
 };
+
+export const removeArduinoFromElder = async () => {
+  try {
+    const response = await axiosInstance.delete(`/api/User/users/arduino`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

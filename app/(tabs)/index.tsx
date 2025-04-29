@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { View, Text, SafeAreaView, ActivityIndicator, StyleSheet } from "react-native";
 import { useTheme, Provider as PaperProvider } from "react-native-paper";
 import { useDashBoardData } from "@/hooks/useGetDashboardData";
@@ -9,11 +9,30 @@ import { useAuthentication } from "@/providers/AuthenticationProvider";
 import { Ionicons } from "@expo/vector-icons";
 import { useTestArduinoConnection } from "@/hooks/useElders";
 import { useToast } from "@/providers/ToastProvider";
+import { testArduinoConnection } from "@/apis/elderAPI";
 
 const MainPage = () => {
   const theme = useTheme();
   const backgroundColor = theme.dark ? "#000000" : "#f9f9f9";
   const { addToast } = useToast();
+
+  const queryFn = async (email: string) => {
+    if (email) {
+      try {
+        const res = await testArduinoConnection(email);
+        if (res) {
+          addToast("Arduino is connected", "success");
+        } else {
+          addToast("Arduino is not connected", "error");
+        }
+        return res;
+      } catch (err) {
+        addToast("Error testing Arduino connection", "error");
+        return false;
+      }
+    }
+    return false;
+  };
 
   const {
     name,
@@ -32,13 +51,7 @@ const MainPage = () => {
   const elderEmail = email || "";
 
   const { error, isLoading, data } = useDashBoardData(elderEmail);
-  const { data: arduinoStatus, isLoading: arduinoLoading } = useTestArduinoConnection(elderEmail);
-
-  useEffect(() => {
-    if (!arduinoLoading && arduinoStatus === false) {
-      addToast("Arduino is not connected", "error");
-    }
-  }, [arduinoLoading, arduinoStatus]);
+  const { data: arduinoStatus, isLoading: arduinoLoading } = useTestArduinoConnection(elderEmail, queryFn);
 
   const healthData = data
     ? [
