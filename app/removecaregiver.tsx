@@ -1,10 +1,10 @@
 import React from "react";
 import { StyleSheet, View, FlatList } from "react-native";
-import { Text, useTheme, List, Button } from "react-native-paper";
+import { Text, useTheme, List, Button, IconButton } from "react-native-paper";
 import SmartAreaView from "@/components/SmartAreaView";
 import { useToast } from "@/providers/ToastProvider";
 import { useCaregiversForElder } from "@/hooks/useElders";
-import { removeCaregiver } from "@/apis/elderAPI";
+import { removeCaregiverFromElder } from "@/apis/elderAPI";
 
 const RemoveCaregiver = () => {
   const theme = useTheme();
@@ -40,21 +40,19 @@ const RemoveCaregiver = () => {
       left={(props) => <List.Icon {...props} icon="account" />}
       style={[styles.listItem, { borderBottomColor: theme.colors.outline }]}
       right={() => (
-        <Button
-          mode="contained"
+        <IconButton
+          icon="delete"
+          mode="outlined"
           onPress={async () => {
             try {
-              await removeCaregiver(item.email);
+              await removeCaregiverFromElder(item.email);
               await refetch();
               addToast("Success", "Caregiver removed successfully.");
             } catch (err) {
               addToast("Error", "Failed to remove caregiver.");
             }
           }}
-          compact
-          style={{ alignSelf: "center" }}>
-          Remove
-        </Button>
+          style={{ alignSelf: "center" }}></IconButton>
       )}
     />
   );

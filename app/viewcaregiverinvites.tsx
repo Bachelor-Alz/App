@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { StyleSheet, View, FlatList } from "react-native";
-import { Button, List, Searchbar, Text, useTheme } from "react-native-paper";
+import { Button, IconButton, List, Searchbar, Text, useTheme } from "react-native-paper";
 import SmartAreaView from "@/components/SmartAreaView";
 import { useCaregiverInvites } from "@/hooks/useElders";
 import { acceptCaregiverInvite } from "@/apis/elderAPI";
@@ -41,8 +41,9 @@ const ViewCaregiverInvites = () => {
       description={item.email}
       left={(props) => <List.Icon {...props} icon="account" />}
       right={() => (
-        <Button
-          mode="contained"
+        <IconButton
+          icon="check"
+          mode="outlined"
           onPress={async () => {
             try {
               await acceptCaregiverInvite(item.email);
@@ -51,10 +52,7 @@ const ViewCaregiverInvites = () => {
               addToast("Error accepting invite", "The invite could not be accepted.");
             }
           }}
-          compact
-          style={{ alignSelf: "center" }}>
-          Accept
-        </Button>
+          style={{ alignSelf: "center" }}></IconButton>
       )}
       style={[styles.listItem, { borderBottomColor: theme.colors.outline }]}
     />

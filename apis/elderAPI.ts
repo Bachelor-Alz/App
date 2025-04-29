@@ -91,10 +91,21 @@ export const fetchCaregiverForElder = async () => {
   }
 };
 
-export const removeCaregiver = async (caregiverEmail: string) => {
+export const removeCaregiverFromElder = async (caregiverEmail: string) => {
   try {
     const response = await axiosInstance.delete(`/api/User/users/elder/removeCaregiver`, {
       params: { caregiverEmail },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const removeElderFromCaregiver = async (elderEmail: string) => {
+  try {
+    const response = await axiosInstance.delete(`/api/User/users/caregiver/removeFromElder`, {
+      params: { elderEmail },
     });
     return response.data;
   } catch (error) {
