@@ -6,6 +6,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { CaregiverCardList } from "@/components/CaregiverCardList";
 import { HealthCardList } from "@/components/HealthCardList";
 import { useAuthentication } from "@/providers/AuthenticationProvider";
+import { Ionicons } from "@expo/vector-icons";
 
 const MainPage = () => {
   const theme = useTheme();
@@ -34,35 +35,35 @@ const MainPage = () => {
         {
           title: "Heart Rate",
           value: `${data.heartRate ?? "N/A"} BPM`,
-          icon: "heart" as keyof typeof Icon,
+          icon: "heart" as keyof typeof Ionicons.glyphMap,
           color: "#ff4757",
           onPress: () => router.push({ pathname: "/heartrate", params: { email: elderEmail } }),
         },
         {
           title: "Blood Oxygen Level",
           value: data.spO2 != null ? `${Math.round(Number(data.spO2) * 100)}%` : "N/A",
-          icon: "water" as keyof typeof Icon,
+          icon: "water" as keyof typeof Ionicons.glyphMap,
           color: "#1e90ff",
           onPress: () => router.push({ pathname: "/spo2", params: { email: elderEmail } }),
         },
         {
           title: "Steps",
           value: `${data.steps ?? "N/A"}`,
-          icon: "footsteps" as keyof typeof Icon,
+          icon: "footsteps" as keyof typeof Ionicons.glyphMap,
           color: "#2ed573",
           onPress: () => router.push({ pathname: "/stepscount", params: { email: elderEmail } }),
         },
         {
           title: "Recorded Falls",
           value: `${data.allFall ?? "N/A"}`,
-          icon: "alert-circle" as keyof typeof Icon,
+          icon: "alert-circle" as keyof typeof Ionicons.glyphMap,
           color: "#ffa502",
           onPress: () => router.push({ pathname: "/fallscount", params: { email: elderEmail } }),
         },
         {
           title: "Distance Walked",
           value: `${data.distance?.toFixed(2) ?? "N/A"} km`,
-          icon: "walk" as keyof typeof Icon,
+          icon: "walk" as keyof typeof Ionicons.glyphMap,
           color: "#ff7f50",
           onPress: () => router.push({ pathname: "/distance", params: { email: elderEmail } }),
         },
@@ -73,21 +74,21 @@ const MainPage = () => {
     {
       title: "View Invitations",
       value: "See caregiver invites from elders",
-      icon: "mail-open" as keyof typeof Icon,
+      icon: "mail-open" as keyof typeof Ionicons.glyphMap,
       color: "#1e90ff",
       onPress: () => router.push("/viewcaregiverinvites"),
     },
     {
       title: "View Assigned Elders",
       value: "See all elders assigned to you",
-      icon: "people" as keyof typeof Icon,
+      icon: "people" as keyof typeof Ionicons.glyphMap,
       color: "#2ed573",
       onPress: () => router.push("/viewelder"),
     },
     {
       title: "Elder Map",
       value: "View your associated elders on a map",
-      icon: "map" as keyof typeof Icon,
+      icon: "map" as keyof typeof Ionicons.glyphMap,
       color: "#ff4757",
       onPress: () => router.push("/map"),
     },
