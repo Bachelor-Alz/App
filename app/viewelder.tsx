@@ -13,12 +13,13 @@ const ViewElders = () => {
   const filteredElders =
     elders?.filter((elder) => elder.name.toLowerCase().includes(searchQuery.toLowerCase())) || [];
 
-  const handleElderPress = (elder: { name: string; email: string }) => {
+  const handleElderPress = (elder: { name: string; email: string; role: number }) => {
     router.push({
       pathname: "/(tabs)",
       params: {
         name: elder.name,
         email: elder.email,
+        role: elder.role,
       },
     });
   };
@@ -43,7 +44,7 @@ const ViewElders = () => {
     );
   }
 
-  const renderItem = ({ item }: { item: { name: string; email: string } }) => (
+  const renderItem = ({ item }: { item: { name: string; email: string; role: number } }) => (
     <TouchableOpacity onPress={() => handleElderPress(item)}>
       <List.Item
         title={item.name}
