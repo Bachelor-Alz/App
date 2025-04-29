@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { StyleSheet, View, FlatList } from "react-native";
-import { Button, IconButton, List, Searchbar, Text, useTheme } from "react-native-paper";
+import { IconButton, List, Searchbar, Text, useTheme } from "react-native-paper";
 import SmartAreaView from "@/components/SmartAreaView";
 import { useCaregiverInvites } from "@/hooks/useElders";
 import { acceptCaregiverInvite } from "@/apis/elderAPI";

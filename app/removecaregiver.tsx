@@ -1,6 +1,6 @@
 import React from "react";
 import { StyleSheet, View, FlatList } from "react-native";
-import { Text, useTheme, List, Button, IconButton } from "react-native-paper";
+import { Text, useTheme, List, IconButton } from "react-native-paper";
 import SmartAreaView from "@/components/SmartAreaView";
 import { useToast } from "@/providers/ToastProvider";
 import { useCaregiversForElder } from "@/hooks/useElders";

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { StyleSheet, View, FlatList, TouchableOpacity } from "react-native";
-import { Text, List, Searchbar, useTheme, Button, IconButton } from "react-native-paper";
+import { Text, List, Searchbar, useTheme, IconButton } from "react-native-paper";
 import SmartAreaView from "@/components/SmartAreaView";
 import { useEldersForCaregiver } from "@/hooks/useElders";
 import { router } from "expo-router";
