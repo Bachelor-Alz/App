@@ -65,18 +65,9 @@ const LoginScreen = () => {
       await SecureStore.deleteItemAsync("password");
     }
 
-    const role = await login(data);
-
-    if (role === 0) {
-      router.push("/(tabs)/caregiveroverview");
-    } else if (role === 1) {
-      router.push({
-        pathname: "/(tabs)",
-        params: {
-          email: data.email,
-        },
-      });
-    }
+    // Login the user and navigate to the main tabs page
+    await login(data);
+    router.push({ pathname: "/(tabs)", params: { email: data.email } });
   };
 
   return (

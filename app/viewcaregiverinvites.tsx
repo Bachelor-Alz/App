@@ -46,7 +46,7 @@ const ViewCaregiverInvites = () => {
           onPress={async () => {
             try {
               await acceptCaregiverInvite(item.email);
-              refetch();
+              await refetch();
             } catch (err) {
               addToast("Error accepting invite", "The invite could not be accepted.");
             }
