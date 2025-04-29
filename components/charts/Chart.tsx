@@ -3,6 +3,7 @@ import { Path, SkFont } from "@shopify/react-native-skia";
 import { ToolTip } from "@/components/charts/Tooltip";
 import { MD3Theme } from "react-native-paper";
 import { format } from "date-fns";
+import formatDate from "@/utils/formatDate";
 
 const INIT_STATE = { x: 0, y: { min: 0, avg: 0, max: 0 } };
 
@@ -26,20 +27,6 @@ const ChartComponent = ({
   const { state } = useChartTransformState();
   const color = theme.colors.onSurface;
 
-  const formatLabel = (timestamp: number) => {
-    const date = new Date(timestamp);
-    switch (timeRange) {
-      case "Hour":
-        return format(date, "h:mm");
-      case "Day":
-        return format(date, "ha");
-      case "Week":
-        return format(date, "MM-dd");
-      default:
-        return format(date, "PP");
-    }
-  };
-
   return (
     <CartesianChart
       data={data}
@@ -55,7 +42,7 @@ const ChartComponent = ({
         labelColor: color,
         font,
         labelRotate: -50,
-        formatXLabel: formatLabel,
+        formatXLabel: (date) => formatDate(timeRange, date),
         tickCount: 10,
       }}
       yAxis={[

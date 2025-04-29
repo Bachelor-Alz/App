@@ -1,8 +1,7 @@
 import React from "react";
-import { View } from "react-native";
 import { CartesianChart, Line, useChartPressState, useChartTransformState } from "victory-native";
 import { ToolTip } from "@/components/charts/Tooltip";
-import { format } from "date-fns";
+import formatDate from "@/utils/formatDate";
 
 const INIT_STATE = { x: 0, y: { count: 0 } };
 type TimeRange = "Hour" | "Day" | "Week";
@@ -19,20 +18,6 @@ const VictoryChart: React.FC<VictoryChartComponentProps> = ({ data, theme, font,
   const { state: firstPress, isActive: isFirstPressActive } = useChartPressState(INIT_STATE);
   const { state } = useChartTransformState();
   const color = theme.colors.onSurface;
-
-  const formatLabel = (timestamp: number) => {
-    const date = new Date(timestamp);
-    switch (timeRange) {
-      case "Hour":
-        return format(date, "h:mm");
-      case "Day":
-        return format(date, "ha");
-      case "Week":
-        return format(date, "MM-dd");
-      default:
-        return format(date, "PP");
-    }
-  };
 
   return (
     <CartesianChart
@@ -51,7 +36,7 @@ const VictoryChart: React.FC<VictoryChartComponentProps> = ({ data, theme, font,
         labelColor: color,
         font,
         labelRotate: -30,
-        formatXLabel: formatLabel,
+        formatXLabel: (date) => formatDate(timeRange, date),
         tickCount: 10,
       }}
       yAxis={[
