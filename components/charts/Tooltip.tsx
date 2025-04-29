@@ -74,7 +74,8 @@ export function ToolTip({ x, y, labels, theme, font: boldFont }: ToolTipProps) {
 
       <SKText
         text={useDerivedValue(
-          () => (labels?.x ? `${labels.x} ${x.value.value}` : `${x.value.value}`),
+          () =>
+            labels?.x ? `${labels.x} ${new Date(x.value.value).toLocaleDateString()}` : `${x.value.value}`,
           [x, labels]
         )}
         x={useDerivedValue(() => tooltipX.value + textPadding, [tooltipX])}

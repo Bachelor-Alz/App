@@ -10,6 +10,7 @@ import {
 type Elder = {
   name: string;
   email: string;
+  role: number;
 };
 
 type ElderInvite = {

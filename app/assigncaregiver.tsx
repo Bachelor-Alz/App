@@ -1,5 +1,5 @@
 import React from "react";
-import { Alert } from "react-native";
+import { Alert, View } from "react-native";
 import { Text, useTheme, Button } from "react-native-paper";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -45,25 +45,27 @@ const AssignCaregiverScreen = () => {
 
   return (
     <SmartAreaView>
-      <FormContainer>
-        <Text
-          variant="headlineLarge"
-          style={{ fontWeight: "bold", marginBottom: 20, color: theme.colors.onSurface }}>
-          Assign Caregiver
-        </Text>
+      <View style={{ justifyContent: "center", alignItems: "center", flex: 1 }}>
+        <FormContainer>
+          <Text
+            variant="headlineLarge"
+            style={{ fontWeight: "bold", marginBottom: 20, color: theme.colors.onSurface }}>
+            Assign Caregiver
+          </Text>
 
-        <FormField name="caregiverEmail" control={control} placeholder="Enter caregiver email" />
+          <FormField name="caregiverEmail" control={control} placeholder="Enter caregiver email" />
 
-        <Button
-          mode="outlined"
-          textColor={theme.colors.onSurface}
-          onPress={handleSubmit(onSubmit)}
-          disabled={!isValid || isSubmitting}
-          icon="account-arrow-right"
-          style={{ marginTop: 10 }}>
-          Assign
-        </Button>
-      </FormContainer>
+          <Button
+            mode="outlined"
+            textColor={theme.colors.onSurface}
+            onPress={handleSubmit(onSubmit)}
+            disabled={!isValid || isSubmitting}
+            icon="account-arrow-right"
+            style={{ marginTop: 10 }}>
+            Assign
+          </Button>
+        </FormContainer>
+      </View>
     </SmartAreaView>
   );
 };
