@@ -81,3 +81,12 @@ export const assignArduinoToElder = async (arduinoAddress: string) => {
     throw error;
   }
 };
+
+export const fetchCaregiverForElder = async () => {
+  try {
+    const response = await axiosInstance.get(`/api/User/users/elder/caregiver`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

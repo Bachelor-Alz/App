@@ -24,6 +24,14 @@ const Settings = () => {
               />
               <Divider style={styles.divider} />
               <List.Item
+                title="Remove Caregiver"
+                titleStyle={styles.title}
+                left={() => <List.Icon icon="account-remove" />}
+                onPress={() => router.push("/removecaregiver")}
+                style={styles.item}
+              />
+              <Divider style={styles.divider} />
+              <List.Item
                 title="Assign Arduino"
                 titleStyle={styles.title}
                 left={() => <List.Icon icon="bluetooth" />}
