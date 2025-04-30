@@ -1,6 +1,6 @@
 import { useToast } from "@/providers/ToastProvider";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { addDays, addHours, format, subDays } from "date-fns";
+import { addDays, addHours, format, getWeek, subDays } from "date-fns";
 import { useEffect, useRef, useState } from "react";
 
 export type TimeRange = "Hour" | "Day" | "Week";
@@ -32,8 +32,7 @@ function useGetVisualizationData<T>({
       case "Day":
         return format(date, "dd-MM");
       case "Week":
-        const weekAgoDate = subDays(date, 7);
-        return `${format(weekAgoDate, "dd-MM-yyyy")} - ${format(date, "dd-MM-yyyy")}`;
+        return `Week ${getWeek(date)}`;
       default:
         throw new Error(`Unexpected timeRange value: ${timeRange}`);
     }

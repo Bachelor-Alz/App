@@ -108,6 +108,7 @@ const FallsCountScreen = () => {
             { value: "Day", label: "Day" },
             { value: "Week", label: "Week" },
           ]}
+          style={styles.segmentedButtons}
         />
         <StatCard title="Statistics" stats={stats} icon="chart-line" color="#ff7f50" />
       </View>

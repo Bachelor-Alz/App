@@ -35,7 +35,7 @@ const VictoryChart: React.FC<VictoryChartComponentProps> = ({ data, theme, font,
         lineColor: color,
         labelColor: color,
         font,
-        labelRotate: -30,
+        labelRotate: -50,
         formatXLabel: (date) => formatDate(timeRange, date),
         tickCount: 10,
       }}

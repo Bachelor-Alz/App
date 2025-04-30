@@ -41,8 +41,8 @@ const elderSchema = z.object({
       (val) => /^(?:[A-Za-zæøåÆØÅ\s]+,\s?)?[A-Za-zæøåÆØÅ\s]+\s\d{1,5}(?:\s[A-Za-zæøåÆØÅ\s]+)?$/.test(val),
       { message: "The address is not valid" }
     ),
-  lat: z.number(),
-  lon: z.number(),
+  latitude: z.number(),
+  longitude: z.number(),
 });
 
 const schema = z.discriminatedUnion("role", [caregiverSchema, elderSchema]).superRefine((data, ctx) => {
@@ -142,8 +142,8 @@ const RegisterScreen = () => {
                   style={{ marginVertical: 5 }}
                   onPress={() => {
                     setValue("address", item.fullAddress);
-                    setValue("lat", Number(item.lat));
-                    setValue("lon", Number(item.lon));
+                    setValue("latitude", Number(item.lat));
+                    setValue("longitude", Number(item.lon));
                     trigger("address");
                   }}>
                   {item.fullAddress}
