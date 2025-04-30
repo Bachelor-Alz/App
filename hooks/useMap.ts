@@ -52,7 +52,6 @@ const fetchElderLocationsFake = async () => {
 };
 
 const updatePerimeter = (value: number, email: string | null) => {
-  console.log(value, email);
   if (!email || !value) return;
 };
 

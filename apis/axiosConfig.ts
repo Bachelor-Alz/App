@@ -1,6 +1,7 @@
 import axios from "axios";
 import { BASE_URL } from "@/utils/globals";
 import { router } from "expo-router";
+import * as SecureStore from "expo-secure-store";
 
 export const axiosInstance = axios.create({
   baseURL: BASE_URL,
@@ -25,6 +26,10 @@ const attemptRefresh = async () => {
   }
 };
 
+let lastRefreshAttempt: number | null = null;
+
+const FIVE_MINUTES = 5 * 60 * 1000;
+
 axiosInstance.interceptors.response.use(
   (response) => {
     //console.log(response.status + ": " + response.request.responseURL);
@@ -34,11 +39,15 @@ axiosInstance.interceptors.response.use(
     //console.log(error.response?.status + ": " + error.request.responseURL);
     const originalRequest = error.config;
 
-    if (!error.response || error.response.status !== 401 || originalRequest._retry) {
+    if (!error.response || error.response.status !== 401) {
       return Promise.reject(error);
     }
 
-    originalRequest._retry = true;
+    if (lastRefreshAttempt && Date.now() - lastRefreshAttempt < FIVE_MINUTES) {
+      return Promise.reject(new Error("Token refresh already attempted recently"));
+    }
+
+    lastRefreshAttempt = Date.now();
 
     try {
       const newToken = await attemptRefresh();
@@ -53,7 +62,12 @@ axiosInstance.interceptors.response.use(
         });
       }
     } catch (refreshError) {
-      router.replace("/");
+      await SecureStore.deleteItemAsync("rememberedEmail");
+      await SecureStore.deleteItemAsync("password");
+
+      if (router.canGoBack()) {
+        router.dismissAll();
+      }
     }
   }
 );

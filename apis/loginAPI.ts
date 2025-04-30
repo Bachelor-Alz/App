@@ -31,6 +31,6 @@ export const loginUserRequest = async (
       role,
     };
   } catch (error) {
-    throw new Error("Login failed.");
+    throw new Error((error as Error).message || "Login failed");
   }
 };

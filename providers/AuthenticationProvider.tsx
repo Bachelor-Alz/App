@@ -64,6 +64,7 @@ const AuthenticationProvider = ({ children }: { children: React.ReactNode }) => 
       router.dismissAll();
     } catch (error) {
       addToast("Error", "Failed to log out");
+      throw error;
     }
   }, []);
 

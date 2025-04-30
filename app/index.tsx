@@ -47,7 +47,10 @@ const LoginScreen = () => {
       if (savedEmail && savedPassword) {
         setValue("password", savedPassword);
 
-        login({ email: savedEmail, password: savedPassword }).then(() => {
+        login({ email: savedEmail, password: savedPassword }).then((role) => {
+          if (role === undefined) {
+            return;
+          }
           router.navigate({ pathname: "/(tabs)", params: { email: savedEmail } });
         });
       }
@@ -66,7 +69,10 @@ const LoginScreen = () => {
     }
 
     // Login the user and navigate to the main tabs page
-    await login(data);
+    const role = await login(data);
+    if (role === undefined) {
+      return;
+    }
     router.push({ pathname: "/(tabs)", params: { email: data.email } });
   };
 
