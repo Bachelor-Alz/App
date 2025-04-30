@@ -1,15 +1,15 @@
 import { TimeRange } from "@/hooks/useGetVisualizationData";
-import { format, subDays } from "date-fns";
+import { format } from "date-fns";
 
 const formatDate = (timeRange: TimeRange, date: number): string => {
   switch (timeRange) {
     case "Hour":
       return format(date, "HH:mm");
     case "Day":
-      return format(date, "HH");
+      return format(date, "HH:00");
     case "Week":
-      const weekAgoDate = subDays(date, 7);
-      return `${format(weekAgoDate, "dd")}`;
+      // Returns Mon, Tue, Wed, Thu, Fri, Sat, Sun
+      return format(date, "E");
     default:
       throw new Error(`Unexpected timeRange value: ${timeRange}`);
   }

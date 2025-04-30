@@ -1,6 +1,6 @@
 import { Fragment } from "react";
 import { SharedValue, useDerivedValue } from "react-native-reanimated";
-import { Circle, Rect, SkFont, Text as SKText } from "@shopify/react-native-skia";
+import { Rect, SkFont, Text as SKText } from "@shopify/react-native-skia";
 import { MD3Theme } from "react-native-paper";
 
 export type DataPoint = {
@@ -49,16 +49,6 @@ export function ToolTip({ x, y, labels, theme, font: boldFont }: ToolTipProps) {
 
   return (
     <Fragment>
-      {y.data.map((point, index) => (
-        <Circle
-          key={index}
-          cx={x.position}
-          cy={point.position}
-          r={circleRadius}
-          color={y.colors?.[index] ?? theme.colors.primary}
-        />
-      ))}
-
       <Rect
         x={useDerivedValue(() => tooltipX.value - 2, [tooltipX])}
         y={useDerivedValue(() => tooltipY.value - 2, [tooltipY])}
@@ -70,12 +60,27 @@ export function ToolTip({ x, y, labels, theme, font: boldFont }: ToolTipProps) {
         strokeJoin="round"
         style="stroke"
       />
-      <Rect x={tooltipX} y={tooltipY} width={boxWidth} height={boxHeight} color={theme.colors.surface} />
+      <Rect
+        x={tooltipX}
+        y={tooltipY}
+        width={boxWidth}
+        height={boxHeight}
+        color={theme.colors.surface}
+        opacity={0.9}
+      />
 
       <SKText
         text={useDerivedValue(
           () =>
-            labels?.x ? `${labels.x} ${new Date(x.value.value).toLocaleDateString()}` : `${x.value.value}`,
+            labels?.x
+              ? `${labels.x} ${new Date(x.value.value).toLocaleTimeString(undefined, {
+                  month: "2-digit",
+                  day: "2-digit",
+                })}`
+              : `${new Date(x.value.value).toLocaleTimeString(undefined, {
+                  month: "2-digit",
+                  day: "2-digit",
+                })}`,
           [x, labels]
         )}
         x={useDerivedValue(() => tooltipX.value + textPadding, [tooltipX])}

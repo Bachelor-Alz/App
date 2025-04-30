@@ -2,7 +2,6 @@ import { CartesianChart, useChartPressState, useChartTransformState } from "vict
 import { Path, SkFont } from "@shopify/react-native-skia";
 import { ToolTip } from "@/components/charts/Tooltip";
 import { MD3Theme } from "react-native-paper";
-import { format } from "date-fns";
 import formatDate from "@/utils/formatDate";
 
 const INIT_STATE = { x: 0, y: { min: 0, avg: 0, max: 0 } };
@@ -23,7 +22,7 @@ const ChartComponent = ({
   boldFont: SkFont;
   timeRange: TimeRange;
 }) => {
-  const { state: firstPress, isActive: isFirstPressActive } = useChartPressState(INIT_STATE);
+  const { state: pressState, isActive: isPressActive } = useChartPressState(INIT_STATE);
   const { state } = useChartTransformState();
   const color = theme.colors.onSurface;
 
@@ -31,11 +30,10 @@ const ChartComponent = ({
     <CartesianChart
       data={data}
       frame={{ lineColor: color }}
-      domainPadding={{ left: 30, right: 30, bottom: 15, top: 15 }}
-      padding={{ left: 10, top: 5, bottom: 5, right: 20 }}
+      domainPadding={{ left: 30, right: 30, bottom: 1, top: 5 }}
       xKey="day"
       yKeys={["min", "avg", "max"]}
-      chartPressState={firstPress}
+      chartPressState={pressState}
       transformState={state}
       xAxis={{
         lineColor: color,
@@ -43,44 +41,45 @@ const ChartComponent = ({
         font,
         labelRotate: -50,
         formatXLabel: (date) => formatDate(timeRange, date),
-        tickCount: 10,
+        tickCount: Math.min(7, data.length),
       }}
       yAxis={[
         {
           lineColor: color,
           labelColor: color,
           font,
-          labelOffset: 10,
         },
       ]}>
-      {({ points }) => (
+      {({ points, yScale }) => (
         <>
-          {data.map((_, index) => {
-            const minPoint = points.min[index];
-            const avgPoint = points.avg[index];
-            const maxPoint = points.max[index];
-            if (!minPoint || !avgPoint || !maxPoint) return null;
-            const path = `M ${minPoint.x} ${minPoint.y} L ${maxPoint.x} ${maxPoint.y}`;
+          {data.map((point, index) => {
+            const minY = yScale(point.min);
+            const maxY = yScale(point.max);
+            const x = points.min[index].x;
+            if (isNaN(minY) || isNaN(maxY)) return null;
+
+            const path = `M ${x} ${maxY} L ${x} ${minY}`;
+
             return (
               <Path
-                key={`line-${index}`}
+                key={`bar-${index}`}
                 path={path}
                 color={theme.colors.primary}
                 style="stroke"
-                strokeWidth={3}
+                strokeWidth={5}
               />
             );
           })}
-          {isFirstPressActive && (
+
+          {isPressActive && (
             <ToolTip
-              x={firstPress.x}
+              x={pressState.x}
               y={{
-                data: [firstPress.y.max, firstPress.y.avg, firstPress.y.min],
+                data: [pressState.y.max, pressState.y.avg, pressState.y.min],
                 colors: [theme.colors.tertiary, theme.colors.primary, theme.colors.secondary],
                 labels: ["Max", "Avg", "Min"],
               }}
               theme={theme}
-              labels={{ x: "Date: " }}
               font={boldFont}
             />
           )}
