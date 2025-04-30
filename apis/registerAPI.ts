@@ -20,7 +20,6 @@ type CreateUserResponseProps = {
 
 export const createUserRequest = (userData: CreateUserRequestProps): Promise<CreateUserResponseProps> => {
   const { address, confirmPassword, ...rest } = userData;
-  console.log(userData);
   return axiosInstance
     .post(`/api/User/register`, rest)
     .then((res) => res.data)
