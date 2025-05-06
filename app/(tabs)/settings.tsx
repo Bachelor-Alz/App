@@ -1,6 +1,6 @@
 import React from "react";
 import { View, SafeAreaView, StyleSheet, Alert } from "react-native";
-import { List, Divider, Switch } from "react-native-paper";
+import { List, Divider } from "react-native-paper";
 import { useAuthentication } from "@/providers/AuthenticationProvider";
 import { router } from "expo-router";
 import { removeArduinoFromElder } from "@/apis/elderAPI";
