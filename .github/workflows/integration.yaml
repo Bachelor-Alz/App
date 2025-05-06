@@ -28,14 +28,19 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      - name: Setup docker-compose
+      - name: Set up and download Docker Compose
+        uses: docker/setup-compose-action@v1.2.0
+        with:
+          version: latest
+
+      - name: docker-compose up
         run: |
           docker-compose up -d
 
       - name: Wait for backend to be healthy
         run: |
           echo "Waiting for backend health..."
-          sleet 10  
+          sleep 10  
           for i in {1..20}; do
               if curl -f http://localhost:5171/health; then
                 echo "Backend is healthy"
