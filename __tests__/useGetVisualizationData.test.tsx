@@ -2,22 +2,45 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor, act } from "@testing-library/react-native";
 import { fetchHeartRate, fetchSPO2, fetchDistance, fetchSteps, fetchFallsData } from "@/apis/healthAPI";
 import useGetVisualizationData from "@/hooks/useGetVisualizationData";
+import { ToastProvider } from "@/providers/ToastProvider";
 
-jest.mock("@/apis/healthAPI");
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: Infinity,
+      retry: false,
+      gcTime: Infinity,
+    },
+    mutations: {
+      retry: false,
+      gcTime: Infinity,
+    },
+  },
+});
 
 const testEmail = "test@example.com";
 const testDate = "2025-04-01T10:00:00.000Z";
 const period: "Day" = "Day";
 
-const wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const queryClient = new QueryClient();
-  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
-};
+jest.mock("@/apis/healthAPI", () => ({
+  fetchHeartRate: jest.fn(),
+  fetchSPO2: jest.fn(),
+  fetchDistance: jest.fn(),
+  fetchSteps: jest.fn(),
+  fetchFallsData: jest.fn(),
+}));
+
+const wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <ToastProvider>
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  </ToastProvider>
+);
 
 beforeAll(() => {
   const fixedDate = new Date("2025-04-01T10:00:00.000Z");
   jest.useFakeTimers().setSystemTime(fixedDate);
 });
+
 describe("useGetVisualizationData hook", () => {
   afterAll(() => {
     jest.useRealTimers();
@@ -42,23 +65,20 @@ describe("useGetVisualizationData hook", () => {
 
     (fetchHeartRate as jest.Mock).mockResolvedValue(mockHeartRateData);
 
-    const testDate = new Date("2025-04-01T10:00:00.000Z");
-
     const { result } = renderHook(
       () =>
         useGetVisualizationData({
           elderEmail: testEmail,
           fetchFn: fetchHeartRate,
           metricKey: "heartRate",
-          prefetch: false,
-          select: testDate,
+          prefetch: true,
+          initialDate: new Date(testDate),
         }),
       { wrapper }
     );
 
-    await waitFor(() => result.current.isSuccess);
-    expect(fetchHeartRate).toHaveBeenCalledWith(testEmail, testDate.toISOString(), period);
-    expect(result.current.data).toEqual(mockHeartRateData);
+    await waitFor(() => expect(result.current.data).toEqual(mockHeartRateData));
+    expect(fetchHeartRate).toHaveBeenCalledWith(testEmail, testDate, period);
   });
 
   it("should fetch SPO2 data correctly for a given elder and time range", async () => {
@@ -81,16 +101,19 @@ describe("useGetVisualizationData hook", () => {
     (fetchSPO2 as jest.Mock).mockResolvedValue(mockSPO2Data);
 
     const { result } = renderHook(
-      () => useGetVisualizationData({ elderEmail: testEmail, fetchFn: fetchSPO2, metricKey: "spo2" }),
-      {
-        wrapper,
-      }
+      () =>
+        useGetVisualizationData({
+          elderEmail: testEmail,
+          fetchFn: fetchSPO2,
+          metricKey: "spo2",
+          prefetch: true,
+          initialDate: new Date(testDate),
+        }),
+      { wrapper }
     );
 
-    await waitFor(() => result.current.isSuccess);
-
+    await waitFor(() => expect(result.current.data).toEqual(mockSPO2Data));
     expect(fetchSPO2).toHaveBeenCalledWith(testEmail, testDate, period);
-    expect(result.current.data).toEqual(mockSPO2Data);
   });
 
   it("should fetch distance data correctly for a given elder and time range", async () => {
@@ -99,16 +122,19 @@ describe("useGetVisualizationData hook", () => {
     (fetchDistance as jest.Mock).mockResolvedValue(mockDistanceData);
 
     const { result } = renderHook(
-      () => useGetVisualizationData({ elderEmail: testEmail, fetchFn: fetchDistance, metricKey: "distance" }),
-      {
-        wrapper,
-      }
+      () =>
+        useGetVisualizationData({
+          elderEmail: testEmail,
+          fetchFn: fetchDistance,
+          metricKey: "distance",
+          prefetch: true,
+          initialDate: new Date(testDate),
+        }),
+      { wrapper }
     );
 
-    await waitFor(() => result.current.isSuccess);
-
+    await waitFor(() => expect(result.current.data).toEqual(mockDistanceData));
     expect(fetchDistance).toHaveBeenCalledWith(testEmail, testDate, period);
-    expect(result.current.data).toEqual(mockDistanceData);
   });
 
   it("should fetch steps data correctly for a given elder and time range", async () => {
@@ -117,16 +143,19 @@ describe("useGetVisualizationData hook", () => {
     (fetchSteps as jest.Mock).mockResolvedValue(mockStepsData);
 
     const { result } = renderHook(
-      () => useGetVisualizationData({ elderEmail: testEmail, fetchFn: fetchSteps, metricKey: "steps" }),
-      {
-        wrapper,
-      }
+      () =>
+        useGetVisualizationData({
+          elderEmail: testEmail,
+          fetchFn: fetchSteps,
+          metricKey: "steps",
+          prefetch: true,
+          initialDate: new Date(testDate),
+        }),
+      { wrapper }
     );
 
-    await waitFor(() => result.current.isSuccess);
-
+    await waitFor(() => expect(result.current.data).toEqual(mockStepsData));
     expect(fetchSteps).toHaveBeenCalledWith(testEmail, testDate, period);
-    expect(result.current.data).toEqual(mockStepsData);
   });
 
   it("should fetch falls data correctly for a given elder and time range", async () => {
@@ -135,22 +164,31 @@ describe("useGetVisualizationData hook", () => {
     (fetchFallsData as jest.Mock).mockResolvedValue(mockFallsData);
 
     const { result } = renderHook(
-      () => useGetVisualizationData({ elderEmail: testEmail, fetchFn: fetchFallsData, metricKey: "falls" }),
-      {
-        wrapper,
-      }
+      () =>
+        useGetVisualizationData({
+          elderEmail: testEmail,
+          fetchFn: fetchFallsData,
+          metricKey: "falls",
+          prefetch: true,
+          initialDate: new Date(testDate),
+        }),
+      { wrapper }
     );
 
-    await waitFor(() => result.current.isSuccess);
-
+    await waitFor(() => expect(result.current.data).toEqual(mockFallsData));
     expect(fetchFallsData).toHaveBeenCalledWith(testEmail, testDate, period);
-    expect(result.current.data).toEqual(mockFallsData);
   });
 
   it("should handle the navigation of time range", async () => {
     const { result } = renderHook(
       () =>
-        useGetVisualizationData({ elderEmail: testEmail, fetchFn: fetchHeartRate, metricKey: "heartRate" }),
+        useGetVisualizationData({
+          elderEmail: testEmail,
+          fetchFn: fetchHeartRate,
+          metricKey: "heartRate",
+          prefetch: true,
+          initialDate: new Date(testDate),
+        }),
       {
         wrapper,
       }
