@@ -13,7 +13,7 @@ import { testArduinoConnection } from "@/apis/elderAPI";
 
 const MainPage = () => {
   const theme = useTheme();
-  const backgroundColor = theme.dark ? "#000000" : "#f9f9f9";
+  const backgroundColor = theme.dark ? "#000000" : theme.colors.surface;
   const { addToast } = useToast();
 
   const queryFn = async (email: string) => {

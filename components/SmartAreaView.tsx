@@ -4,7 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Icon, MD3Theme, withTheme } from "react-native-paper";
 
 const SmartAreaView: React.FC<{ children: React.ReactNode; theme: MD3Theme }> = ({ children, theme }) => {
-  const backgroundColor = theme.dark ? "#000000" : "#f9f9f9";
+  const backgroundColor = theme.dark ? "#000000" : theme.colors.surface;
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor }]}>

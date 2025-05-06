@@ -66,7 +66,7 @@ const ViewCaregiverInvites = () => {
           placeholder="Search Invites"
           onChangeText={setSearchQuery}
           value={searchQuery}
-          style={[styles.searchbar, { backgroundColor: theme.colors.surface }]}
+          style={styles.searchbar}
         />
 
         <FlatList
