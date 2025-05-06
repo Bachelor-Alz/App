@@ -1,6 +1,6 @@
 import React from "react";
 import { StyleSheet, View, TouchableOpacity } from "react-native";
-import { Text, RadioButton, useTheme } from "react-native-paper";
+import { Text, RadioButton, useTheme, Button } from "react-native-paper";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller, useWatch } from "react-hook-form";
@@ -137,9 +137,10 @@ const RegisterScreen = () => {
             <>
               <FormField control={control} name="address" placeholder="Address (Visionsvej 21 Aalborg)" />
               {suggestions?.map((item, index) => (
-                <Text
+                <Button
                   key={index}
-                  style={{ marginVertical: 5 }}
+                  mode="outlined"
+                  labelStyle={styles.buttonLabel}
                   onPress={() => {
                     setValue("address", item.fullAddress);
                     setValue("latitude", Number(item.lat));
@@ -147,7 +148,7 @@ const RegisterScreen = () => {
                     trigger("address");
                   }}>
                   {item.fullAddress}
-                </Text>
+                </Button>
               ))}
             </>
           )}
@@ -185,6 +186,11 @@ const styles = StyleSheet.create({
   },
   radioText: {
     fontSize: 16,
+  },
+  buttonLabel: {
+    color: "#333",
+    fontWeight: "600",
+    fontSize: 12,
   },
 });
 
