@@ -30,7 +30,7 @@ function HeartRateScreen() {
   if (isLoading) {
     return (
       <SmartAreaView>
-        <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+        <View style={styles.container}>
           <Text style={styles.centeredText}>Loading...</Text>
         </View>
       </SmartAreaView>
@@ -40,7 +40,7 @@ function HeartRateScreen() {
   if (isError) {
     return (
       <SmartAreaView>
-        <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+        <View style={styles.container}>
           <Text style={styles.centeredText}>Error loading data</Text>
         </View>
       </SmartAreaView>
@@ -50,7 +50,7 @@ function HeartRateScreen() {
   if (!data) {
     return (
       <SmartAreaView>
-        <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+        <View style={styles.container}>
           <Text style={styles.centeredText}>No heart rate data available</Text>
         </View>
       </SmartAreaView>
@@ -94,7 +94,7 @@ function HeartRateScreen() {
 
   return (
     <SmartAreaView>
-      <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+      <View style={styles.container}>
         <ChartTitle
           title="Heart Rate"
           timePeriod={timeFormat}

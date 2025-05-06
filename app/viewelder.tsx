@@ -30,7 +30,7 @@ const ViewElders = () => {
   if (isLoading) {
     return (
       <SmartAreaView>
-        <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+        <View style={styles.container}>
           <Text style={styles.centeredText}>Loading...</Text>
         </View>
       </SmartAreaView>
@@ -40,7 +40,7 @@ const ViewElders = () => {
   if (error || !elders || elders.length === 0) {
     return (
       <SmartAreaView>
-        <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+        <View style={styles.container}>
           <Text style={styles.centeredText}>{error ? "Failed to load elders." : "No elders found."}</Text>
         </View>
       </SmartAreaView>
@@ -75,12 +75,12 @@ const ViewElders = () => {
 
   return (
     <SmartAreaView>
-      <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+      <View style={styles.container}>
         <Searchbar
           placeholder="Search Elders"
           onChangeText={setSearchQuery}
           value={searchQuery}
-          style={[styles.searchbar, { backgroundColor: theme.colors.surface }]}
+          style={styles.searchbar}
         />
 
         <FlatList

@@ -25,14 +25,14 @@ const ChartTitle = ({ title, timePeriod, icon, iconColor, navigateTime, theme }:
           name="chevron-left"
           size={30}
           onPress={() => navigateTime("prev")}
-          color={theme.colors.backdrop}
+          color={theme.colors.onSurface}
         />
         <Text variant="titleMedium">{timePeriod()}</Text>
         <MaterialCommunityIcons
           name="chevron-right"
           size={30}
           onPress={() => navigateTime("next")}
-          color={theme.colors.backdrop}
+          color={theme.colors.onSurface}
         />
       </View>
     </View>

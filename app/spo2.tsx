@@ -30,7 +30,7 @@ function SPO2Screen() {
   if (isLoading) {
     return (
       <SmartAreaView>
-        <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+        <View style={styles.container}>
           <Text style={styles.centeredText}>Loading...</Text>
         </View>
       </SmartAreaView>
@@ -40,7 +40,7 @@ function SPO2Screen() {
   if (isError) {
     return (
       <SmartAreaView>
-        <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+        <View style={styles.container}>
           <Text style={styles.centeredText}>Error loading data</Text>
         </View>
       </SmartAreaView>
@@ -50,7 +50,7 @@ function SPO2Screen() {
   if (!data) {
     return (
       <SmartAreaView>
-        <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+        <View style={styles.container}>
           <Text style={styles.centeredText}>No Blood Oxygen data available</Text>
         </View>
       </SmartAreaView>
@@ -94,7 +94,7 @@ function SPO2Screen() {
 
   return (
     <SmartAreaView>
-      <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+      <View style={styles.container}>
         <ChartTitle
           title="Blood Oxygen"
           timePeriod={timeFormat}
