@@ -5,21 +5,11 @@ import SmartAreaView from "@/components/SmartAreaView";
 import { StatCard } from "@/components/charts/StatsCard";
 import { useLocalSearchParams } from "expo-router";
 import useGetVisualizationData from "@/hooks/useGetVisualizationData";
-import { fetchSteps, StepsData } from "@/apis/healthAPI";
-import VictoryChart from "@/components/charts/VictoryChart";
+import { fetchSteps } from "@/apis/healthAPI";
 import ChartComponent from "@/components/charts/Chart";
 import ChartTitle from "@/components/charts/ChartTitle";
 
 type TimeRange = "Hour" | "Day" | "Week";
-
-const accumulateData = (data: StepsData[]) => {
-  let accumulated = 0;
-  for (let i = 0; i < data.length; i++) {
-    accumulated += data[i].stepsCount;
-    data[i].stepsCount = accumulated;
-  }
-  return data;
-};
 
 function StepsScreen() {
   const theme = useTheme();
@@ -54,7 +44,7 @@ function StepsScreen() {
     );
   }
 
-  if (isError || !rawData || rawData.length === 0) {
+  if (isError || !rawData) {
     return (
       <SmartAreaView>
         <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
@@ -64,9 +54,18 @@ function StepsScreen() {
     );
   }
 
-  const data = timeRange === "Day" ? accumulateData([...rawData]) : rawData;
+  const isEmpty = rawData.length === 0;
 
-  const stepsValues = data.map((d) => Number(d.stepsCount || 0));
+  const chartData = isEmpty
+    ? [{ day: 0, min: 0, avg: 0, max: 0 }]
+    : rawData.map((item) => ({
+        day: new Date(item.timestamp).getTime(),
+        min: 0,
+        avg: Number(item.stepsCount),
+        max: Number(item.stepsCount),
+      }));
+
+  const stepsValues = isEmpty ? [0] : rawData.map((d) => Number(d.stepsCount || 0));
   const avg = stepsValues.reduce((sum, val) => sum + val, 0) / stepsValues.length;
   const max = Math.max(...stepsValues);
 
@@ -98,31 +97,13 @@ function StepsScreen() {
         />
 
         <View style={styles.chartContainer}>
-          {timeRange === "Day" ? (
-            <VictoryChart
-              data={data.map((item) => ({
-                day: new Date(item.timestamp).getTime(),
-                count: Number(item.stepsCount),
-              }))}
-              theme={theme}
-              font={font}
-              boldFont={boldFont}
-              timeRange={timeRange}
-            />
-          ) : (
-            <ChartComponent
-              data={data.map((item) => ({
-                day: new Date(item.timestamp).getTime(),
-                min: 0,
-                avg: Number(item.stepsCount),
-                max: Number(item.stepsCount),
-              }))}
-              theme={theme}
-              font={font}
-              boldFont={boldFont}
-              timeRange={timeRange}
-            />
-          )}
+          <ChartComponent
+            data={chartData}
+            theme={theme}
+            font={font}
+            boldFont={boldFont}
+            timeRange={timeRange}
+          />
         </View>
 
         <SegmentedButtons

@@ -47,7 +47,7 @@ function SPO2Screen() {
     );
   }
 
-  if (!data || data.length === 0) {
+  if (!data) {
     return (
       <SmartAreaView>
         <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
@@ -57,9 +57,19 @@ function SPO2Screen() {
     );
   }
 
-  const min = Math.min(...data.map((d) => d.minSpO2 * 100));
-  const avg = data.reduce((sum, item) => sum + item.avgSpO2 * 100, 0) / data.length;
-  const max = Math.max(...data.map((d) => d.maxSpO2 * 100));
+  const isEmpty = data.length === 0;
+  const chartData = isEmpty
+    ? [{ day: 0, min: 0, avg: 0, max: 0 }]
+    : data.map((item) => ({
+        day: new Date(item.timestamp).getTime(),
+        min: item.minSpO2 * 100,
+        avg: item.avgSpO2 * 100,
+        max: item.maxSpO2 * 100,
+      }));
+
+  const min = isEmpty ? 0 : Math.min(...data.map((d) => d.minSpO2 * 100));
+  const avg = isEmpty ? 0 : data.reduce((sum, item) => sum + item.avgSpO2 * 100, 0) / data.length;
+  const max = isEmpty ? 0 : Math.max(...data.map((d) => d.maxSpO2 * 100));
 
   const stats = [
     {
@@ -95,12 +105,7 @@ function SPO2Screen() {
         />
         <View style={styles.chartContainer}>
           <ChartComponent
-            data={data.map((item) => ({
-              day: new Date(item.timestamp).getTime(),
-              min: item.minSpO2 * 100,
-              avg: item.avgSpO2 * 100,
-              max: item.maxSpO2 * 100,
-            }))}
+            data={chartData}
             theme={theme}
             font={font}
             boldFont={boldFont}

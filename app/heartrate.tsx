@@ -47,7 +47,7 @@ function HeartRateScreen() {
     );
   }
 
-  if (!data || data.length === 0) {
+  if (!data) {
     return (
       <SmartAreaView>
         <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
@@ -57,9 +57,19 @@ function HeartRateScreen() {
     );
   }
 
-  const min = Math.min(...data.map((d) => d.minrate));
-  const avg = data.reduce((sum, item) => sum + item.avgrate, 0) / data.length;
-  const max = Math.max(...data.map((d) => d.maxrate));
+  const isEmpty = data.length === 0;
+  const chartData = isEmpty
+    ? [{ day: 0, min: 0, avg: 0, max: 0 }]
+    : data.map((item) => ({
+        day: new Date(item.timestamp).getTime(),
+        min: item.minrate,
+        avg: item.avgrate,
+        max: item.maxrate,
+      }));
+
+  const min = isEmpty ? 0 : Math.min(...data.map((d) => d.minrate));
+  const avg = isEmpty ? 0 : data.reduce((sum, item) => sum + item.avgrate, 0) / data.length;
+  const max = isEmpty ? 0 : Math.max(...data.map((d) => d.maxrate));
 
   const stats = [
     {
@@ -95,12 +105,7 @@ function HeartRateScreen() {
         />
         <View style={styles.chartContainer}>
           <ChartComponent
-            data={data.map((item) => ({
-              day: new Date(item.timestamp).getTime(),
-              min: item.minrate,
-              avg: item.avgrate,
-              max: item.maxrate,
-            }))}
+            data={chartData}
             theme={theme}
             font={font}
             boldFont={boldFont}
