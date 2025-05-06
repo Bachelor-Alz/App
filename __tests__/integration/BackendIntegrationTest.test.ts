@@ -32,7 +32,7 @@ const expectedEntryCounts = {
 type TimeFrame = keyof typeof expectedEntryCounts;
 
 beforeAll(async () => {
-  axiosInstance.defaults.baseURL = `${process.env.EXPO_PUBLIC_API_URL}:${process.env.EXPO_PUBLIC_API_PORT}`;
+  axiosInstance.defaults.baseURL = `http://localhost:5171`;
   try {
     const response = await loginUserRequest(mockUser);
     setBearer(response.token);
