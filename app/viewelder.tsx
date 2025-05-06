@@ -75,7 +75,7 @@ const ViewElders = () => {
 
   return (
     <SmartAreaView>
-      <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+      <View style={styles.container}>
         <Searchbar
           placeholder="Search Elders"
           onChangeText={setSearchQuery}

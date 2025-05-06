@@ -14,7 +14,7 @@ const RemoveCaregiver = () => {
   if (isLoading) {
     return (
       <SmartAreaView>
-        <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+        <View style={styles.container}>
           <Text style={styles.centeredText}>Loading...</Text>
         </View>
       </SmartAreaView>
@@ -24,7 +24,7 @@ const RemoveCaregiver = () => {
   if (error || !caregivers || caregivers.length === 0) {
     return (
       <SmartAreaView>
-        <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+        <View style={styles.container}>
           <Text style={styles.centeredText}>
             {error ? "Failed to find caregivers." : "No caregivers found."}
           </Text>
@@ -60,7 +60,7 @@ const RemoveCaregiver = () => {
 
   return (
     <SmartAreaView>
-      <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+      <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.title}>Remove Caregiver</Text>
         </View>

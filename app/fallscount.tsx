@@ -33,7 +33,7 @@ const FallsCountScreen = () => {
   if (isLoading) {
     return (
       <SmartAreaView>
-        <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+        <View style={styles.container}>
           <Text style={styles.centeredText}>Loading...</Text>
         </View>
       </SmartAreaView>
@@ -43,7 +43,7 @@ const FallsCountScreen = () => {
   if (isError || !filteredData) {
     return (
       <SmartAreaView>
-        <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+        <View style={styles.container}>
           <Text style={styles.centeredText}>No Falls data available</Text>
         </View>
       </SmartAreaView>
@@ -82,7 +82,7 @@ const FallsCountScreen = () => {
 
   return (
     <SmartAreaView>
-      <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+      <View style={styles.container}>
         <ChartTitle
           title="Falls"
           timePeriod={timeFormat}

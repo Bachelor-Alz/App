@@ -86,7 +86,7 @@ function StepsScreen() {
 
   return (
     <SmartAreaView>
-      <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+      <View style={styles.container}>
         <ChartTitle
           title="Steps"
           timePeriod={timeFormat}

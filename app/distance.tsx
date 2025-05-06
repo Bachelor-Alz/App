@@ -30,7 +30,7 @@ function DistanceScreen() {
   if (isLoading) {
     return (
       <SmartAreaView>
-        <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+        <View style={styles.container}>
           <Text style={styles.centeredText}>Loading...</Text>
         </View>
       </SmartAreaView>
@@ -40,7 +40,7 @@ function DistanceScreen() {
   if (isError || !data) {
     return (
       <SmartAreaView>
-        <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+        <View style={styles.container}>
           <Text style={styles.centeredText}>No Distance data available</Text>
         </View>
       </SmartAreaView>
@@ -79,7 +79,7 @@ function DistanceScreen() {
 
   return (
     <SmartAreaView>
-      <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+      <View style={styles.container}>
         <ChartTitle
           title="Distance"
           timePeriod={timeFormat}

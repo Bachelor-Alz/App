@@ -14,7 +14,7 @@ const ViewArduino = () => {
   if (isLoading) {
     return (
       <SmartAreaView>
-        <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+        <View style={styles.container}>
           <Text style={styles.centeredText}>Loading...</Text>
         </View>
       </SmartAreaView>
@@ -24,7 +24,7 @@ const ViewArduino = () => {
   if (error || !arduino || arduino.length === 0) {
     return (
       <SmartAreaView>
-        <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+        <View style={styles.container}>
           <Text style={styles.centeredText}>{error ? "Failed to find Arduino." : "No Arduino found."}</Text>
         </View>
       </SmartAreaView>
@@ -62,7 +62,7 @@ const ViewArduino = () => {
 
   return (
     <SmartAreaView>
-      <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+      <View style={styles.container}>
         <FlatList
           data={arduino}
           renderItem={renderItem}
