@@ -17,7 +17,7 @@ const MainPage = () => {
   const { addToast } = useToast();
 
   const queryFn = async (email: string) => {
-    if (email) {
+    if (roleFromParams === 1) {
       try {
         const res = await testArduinoConnection(email);
         if (!res) {
@@ -122,12 +122,14 @@ const MainPage = () => {
           <Text style={[styles.header, { color: theme.colors.onBackground }]}>
             {name ? `${name}'s Dashboard` : "Dashboard"}
           </Text>
-          <Ionicons
-            name="bluetooth"
-            size={34}
-            color={arduinoLoading ? theme.colors.outline : arduinoStatus ? "#2ed573" : theme.colors.error}
-            style={styles.statusIcon}
-          />
+          {roleFromParams === 1 && (
+            <Ionicons
+              name="bluetooth"
+              size={34}
+              color={arduinoLoading ? theme.colors.outline : arduinoStatus ? "#2ed573" : theme.colors.error}
+              style={styles.statusIcon}
+            />
+          )}
         </View>
         {email && <Text style={{ color: theme.colors.onSurface, marginBottom: 10 }}>{email}</Text>}
 
