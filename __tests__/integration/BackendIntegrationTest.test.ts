@@ -1,5 +1,3 @@
-// This test suite might fail if .env file is not correctly loaded.
-// Its only supposed to be run in CI/CD pipeline or by specifically setting the environment variables.
 import { setBearer, axiosInstance } from "@/apis/axiosConfig";
 import { loginUserRequest } from "@/apis/loginAPI";
 import { LoginForm } from "@/app";
