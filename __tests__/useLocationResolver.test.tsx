@@ -37,6 +37,10 @@ const wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
 );
 
+beforeEach(() => {
+  queryClient.clear();
+});
+
 describe("useLocationResolver", () => {
   it("should resolve location from valid address", async () => {
     (axiosInstance.get as jest.Mock).mockResolvedValueOnce({
