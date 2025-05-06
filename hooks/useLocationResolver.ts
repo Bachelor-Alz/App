@@ -23,7 +23,10 @@ const fetchLocation = async (address: string) => {
     });
 
   return res
-    .filter((item) => item.address?.city && item.address?.road && item.address?.house_number)
+    .filter(
+      (item) =>
+        item.address?.city && item.address?.road && item.address?.house_number && item.address?.country
+    )
     .map((item) => ({
       fullAddress:
         `${item.address.city} ${item.address.road} ${item.address.house_number} ${item.address.country}`.trim(),
