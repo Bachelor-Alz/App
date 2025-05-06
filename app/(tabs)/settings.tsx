@@ -61,34 +61,6 @@ const Settings = () => {
               />
             </>
           )}
-
-          <Divider style={styles.divider} />
-
-          <List.Item
-            title="Dark Theme"
-            titleStyle={styles.title}
-            left={() => <List.Icon icon="theme-light-dark" />}
-            right={() => <Switch />}
-            style={styles.item}
-          />
-          <Divider style={styles.divider} />
-
-          <List.Item
-            title="Edit Password"
-            titleStyle={styles.title}
-            left={() => <List.Icon icon="key" />}
-            onPress={() => console.log("Navigate to Edit Password")}
-            style={styles.item}
-          />
-          <Divider style={styles.divider} />
-
-          <List.Item
-            title="Delete Account"
-            titleStyle={styles.title}
-            left={() => <List.Icon icon="delete" />}
-            onPress={() => console.log("Confirm Delete Account")}
-            style={styles.item}
-          />
           <Divider style={styles.divider} />
 
           <List.Item
