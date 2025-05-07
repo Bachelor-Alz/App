@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, SafeAreaView, ActivityIndicator, StyleSheet } from "react-native";
+import { View, Text, SafeAreaView, ActivityIndicator, StyleSheet, Alert } from "react-native";
 import { useTheme, Provider as PaperProvider } from "react-native-paper";
 import { useDashBoardData } from "@/hooks/useGetDashboardData";
 import { router, useLocalSearchParams } from "expo-router";
@@ -22,10 +22,20 @@ const MainPage = () => {
         const res = await testArduinoConnection(email);
         if (!res) {
           addToast("Arduino is not connected", "error");
+          Alert.alert("Arduino is not connected", undefined, [
+            {
+              text: "Go to Settings",
+              onPress: () => router.push("/viewarduino"),
+            },
+            {
+              text: "Cancel",
+              style: "cancel",
+            },
+          ]);
         }
         return res;
       } catch (err) {
-        addToast("Error testing Arduino connection", "error");
+        addToast("Arduino connection failed", "Cannot connect to server");
         return false;
       }
     }
