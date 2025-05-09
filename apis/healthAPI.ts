@@ -2,7 +2,6 @@ import { axiosInstance } from "./axiosConfig";
 import { z } from "zod";
 
 export const HeartRateDataSchema = z.object({
-  id: z.number(),
   maxrate: z.number(),
   minrate: z.number(),
   avgrate: z.number(),
@@ -11,7 +10,6 @@ export const HeartRateDataSchema = z.object({
 export type HeartRateData = z.infer<typeof HeartRateDataSchema>;
 
 export const SPO2DataSchema = z.object({
-  id: z.number(),
   avgSpO2: z.number(),
   maxSpO2: z.number(),
   minSpO2: z.number(),
@@ -20,26 +18,23 @@ export const SPO2DataSchema = z.object({
 export type SPO2Data = z.infer<typeof SPO2DataSchema>;
 
 export const DistanceDataSchema = z.object({
-  id: z.number(),
   distance: z.number(),
   timestamp: z.string(),
 });
 export type DistanceData = z.infer<typeof DistanceDataSchema>;
 
 export const StepsDataSchema = z.object({
-  id: z.number(),
   stepsCount: z.number(),
   timestamp: z.string(),
 });
 export type StepsData = z.infer<typeof StepsDataSchema>;
 
 export const DashboardDataSchema = z.object({
-  id: z.number(),
   heartRate: z.number(),
   spO2: z.number(),
   steps: z.number(),
   distance: z.number(),
-  allFall: z.number(),
+  fallCount: z.number(),
 });
 export type DashboardData = z.infer<typeof DashboardDataSchema>;
 
@@ -47,7 +42,6 @@ const emptyFallData = z.array(z.never());
 
 export const FallDataSchema = z
   .object({
-    id: z.number(),
     timestamp: z.string(),
     fallCount: z.number(),
   })

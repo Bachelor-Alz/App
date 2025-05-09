@@ -86,7 +86,7 @@ const MainPage = () => {
         },
         {
           title: "Recorded Falls",
-          value: `${data.allFall ?? "N/A"}`,
+          value: `${data.fallCount ?? "N/A"}`,
           icon: "alert-circle" as keyof typeof Ionicons.glyphMap,
           color: "#ffa502",
           onPress: () => router.push({ pathname: "/fallscount", params: { email: elderEmail } }),

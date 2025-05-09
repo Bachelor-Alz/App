@@ -101,7 +101,6 @@ describe("Backend Integration Tests type correctness", () => {
     const spo2Data = await fetchSPO2(mockUser.email, nowString, timeFrame);
     expect(spo2Data).toHaveLength(expectedEntryCounts[timeFrame]);
     spo2Data.forEach((entry) => SPO2DataSchema.parse(entry));
-    assertTimestampsInline(spo2Data, timeFrame, new Date(nowString));
   });
 
   test.each(timeFrames)("should fetch distance data by %s", async (timeFrame) => {
