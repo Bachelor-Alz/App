@@ -5,8 +5,8 @@ import useMap from "@/hooks/useMap";
 import { router } from "expo-router";
 import { Slider } from "@miblanchard/react-native-slider";
 
-const formatDate = (date: Date) => {
-  return Math.floor((new Date().getTime() - date.getTime()) / 60000) + " min ago";
+const formatDate = (date: string) => {
+  return Math.floor((new Date().getTime() - new Date(date).getTime()) / 60000) + " min ago";
 };
 
 const map = () => {
@@ -44,40 +44,40 @@ const map = () => {
         {elderLocations.map((l) => (
           <Marker
             ref={(ref) => {
-              if (ref && !markerRefs.current[l.elderEmail]) {
-                markerRefs.current[l.elderEmail] = { current: ref };
+              if (ref && !markerRefs.current[l.email]) {
+                markerRefs.current[l.email] = { current: ref };
               }
             }}
-            id={l.elderEmail}
-            key={l.elderEmail}
-            onPress={() => (elderFocus.current = l.elderEmail)}
-            onCalloutPress={() => showHomePerimeter(l.elderEmail)}
+            id={l.email}
+            key={l.email}
+            onPress={() => (elderFocus.current = l.email)}
+            onCalloutPress={() => showHomePerimeter(l.email)}
             coordinate={{
-              latitude: l.elderLatitude,
-              longitude: l.elderLongitude,
+              latitude: l.latitude,
+              longitude: l.longitude,
             }}
-            title={l.elderName + " " + formatDate(l.sent)}
-            description={l.elderEmail}
+            title={l.name + " " + formatDate(l.lastUpdated)}
+            description={l.email}
           />
         ))}
         {homePerimeter && (
           <>
             <Marker
               coordinate={{
-                latitude: homePerimeter.latitude,
-                longitude: homePerimeter.longitude,
+                latitude: homePerimeter.homeLatitude,
+                longitude: homePerimeter.homeLongitude,
               }}
               title={"Home Perimeter"}
-              description={`Radius: ${homePerimeter.radius} km`}
+              description={`Radius: ${homePerimeter.homeRadius} km`}
               pinColor="#1fb28a"
             />
 
             <Circle
               center={{
-                latitude: homePerimeter.latitude,
-                longitude: homePerimeter.longitude,
+                latitude: homePerimeter.homeLatitude,
+                longitude: homePerimeter.homeLongitude,
               }}
-              radius={homePerimeter.radius * 1000}
+              radius={homePerimeter.homeRadius * 1000}
               strokeWidth={2}
               strokeColor="rgba(31, 178, 138, 0.8)"
               fillColor="rgba(31, 178, 138, 0.4)"
@@ -92,10 +92,14 @@ const map = () => {
             containerStyle={styles.slider}
             minimumValue={1}
             animateTransitions
-            step={0.5}
+            step={1}
             maximumValue={15}
             value={sliderValue}
-            onValueChange={(value) => handleSlide(value[0])}
+            onValueChange={(value) => {
+              if (elderFocus.current) {
+                handleSlide(value[0], elderFocus.current);
+              }
+            }}
             thumbTintColor="#1fb28a"
             minimumTrackTintColor="#1fb28a"
             maximumTrackTintColor="#1fb28a"
