@@ -1,6 +1,6 @@
 import React from "react";
-import { View, Text, SafeAreaView, ActivityIndicator, StyleSheet, Alert } from "react-native";
-import { useTheme, Provider as PaperProvider } from "react-native-paper";
+import { View, ActivityIndicator, StyleSheet, Alert } from "react-native";
+import { useTheme, Text } from "react-native-paper";
 import { useDashBoardData } from "@/hooks/useGetDashboardData";
 import { router, useLocalSearchParams } from "expo-router";
 import { CaregiverCardList } from "@/components/CaregiverCardList";
@@ -10,10 +10,10 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTestArduinoConnection } from "@/hooks/useElders";
 import { useToast } from "@/providers/ToastProvider";
 import { testArduinoConnection } from "@/apis/elderAPI";
+import SmartAreaView from "@/components/SmartAreaView";
 
 const MainPage = () => {
   const theme = useTheme();
-  const backgroundColor = theme.dark ? "#000000" : theme.colors.surface;
   const { addToast } = useToast();
 
   const queryFn = async (email: string) => {
@@ -126,7 +126,7 @@ const MainPage = () => {
   ];
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor }}>
+    <SmartAreaView>
       <View style={styles.container}>
         <View style={styles.topRow}>
           <Text style={[styles.header, { color: theme.colors.onBackground }]}>
@@ -159,7 +159,7 @@ const MainPage = () => {
           </>
         )}
       </View>
-    </SafeAreaView>
+    </SmartAreaView>
   );
 };
 
@@ -184,8 +184,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default () => (
-  <PaperProvider>
-    <MainPage />
-  </PaperProvider>
-);
+export default MainPage;

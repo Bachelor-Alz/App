@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { View } from "react-native";
-import { Text, Checkbox } from "react-native-paper";
-import { Button, useTheme } from "react-native-paper";
+import { Text, Checkbox, Button, useTheme } from "react-native-paper";
 import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { z } from "zod";
@@ -73,7 +72,7 @@ const LoginScreen = () => {
     if (role === undefined) {
       return;
     }
-    router.push({ pathname: "/(tabs)", params: { email: data.email } });
+    router.replace({ pathname: "/(tabs)", params: { email: data.email } });
   };
 
   return (

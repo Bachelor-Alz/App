@@ -2,7 +2,7 @@ import React from "react";
 import { TextStyle, useColorScheme, View } from "react-native";
 import { Control, Controller, FieldPath, FieldValues, useFormState } from "react-hook-form";
 import { createTheme } from "@/constants/CreateTheme";
-import { TextInput, Text, TextInputProps } from "react-native-paper";
+import { TextInput, Text, TextInputProps, useTheme } from "react-native-paper";
 
 type FormFieldProps<T extends FieldValues> = {
   control: Control<T>;
@@ -17,8 +17,7 @@ const FormField = <T extends FieldValues>({
   ...inputProps
 }: FormFieldProps<T>) => {
   const { errors } = useFormState({ control });
-  const colorScheme = useColorScheme();
-  const theme = createTheme(colorScheme === "dark");
+  const theme = useTheme();
 
   return (
     <Controller

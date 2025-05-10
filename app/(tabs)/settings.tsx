@@ -4,12 +4,13 @@ import { List, Divider } from "react-native-paper";
 import { useAuthentication } from "@/providers/AuthenticationProvider";
 import { router } from "expo-router";
 import { removeArduinoFromElder } from "@/apis/elderAPI";
+import SmartAreaView from "@/components/SmartAreaView";
 
 const Settings = () => {
   const { role, logout, userEmail } = useAuthentication();
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SmartAreaView>
       <View style={styles.container}>
         <List.Section>
           <List.Subheader style={styles.header}>Settings</List.Subheader>
@@ -79,7 +80,7 @@ const Settings = () => {
           />
         </List.Section>
       </View>
-    </SafeAreaView>
+    </SmartAreaView>
   );
 };
 
