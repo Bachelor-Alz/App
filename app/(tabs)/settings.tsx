@@ -6,7 +6,7 @@ import { router } from "expo-router";
 import { removeArduinoFromElder } from "@/apis/elderAPI";
 
 const Settings = () => {
-  const { role, logout } = useAuthentication();
+  const { role, logout, userEmail } = useAuthentication();
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -38,6 +38,13 @@ const Settings = () => {
                 left={() => <List.Icon icon="bluetooth" />}
                 onPress={() => router.push("/viewarduino")}
                 style={styles.item}
+              />
+              <Divider style={styles.divider} />
+              <List.Item
+                title="Home Perimetor"
+                titleStyle={styles.title}
+                left={() => <List.Icon icon="home" />}
+                onPress={() => router.push({ pathname: "/map_elder", params: { elderEmail: userEmail } })}
               />
               <Divider style={styles.divider} />
               <List.Item

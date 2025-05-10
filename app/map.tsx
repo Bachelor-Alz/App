@@ -175,9 +175,9 @@ const styles = StyleSheet.create({
   buttonContainer: {
     position: "absolute",
     bottom: 20,
-    left: 0,
+
     right: 0,
-    flexDirection: "row",
+    flexDirection: "column",
     justifyContent: "space-around",
     paddingHorizontal: 10,
   },
@@ -192,10 +192,11 @@ const styles = StyleSheet.create({
     left: 20,
   },
   slider: {
+    justifyContent: "center",
     position: "absolute",
-    left: "5%",
+    left: "8%",
     bottom: 100,
-    width: "90%",
+    width: "80%",
     height: 40,
   },
 });
