@@ -1,48 +1,53 @@
 import { axiosInstance } from "./axiosConfig";
+import { z } from "zod";
 
-export type HeartRateData = {
-  id: number;
-  maxrate: number;
-  minrate: number;
-  avgrate: number;
-  timestamp: string;
-};
+export const HeartRateDataSchema = z.object({
+  maxrate: z.number(),
+  minrate: z.number(),
+  avgrate: z.number(),
+  timestamp: z.string(),
+});
+export type HeartRateData = z.infer<typeof HeartRateDataSchema>;
 
-export type SPO2Data = {
-  id: number;
-  avgSpO2: number;
-  maxSpO2: number;
-  minSpO2: number;
-  timestamp: string;
-};
+export const SPO2DataSchema = z.object({
+  avgSpO2: z.number(),
+  maxSpO2: z.number(),
+  minSpO2: z.number(),
+  timestamp: z.string(),
+});
+export type SPO2Data = z.infer<typeof SPO2DataSchema>;
 
-export type DistanceData = {
-  id: number;
-  distance: number;
-  timestamp: string;
-};
+export const DistanceDataSchema = z.object({
+  distance: z.number(),
+  timestamp: z.string(),
+});
+export type DistanceData = z.infer<typeof DistanceDataSchema>;
 
-export type StepsData = {
-  id: number;
-  stepsCount: number;
-  timestamp: string;
-};
+export const StepsDataSchema = z.object({
+  stepsCount: z.number(),
+  timestamp: z.string(),
+});
+export type StepsData = z.infer<typeof StepsDataSchema>;
 
-export type DashboardData = {
-  id: number;
-  heartRate: number;
-  spO2: number;
-  steps: number;
-  distance: number;
-  allFall: number;
-  locationAddress: string;
-};
+export const DashboardDataSchema = z.object({
+  heartRate: z.number(),
+  spO2: z.number(),
+  steps: z.number(),
+  distance: z.number(),
+  fallCount: z.number(),
+});
+export type DashboardData = z.infer<typeof DashboardDataSchema>;
 
-export type FallData = {
-  id: number;
-  timestamp: string;
-  fallCount: number;
-};
+const emptyFallData = z.array(z.never());
+
+export const FallDataSchema = z
+  .object({
+    timestamp: z.string(),
+    fallCount: z.number(),
+  })
+  .or(emptyFallData);
+
+export type FallData = z.infer<typeof FallDataSchema>;
 
 export const fetchHeartRate = async (
   elderEmail: string,

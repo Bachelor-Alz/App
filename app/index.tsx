@@ -13,7 +13,7 @@ import { useAuthentication } from "@/providers/AuthenticationProvider";
 import SmartAreaView from "@/components/SmartAreaView";
 
 const schema = z.object({
-  email: z.string().email("Indtast en gyldig e-mailadresse").trim(),
+  email: z.string().email("Needs to be a valid email address").trim(),
   password: z.string().min(1).trim(),
 });
 
