@@ -36,6 +36,7 @@ export const useEldersForCaregiver = () => {
   return useQuery<Elder[]>({
     queryKey: ["eldersForCaregiver"],
     queryFn: fetchEldersForCaregiver,
+    refetchOnMount: "always",
     staleTime: 5 * 60 * 1000,
     retry: 2,
   });
@@ -45,6 +46,7 @@ export const useCaregiverInvites = () => {
   return useQuery<ElderInvite[]>({
     queryKey: ["caregiverInvites"],
     queryFn: fetchCaregiverInvites,
+    refetchOnMount: "always",
     staleTime: 5 * 60 * 1000,
     retry: 2,
   });
@@ -54,6 +56,7 @@ export const useArduino = () => {
   return useQuery<any[]>({
     queryKey: ["arduino"],
     queryFn: fetchArduino,
+    refetchOnMount: "always",
     staleTime: 5 * 60 * 1000,
     retry: 2,
   });
@@ -63,6 +66,7 @@ export const useCaregiversForElder = () => {
   return useQuery<Caregiver[]>({
     queryKey: ["caregiversForElder"],
     queryFn: () => fetchCaregiverForElder(),
+    refetchOnMount: "always",
     staleTime: 5 * 60 * 1000,
     retry: 2,
   });

@@ -9,6 +9,7 @@ import FormContainer from "@/components/forms/FormContainer";
 import { useAuthentication } from "@/providers/AuthenticationProvider";
 import { assignCaregiverToElder } from "@/apis/elderAPI";
 import SmartAreaView from "@/components/SmartAreaView";
+import { router } from "expo-router";
 
 const schema = z.object({
   caregiverEmail: z.string().email("Please enter a valid email address").trim(),
@@ -37,7 +38,16 @@ const AssignCaregiverScreen = () => {
 
     try {
       await assignCaregiverToElder(userEmail, caregiverEmail);
-      Alert.alert("Success", `Caregiver assigned to ${userEmail}`);
+      Alert.alert("Success", `Caregiver assigned to ${userEmail}`, [
+        {
+          text: "OK",
+          onPress: () => {
+            if (router.canGoBack()) {
+              router.back();
+            }
+          },
+        },
+      ]);
     } catch (error) {
       Alert.alert("Error", "Failed to assign caregiver.");
     }
