@@ -29,16 +29,21 @@ const expectedEntryCounts = {
 
 type TimeFrame = keyof typeof expectedEntryCounts;
 
-const assertTimestampsInline = (
-  entries: Required<{ timestamp: string }[]>,
-  timeFrame: TimeFrame,
-  referenceDate: Date
-) => {
-  const refDateStr = referenceDate.toDateString();
-
+const assertTimestampsInline = (entries: Required<{ timestamp: string }[]>, timeFrame: TimeFrame) => {
   switch (timeFrame) {
     case "Week":
-      return;
+      const daysSeen = new Set<number>();
+
+      for (const { timestamp } of entries) {
+        const date = new Date(timestamp);
+        const day = date.getDay();
+        expect(day).toBeGreaterThanOrEqual(0);
+        expect(day).toBeLessThan(7);
+        daysSeen.add(day);
+      }
+
+      expect(daysSeen.size).toBe(7);
+      break;
 
     case "Hour": {
       const minutesSeen = new Set<number>();
@@ -46,8 +51,6 @@ const assertTimestampsInline = (
       for (const { timestamp } of entries) {
         const date = new Date(timestamp);
         const minutes = date.getMinutes();
-
-        expect(date.toDateString()).toBe(refDateStr);
         expect(minutes % 5).toBe(0);
         expect(minutes).toBeGreaterThanOrEqual(0);
         expect(minutes).toBeLessThan(60);
@@ -64,8 +67,6 @@ const assertTimestampsInline = (
       for (const { timestamp } of entries) {
         const date = new Date(timestamp);
         const hour = date.getHours();
-
-        expect(date.toDateString()).toBe(refDateStr);
         expect(hour).toBeGreaterThanOrEqual(0);
         expect(hour).toBeLessThan(24);
         hoursSeen.add(hour);
@@ -78,12 +79,19 @@ const assertTimestampsInline = (
 };
 
 beforeAll(async () => {
-  axiosInstance.defaults.baseURL = `http://localhost:5171`;
+  const url =
+    process.env.EXPO_PUBLIC_API_URL && process.env.EXPO_PUBLIC_API_PORT
+      ? `${process.env.EXPO_PUBLIC_API_URL}:${process.env.EXPO_PUBLIC_API_PORT}`
+      : "http://localhost:5171";
+
+  console.log("Connecting to backend at", url);
+  axiosInstance.defaults.baseURL = url;
   try {
     const response = await loginUserRequest(mockUser);
     setBearer(response.token);
   } catch (error) {
     console.error("Login failed:", error);
+    throw new Error("Login failed, cannot run tests: " + (error as any)?.message);
   }
 });
 
@@ -95,24 +103,28 @@ describe("Backend Integration Tests type correctness", () => {
     const hrData = await fetchHeartRate(mockUser.email, nowString, timeFrame);
     expect(hrData).toHaveLength(expectedEntryCounts[timeFrame]);
     hrData.forEach((entry) => HeartRateDataSchema.parse(entry));
+    assertTimestampsInline(hrData, timeFrame);
   });
 
   test.each(timeFrames)("should fetch SPO2 data by %s", async (timeFrame) => {
     const spo2Data = await fetchSPO2(mockUser.email, nowString, timeFrame);
     expect(spo2Data).toHaveLength(expectedEntryCounts[timeFrame]);
     spo2Data.forEach((entry) => SPO2DataSchema.parse(entry));
+    assertTimestampsInline(spo2Data, timeFrame);
   });
 
   test.each(timeFrames)("should fetch distance data by %s", async (timeFrame) => {
     const distanceData = await fetchDistance(mockUser.email, nowString, timeFrame);
     expect(distanceData).toHaveLength(expectedEntryCounts[timeFrame]);
     distanceData.forEach((entry) => DistanceDataSchema.parse(entry));
+    assertTimestampsInline(distanceData, timeFrame);
   });
 
   test.each(timeFrames)("should fetch steps data by %s", async (timeFrame) => {
     const stepsData = await fetchSteps(mockUser.email, nowString, timeFrame);
     expect(stepsData).toHaveLength(expectedEntryCounts[timeFrame]);
     stepsData.forEach((entry) => StepsDataSchema.parse(entry));
+    assertTimestampsInline(stepsData, timeFrame);
   });
 
   test.each(timeFrames)("should fetch falls data by %s", async (timeFrame) => {
@@ -124,7 +136,11 @@ describe("Backend Integration Tests type correctness", () => {
       FallDataSchema.parse(firstNonEmpty);
       expect(firstNonEmpty).toBeDefined();
     } else {
-      expect(fallsData).toHaveLength(0);
+      if (fallsData.length === 0) {
+        expect(fallsData).toHaveLength(0);
+      } else {
+        expect(fallsData).toBeNull();
+      }
     }
   });
 
