@@ -55,7 +55,7 @@ const ElderPerimeterMap = () => {
               longitude: homePerimeter.homeLongitude,
             }}
             title="Home">
-            <Icon source="home" size={30} />
+            <Icon source="home" size={30} color="rgba(34, 137, 109, 0.4)" />
           </Marker>
         )}
       </MapView>

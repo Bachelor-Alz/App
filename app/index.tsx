@@ -50,7 +50,7 @@ const LoginScreen = () => {
           if (role === undefined) {
             return;
           }
-          router.navigate({ pathname: "/(tabs)", params: { email: savedEmail } });
+          router.replace({ pathname: "/(tabs)", params: { email: savedEmail } });
         });
       }
     };

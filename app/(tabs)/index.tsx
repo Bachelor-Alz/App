@@ -25,7 +25,7 @@ const MainPage = () => {
           Alert.alert("Arduino is not connected", undefined, [
             {
               text: "Go to Settings",
-              onPress: () => router.push("/viewarduino"),
+              onPress: () => router.push("/settings/viewarduino"),
             },
             {
               text: "Cancel",
@@ -107,21 +107,21 @@ const MainPage = () => {
       value: "See caregiver invites from elders",
       icon: "mail-open" as keyof typeof Ionicons.glyphMap,
       color: "#1e90ff",
-      onPress: () => router.push("/viewcaregiverinvites"),
+      onPress: () => router.push("/settings/viewcaregiverinvites"),
     },
     {
       title: "View Assigned Elders",
       value: "See all elders assigned to you",
       icon: "people" as keyof typeof Ionicons.glyphMap,
       color: "#2ed573",
-      onPress: () => router.push("/viewelder"),
+      onPress: () => router.push("/settings/viewelder"),
     },
     {
       title: "Elder Map",
       value: "View your associated elders on a map",
       icon: "map" as keyof typeof Ionicons.glyphMap,
       color: "#ff4757",
-      onPress: () => router.push("/map"),
+      onPress: () => router.push("/settings/map"),
     },
   ];
 
