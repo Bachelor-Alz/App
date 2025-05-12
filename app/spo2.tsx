@@ -76,13 +76,14 @@ function SPO2Screen() {
       label: "Min",
       value: Math.round(min),
       icon: "arrow-down" as const,
-      color: theme.colors.primary,
+      color: theme.colors.secondary,
     },
     {
       label: "Avg",
       value: Math.round(avg),
       icon: "trophy" as const,
-      color: theme.colors.secondary,
+
+      color: theme.colors.primary,
     },
     {
       label: "Max",
@@ -110,6 +111,8 @@ function SPO2Screen() {
             font={font}
             boldFont={boldFont}
             timeRange={timeRange}
+            yKeys={["min", "avg", "max"]}
+            barColor={"#1e90ff"}
           />
         </View>
 
