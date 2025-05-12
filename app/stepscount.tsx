@@ -7,7 +7,8 @@ import { useLocalSearchParams } from "expo-router";
 import useGetVisualizationData from "@/hooks/useGetVisualizationData";
 import { fetchSteps } from "@/apis/healthAPI";
 import ChartComponent from "@/components/charts/Chart";
-import ChartTitle from "@/components/charts/ChartTitle";
+import ChartTitle, { ChartType } from "@/components/charts/ChartTitle";
+import { useState } from "react";
 
 type TimeRange = "Hour" | "Day" | "Week";
 
@@ -31,6 +32,8 @@ function StepsScreen() {
     fetchFn: fetchSteps,
     metricKey: "steps",
   });
+
+  const [chartType, setChartType] = useState<ChartType>("bar");
 
   if (!font || !boldFont) return null;
 
@@ -88,10 +91,10 @@ function StepsScreen() {
         <ChartTitle
           title="Steps"
           timePeriod={timeFormat}
-          icon="walk"
-          iconColor={"#2ed573"}
           navigateTime={navigateTime}
           theme={theme}
+          chartType={chartType}
+          onChartTypeChange={setChartType}
         />
 
         <View style={styles.chartContainer}>
@@ -104,6 +107,7 @@ function StepsScreen() {
             yKeys={["stepcount"]}
             barColor={"#2ed573"}
             colors={[theme.colors.primary]}
+            chartType={chartType}
           />
         </View>
 

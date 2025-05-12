@@ -8,7 +8,8 @@ import useGetVisualizationData from "@/hooks/useGetVisualizationData";
 import { useLocalSearchParams } from "expo-router";
 import { fetchFallsData } from "@/apis/healthAPI";
 import useLatestFallData from "@/hooks/useLatestFallData";
-import ChartTitle from "@/components/charts/ChartTitle";
+import ChartTitle, { ChartType } from "@/components/charts/ChartTitle";
+import { useState } from "react";
 
 type TimeRange = "Hour" | "Day" | "Week";
 
@@ -26,6 +27,7 @@ const FallsCountScreen = () => {
       metricKey: "falls",
     });
 
+  const [chartType, setChartType] = useState<ChartType>("bar");
   const filteredData = useLatestFallData(
     (data || []) as { timestamp: string; fallCount: number }[],
     timeRange
@@ -87,10 +89,10 @@ const FallsCountScreen = () => {
         <ChartTitle
           title="Falls"
           timePeriod={timeFormat}
-          icon="alert-circle"
-          iconColor={"#ffa502"}
           navigateTime={navigateTime}
           theme={theme}
+          chartType={chartType}
+          onChartTypeChange={setChartType}
         />
         <View style={styles.chartContainer}>
           <ChartComponent
@@ -102,6 +104,7 @@ const FallsCountScreen = () => {
             yKeys={["falls"]}
             barColor="#ffa502"
             colors={[theme.colors.primary]}
+            chartType={chartType}
           />
         </View>
         <SegmentedButtons

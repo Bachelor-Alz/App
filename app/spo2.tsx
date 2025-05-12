@@ -7,7 +7,8 @@ import ChartComponent from "@/components/charts/Chart";
 import useGetVisualizationData from "@/hooks/useGetVisualizationData";
 import { useLocalSearchParams } from "expo-router";
 import { fetchSPO2 } from "@/apis/healthAPI";
-import ChartTitle from "@/components/charts/ChartTitle";
+import ChartTitle, { ChartType } from "@/components/charts/ChartTitle";
+import { useState } from "react";
 
 type TimeRange = "Hour" | "Day" | "Week";
 
@@ -24,6 +25,8 @@ function SPO2Screen() {
       fetchFn: fetchSPO2,
       metricKey: "spo2",
     });
+
+  const [chartType, setChartType] = useState<ChartType>("bar");
 
   if (!font || !boldFont) return null;
 
@@ -99,10 +102,10 @@ function SPO2Screen() {
         <ChartTitle
           title="Blood Oxygen"
           timePeriod={timeFormat}
-          icon="water"
-          iconColor={"#1e90ff"}
           navigateTime={navigateTime}
           theme={theme}
+          chartType={chartType}
+          onChartTypeChange={setChartType}
         />
         <View style={styles.chartContainer}>
           <ChartComponent
@@ -113,6 +116,7 @@ function SPO2Screen() {
             timeRange={timeRange}
             yKeys={["min", "avg", "max"]}
             barColor={"#1e90ff"}
+            chartType={chartType}
           />
         </View>
 

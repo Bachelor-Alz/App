@@ -49,7 +49,6 @@ const useMap = () => {
   const { addToast } = useToast();
 
   const { data: elderLocations } = query;
-  console.log(elderLocations);
 
   const handleNextElder = () => {
     if (!elderLocations) return;
@@ -174,7 +173,6 @@ const useMap = () => {
 
   const updatePerimeter = async (value: number, email: string | null) => {
     if (!email || !value) return;
-    console.log("Updating perimeter for elder:", email, "with value:", value);
     const response = await axiosInstance.post(
       `/api/Health/Perimeter?radius=${Math.round(value)}&elderEmail=${encodeURIComponent(email)}`
     );

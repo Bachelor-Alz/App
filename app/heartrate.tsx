@@ -7,7 +7,8 @@ import ChartComponent from "@/components/charts/Chart";
 import useGetVisualizationData from "@/hooks/useGetVisualizationData";
 import { useLocalSearchParams } from "expo-router";
 import { fetchHeartRate } from "@/apis/healthAPI";
-import ChartTitle from "@/components/charts/ChartTitle";
+import ChartTitle, { ChartType } from "@/components/charts/ChartTitle";
+import { useState } from "react";
 
 type TimeRange = "Hour" | "Day" | "Week";
 
@@ -24,6 +25,8 @@ function HeartRateScreen() {
       fetchFn: fetchHeartRate,
       metricKey: "heartRate",
     });
+
+  const [chartType, setChartType] = useState<ChartType>("bar");
 
   if (!font || !boldFont) return null;
 
@@ -99,10 +102,10 @@ function HeartRateScreen() {
         <ChartTitle
           title="Heart Rate"
           timePeriod={timeFormat}
-          icon="heart"
-          iconColor={theme.colors.error}
           navigateTime={navigateTime}
           theme={theme}
+          chartType={chartType}
+          onChartTypeChange={setChartType}
         />
         <View style={styles.chartContainer}>
           <ChartComponent
@@ -113,6 +116,7 @@ function HeartRateScreen() {
             timeRange={timeRange}
             yKeys={["min", "avg", "max"]}
             barColor={theme.colors.error}
+            chartType={chartType}
           />
         </View>
 
