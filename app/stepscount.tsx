@@ -57,12 +57,10 @@ function StepsScreen() {
   const isEmpty = rawData.length === 0;
 
   const chartData = isEmpty
-    ? [{ day: 0, min: 0, avg: 0, max: 0 }]
+    ? [{ day: 0, stepcount: 0 }]
     : rawData.map((item) => ({
         day: new Date(item.timestamp).getTime(),
-        min: 0,
-        avg: Number(item.stepsCount),
-        max: Number(item.stepsCount),
+        stepcount: Number(item.stepsCount),
       }));
 
   const stepsValues = isEmpty ? [0] : rawData.map((d) => Number(d.stepsCount || 0));
@@ -103,6 +101,9 @@ function StepsScreen() {
             font={font}
             boldFont={boldFont}
             timeRange={timeRange}
+            yKeys={["stepcount"]}
+            barColor={"#2ed573"}
+            colors={[theme.colors.primary]}
           />
         </View>
 

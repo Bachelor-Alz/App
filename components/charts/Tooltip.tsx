@@ -8,36 +8,41 @@ export type DataPoint = {
   position: SharedValue<number>;
 };
 
+export type TooltipEntry = {
+  label: string;
+  value: SharedValue<number>;
+  position: SharedValue<number>;
+  color?: string;
+};
+
 export type ToolTipProps = {
   x: DataPoint;
-  y: { data: DataPoint[]; labels?: string[]; colors?: string[] };
-  labels?: { x: string };
+  entries: TooltipEntry[];
+  labels?: { x?: string };
   theme: MD3Theme;
   font: SkFont | null;
 };
 
-export function ToolTip({ x, y, labels, theme, font: boldFont }: ToolTipProps) {
-  const yTexts = y.data.map((point, index) =>
-    useDerivedValue(
-      () => `${y.labels?.[index] ?? `Value ${index + 1}`}: ${Math.round(point.value.value)}`,
-      [point]
-    )
+export function ToolTip({ x, entries, labels, theme, font: boldFont }: ToolTipProps) {
+  const yTexts = entries.map((entry) =>
+    useDerivedValue(() => `${entry.label}: ${Math.round(entry.value.value)}`, [entry])
   );
 
   const maxLength = Math.max(
     ...yTexts.map((text) => text.value.length),
     (labels?.x ? `${labels.x} ${x.value.value}` : `${x.value.value}`).length
   );
+
   const textPadding = 10;
   const boxWidth = maxLength * 9 + textPadding * 2;
-  const boxHeight = 30 + yTexts.length * 20;
+  const boxHeight = 30 + entries.length * 20;
   const circleRadius = 5;
   const margin = 20;
 
   const tooltipY = useDerivedValue(() => {
-    const safeY = Math.max(...y.data.map((point) => point.position.value));
+    const safeY = Math.max(...entries.map((e) => e.position.value));
     return safeY < boxHeight + margin ? safeY + circleRadius * 25 + margin : safeY - boxHeight - margin;
-  }, [y.data]);
+  }, [entries]);
 
   const tooltipX = useDerivedValue(() => {
     const safeX = x.position.value;
@@ -46,6 +51,20 @@ export function ToolTip({ x, y, labels, theme, font: boldFont }: ToolTipProps) {
     if (safeX + boxWidth / 2 > screenWidth - margin) return screenWidth - boxWidth - margin;
     return safeX - boxWidth / 2;
   }, [x]);
+
+  const xLabel = useDerivedValue(
+    () =>
+      labels?.x
+        ? `${labels.x} ${new Date(x.value.value).toLocaleTimeString(undefined, {
+            month: "2-digit",
+            day: "2-digit",
+          })}`
+        : `${new Date(x.value.value).toLocaleTimeString(undefined, {
+            month: "2-digit",
+            day: "2-digit",
+          })}`,
+    [x, labels]
+  );
 
   return (
     <Fragment>
@@ -70,19 +89,7 @@ export function ToolTip({ x, y, labels, theme, font: boldFont }: ToolTipProps) {
       />
 
       <SKText
-        text={useDerivedValue(
-          () =>
-            labels?.x
-              ? `${labels.x} ${new Date(x.value.value).toLocaleTimeString(undefined, {
-                  month: "2-digit",
-                  day: "2-digit",
-                })}`
-              : `${new Date(x.value.value).toLocaleTimeString(undefined, {
-                  month: "2-digit",
-                  day: "2-digit",
-                })}`,
-          [x, labels]
-        )}
+        text={xLabel}
         x={useDerivedValue(() => tooltipX.value + textPadding, [tooltipX])}
         y={useDerivedValue(() => tooltipY.value + 20, [tooltipY])}
         color={theme.colors.onSurface}
@@ -95,7 +102,7 @@ export function ToolTip({ x, y, labels, theme, font: boldFont }: ToolTipProps) {
           text={text}
           x={useDerivedValue(() => tooltipX.value + textPadding, [tooltipX])}
           y={useDerivedValue(() => tooltipY.value + 40 + index * 20, [tooltipY])}
-          color={y.colors?.[index] ?? theme.colors.primary}
+          color={entries[index].color ?? theme.colors.primary}
           font={boldFont}
         />
       ))}

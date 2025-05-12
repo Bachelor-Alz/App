@@ -1,17 +1,24 @@
 import { Pressable, StyleSheet } from "react-native";
-import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Icon, MD3Theme, withTheme } from "react-native-paper";
+import { Icon, useTheme } from "react-native-paper";
+import { useNavigation, useNavigationState } from "@react-navigation/native";
+import React from "react";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 
-const SmartAreaView: React.FC<{ children: React.ReactNode; theme: MD3Theme }> = ({ children, theme }) => {
-  const backgroundColor = theme.dark ? "#000000" : theme.colors.surface;
+const SmartAreaView: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const navigation = useNavigation();
+  const state = useNavigationState((state) => state);
+  const theme = useTheme();
+  const canGoBackInCurrentStack = state ? state.index > 0 : false;
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor }]}>
-      {router.canGoBack() && (
-        <Pressable style={styles.backButton} onPress={() => router.back()}>
-          <Icon size={30} color={theme.colors.onSurface} source={"arrow-left"} />
-        </Pressable>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      {canGoBackInCurrentStack && (
+        <Animated.View entering={FadeIn} style={styles.backButton}>
+          <Pressable onPress={() => navigation.goBack()}>
+            <Icon size={30} color={theme.colors.onSurface} source={"arrow-left"} />
+          </Pressable>
+        </Animated.View>
       )}
       {children}
     </SafeAreaView>
@@ -25,10 +32,10 @@ const styles = StyleSheet.create({
   backButton: {
     margin: 8,
     position: "absolute",
-    top: 50,
+    top: 40,
     left: 10,
     zIndex: 10,
   },
 });
 
-export default withTheme(SmartAreaView);
+export default SmartAreaView;

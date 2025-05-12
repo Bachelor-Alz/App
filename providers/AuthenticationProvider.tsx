@@ -1,12 +1,13 @@
-import { createContext, useCallback, useContext, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { createUserRequest } from "@/apis/registerAPI";
 import { RegisterForm } from "@/app/register";
 import { LoginForm } from "@/app";
 import { loginUserRequest } from "@/apis/loginAPI";
 import { setBearer } from "@/apis/axiosConfig";
 import * as SecureStore from "expo-secure-store";
-import { router } from "expo-router";
+import { useNavigationContainerRef } from "expo-router";
 import { useToast } from "./ToastProvider";
+import { addLogoutListener, removeLogoutListener } from "@/utils/logoutEmitter";
 
 type AuthenticationProviderProps = {
   register: (form: RegisterForm) => Promise<string | null>;
@@ -22,6 +23,7 @@ const AuthenticationProvider = ({ children }: { children: React.ReactNode }) => 
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [role, setRole] = useState<number | undefined>(undefined);
   const { addToast } = useToast();
+  const rootNavigation = useNavigationContainerRef();
 
   const register = useCallback(
     async (form: RegisterForm): Promise<string | null> => {
@@ -61,11 +63,23 @@ const AuthenticationProvider = ({ children }: { children: React.ReactNode }) => 
       await SecureStore.deleteItemAsync("password");
       setUserEmail(null);
       setRole(undefined);
-      router.dismissAll();
+      setBearer("");
+      rootNavigation.resetRoot({
+        index: 0,
+        routes: [{ name: "index" }],
+      });
     } catch (error) {
       addToast("Error", "Failed to log out");
       throw error;
     }
+  }, []);
+
+  useEffect(() => {
+    addLogoutListener(logout);
+
+    return () => {
+      removeLogoutListener(logout);
+    };
   }, []);
 
   return (

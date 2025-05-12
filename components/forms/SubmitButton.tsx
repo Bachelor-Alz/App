@@ -1,5 +1,6 @@
 import { StyleProp, Text, TouchableOpacity, useColorScheme, ViewStyle, StyleSheet } from "react-native";
 import { createTheme } from "@/constants/CreateTheme";
+import { useTheme } from "react-native-paper";
 
 type SubmitButtonProps = {
   isValid: boolean;
@@ -10,19 +11,18 @@ type SubmitButtonProps = {
 };
 
 const SubmitButton = ({ isValid, isSubmitting, handleSubmit, label, style }: SubmitButtonProps) => {
-  const colorScheme = useColorScheme();
-  const theme = createTheme(colorScheme === "dark");
-
+  const theme = useTheme();
   return (
     <TouchableOpacity
       style={[
         styles.baseButton,
-        isValid ? { backgroundColor: theme.colors.primary } : { backgroundColor: theme.colors.surfaceDisabled },
+        isValid
+          ? { backgroundColor: theme.colors.primary }
+          : { backgroundColor: theme.colors.surfaceDisabled },
         style,
       ]}
       disabled={!isValid || isSubmitting}
-      onPress={handleSubmit}
-    >
+      onPress={handleSubmit}>
       <Text style={styles.buttonText}>{isSubmitting ? "..." : label}</Text>
     </TouchableOpacity>
   );

@@ -5,6 +5,7 @@ import SmartAreaView from "@/components/SmartAreaView";
 import { useToast } from "@/providers/ToastProvider";
 import { useCaregiversForElder } from "@/hooks/useElders";
 import { removeCaregiverFromElder } from "@/apis/elderAPI";
+import { router } from "expo-router";
 
 const RemoveCaregiver = () => {
   const theme = useTheme();
@@ -46,8 +47,9 @@ const RemoveCaregiver = () => {
           onPress={async () => {
             try {
               await removeCaregiverFromElder(item.email);
-              await refetch();
-              addToast("Success", "Caregiver removed successfully.");
+              if (router.canGoBack()) {
+                router.back();
+              }
             } catch (err) {
               addToast("Error", "Failed to remove caregiver.");
             }

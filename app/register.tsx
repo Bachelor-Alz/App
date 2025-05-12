@@ -84,7 +84,9 @@ const RegisterScreen = () => {
   const handleRegister = () => {
     const form = getValues();
     register(form).then(() => {
-      router.navigate("/");
+      if (router.canGoBack()) {
+        router.back();
+      }
     });
   };
 

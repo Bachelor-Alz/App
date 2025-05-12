@@ -1,27 +1,42 @@
 import { createTheme } from "@/constants/CreateTheme";
 import { AuthenticationProvider } from "@/providers/AuthenticationProvider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useColorScheme } from "react-native";
 import { PaperProvider } from "react-native-paper";
 import { ToastProvider } from "./ToastProvider";
+import { useMemo } from "react";
+import { THEME_STORAGE_KEY, ThemeProvider, useThemeContext } from "./ThemeProvider";
+import * as SecureStore from "expo-secure-store";
+const queryClient = new QueryClient();
+const initialThemeMode = SecureStore.getItem(THEME_STORAGE_KEY) === "dark" ? "dark" : "light";
 
-type CustomLayoutProps = {
+type ProviderWrapperProps = {
   children: React.ReactNode;
 };
 
-const ProviderWrapper = ({ children }: CustomLayoutProps) => {
-  const colorScheme = useColorScheme();
-  const theme = createTheme(colorScheme === "dark");
-  const queryClient = new QueryClient();
+const ProviderWrapperContent = ({ children }: { children: React.ReactNode }) => {
+  const { themeMode } = useThemeContext();
+
+  const theme = useMemo(() => {
+    return createTheme(themeMode === "dark");
+  }, [themeMode]);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <PaperProvider theme={theme}>
-        <ToastProvider>
-          <AuthenticationProvider>{children}</AuthenticationProvider>
-        </ToastProvider>
-      </PaperProvider>
-    </QueryClientProvider>
+    <PaperProvider theme={theme}>
+      <ToastProvider>
+        <AuthenticationProvider>{children}</AuthenticationProvider>
+      </ToastProvider>
+    </PaperProvider>
+  );
+};
+
+const ProviderWrapper = ({ children }: ProviderWrapperProps) => {
+  return (
+    <ThemeProvider storedColorPreference={initialThemeMode}>
+      <QueryClientProvider client={queryClient}>
+        {/* ProviderWrapperContent now uses the ThemeProvider context */}
+        <ProviderWrapperContent>{children}</ProviderWrapperContent>
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 };
 

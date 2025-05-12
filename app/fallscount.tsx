@@ -26,7 +26,10 @@ const FallsCountScreen = () => {
       metricKey: "falls",
     });
 
-  const filteredData = useLatestFallData(data || [], timeRange);
+  const filteredData = useLatestFallData(
+    (data || []) as { timestamp: string; fallCount: number }[],
+    timeRange
+  );
 
   if (!font || !boldFont) return null;
 
@@ -53,12 +56,10 @@ const FallsCountScreen = () => {
   const isEmpty = filteredData.length === 0;
 
   const chartData = isEmpty
-    ? [{ day: 0, min: 0, avg: 0, max: 0 }]
+    ? [{ day: 0, falls: 0 }]
     : filteredData.map((item) => ({
         day: new Date(item.timestamp).getTime(),
-        min: 0,
-        avg: Number(item.fallCount || 0),
-        max: Number(item.fallCount || 0),
+        falls: Number(item.fallCount || 0),
       }));
 
   const fallsValues = isEmpty ? [0] : filteredData.map((d) => Number(d.fallCount || 0));
@@ -68,13 +69,13 @@ const FallsCountScreen = () => {
   const stats = [
     {
       label: "Avg",
-      value: Math.round(avg),
+      value: avg,
       icon: "trophy" as const,
       color: theme.colors.primary,
     },
     {
       label: "Max",
-      value: Math.round(max),
+      value: max,
       icon: "arrow-up" as const,
       color: theme.colors.tertiary,
     },
@@ -98,6 +99,9 @@ const FallsCountScreen = () => {
             font={font}
             boldFont={boldFont}
             timeRange={timeRange}
+            yKeys={["falls"]}
+            barColor="#ffa502"
+            colors={[theme.colors.primary]}
           />
         </View>
         <SegmentedButtons

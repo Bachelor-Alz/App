@@ -4,10 +4,25 @@ import { ToolTip } from "@/components/charts/Tooltip";
 import { MD3Theme } from "react-native-paper";
 import formatDate from "@/utils/formatDate";
 
-const INIT_STATE = { x: 0, y: { min: 0, avg: 0, max: 0 } };
-
-type ChartData = { day: number; min: number; avg: number; max: number }[];
+type ChartData = Record<string, number> & { day: number };
 type TimeRange = "Hour" | "Day" | "Week";
+
+const createInitState = (yKeys: string[]) => ({
+  x: 0,
+  y: Object.fromEntries(yKeys.map((key) => [key, 0])) as Record<string, number>,
+});
+
+type ChartComponentProps = {
+  data: ChartData[];
+  theme: MD3Theme;
+  font: SkFont;
+  boldFont: SkFont;
+  timeRange: TimeRange;
+  yKeys: string[];
+  labels?: string[];
+  colors?: string[];
+  barColor?: string;
+};
 
 const ChartComponent = ({
   data,
@@ -15,16 +30,15 @@ const ChartComponent = ({
   font,
   boldFont,
   timeRange,
-}: {
-  data: ChartData;
-  theme: MD3Theme;
-  font: SkFont;
-  boldFont: SkFont;
-  timeRange: TimeRange;
-}) => {
-  const { state: pressState, isActive: isPressActive } = useChartPressState(INIT_STATE);
+  yKeys,
+  labels,
+  colors,
+  barColor = theme.colors.primary,
+}: ChartComponentProps) => {
+  const { state: pressState, isActive: isPressActive } = useChartPressState(createInitState(yKeys));
   const { state } = useChartTransformState();
   const color = theme.colors.onSurface;
+  const resolvedColors = colors || [theme.colors.secondary, theme.colors.primary, theme.colors.tertiary];
 
   return (
     <CartesianChart
@@ -32,7 +46,7 @@ const ChartComponent = ({
       frame={{ lineColor: color }}
       domainPadding={{ left: 30, right: 30, bottom: 1, top: 5 }}
       xKey="day"
-      yKeys={["min", "avg", "max"]}
+      yKeys={yKeys}
       chartPressState={pressState}
       transformState={state}
       xAxis={{
@@ -53,18 +67,20 @@ const ChartComponent = ({
       {({ points, yScale }) => (
         <>
           {data.map((point, index) => {
-            const minY = yScale(point.min);
-            const maxY = yScale(point.max);
-            const x = points.min[index].x;
-            if (isNaN(minY) || isNaN(maxY)) return null;
+            const min = () => {
+              const minValue = Math.min(...yKeys.map((key) => point[key]));
+              return minValue === max ? 0 : minValue;
+            };
+            const max = Math.max(...yKeys.map((key) => point[key]));
+            const minScale = yScale(min());
+            const maxScale = yScale(max);
 
-            const path = `M ${x} ${maxY} L ${x} ${minY}`;
-
+            const x = points[yKeys[0]][index].x;
             return (
               <Path
-                key={`bar-${index}`}
-                path={path}
-                color={theme.colors.primary}
+                key={`line-${index}`}
+                path={`M ${x} ${minScale} L ${x} ${maxScale}`}
+                color={barColor}
                 style="stroke"
                 strokeWidth={5}
               />
@@ -74,11 +90,15 @@ const ChartComponent = ({
           {isPressActive && (
             <ToolTip
               x={pressState.x}
-              y={{
-                data: [pressState.y.max, pressState.y.avg, pressState.y.min],
-                colors: [theme.colors.tertiary, theme.colors.primary, theme.colors.secondary],
-                labels: ["Max", "Avg", "Min"],
-              }}
+              entries={yKeys.map((key, i) => {
+                const entry = pressState.y[key];
+                return {
+                  label: labels?.[i] ?? key.charAt(0).toUpperCase() + key.slice(1),
+                  value: entry?.value,
+                  position: entry?.position,
+                  color: resolvedColors?.[i],
+                };
+              })}
               theme={theme}
               font={boldFont}
             />

@@ -11,6 +11,12 @@ jest.mock("../../apis/registerAPI");
 jest.mock("../../apis/loginAPI");
 jest.mock("expo-secure-store");
 jest.mock("expo-font");
+jest.mock("expo-router", () => ({
+  ...jest.requireActual("expo-router"),
+  useNavigationContainerRef: () => ({
+    resetRoot: jest.fn(),
+  }),
+}));
 
 const wrapper = ({ children }: React.PropsWithChildren) => {
   return (

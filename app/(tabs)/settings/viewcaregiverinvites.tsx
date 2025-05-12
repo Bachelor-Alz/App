@@ -5,6 +5,7 @@ import SmartAreaView from "@/components/SmartAreaView";
 import { useCaregiverInvites } from "@/hooks/useElders";
 import { acceptCaregiverInvite } from "@/apis/elderAPI";
 import { useToast } from "@/providers/ToastProvider";
+import { router } from "expo-router";
 
 const ViewCaregiverInvites = () => {
   const theme = useTheme();
@@ -47,7 +48,9 @@ const ViewCaregiverInvites = () => {
           onPress={async () => {
             try {
               await acceptCaregiverInvite(item.email);
-              await refetch();
+              if (router.canGoBack()) {
+                router.back();
+              }
             } catch (err) {
               addToast("Error accepting invite", "The invite could not be accepted.");
             }

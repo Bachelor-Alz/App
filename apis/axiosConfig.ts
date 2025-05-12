@@ -1,7 +1,6 @@
 import axios from "axios";
 import { BASE_URL } from "@/utils/globals";
-import { router } from "expo-router";
-import * as SecureStore from "expo-secure-store";
+import { emitLogoutEvent } from "@/utils/logoutEmitter";
 
 export const axiosInstance = axios.create({
   baseURL: BASE_URL,
@@ -62,12 +61,7 @@ axiosInstance.interceptors.response.use(
         });
       }
     } catch (refreshError) {
-      await SecureStore.deleteItemAsync("rememberedEmail");
-      await SecureStore.deleteItemAsync("password");
-
-      if (router.canGoBack()) {
-        router.dismissAll();
-      }
+      emitLogoutEvent();
     }
   }
 );

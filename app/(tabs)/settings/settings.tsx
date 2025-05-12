@@ -1,18 +1,23 @@
 import React from "react";
-import { View, SafeAreaView, StyleSheet, Alert } from "react-native";
-import { List, Divider } from "react-native-paper";
+import { View, StyleSheet, Alert } from "react-native";
+import { List, Divider, Switch, Text } from "react-native-paper";
 import { useAuthentication } from "@/providers/AuthenticationProvider";
 import { router } from "expo-router";
 import { removeArduinoFromElder } from "@/apis/elderAPI";
+import SmartAreaView from "@/components/SmartAreaView";
+import { useThemeContext } from "@/providers/ThemeProvider";
 
 const Settings = () => {
-  const { role, logout } = useAuthentication();
+  const { role, logout, userEmail } = useAuthentication();
+  const { toggleTheme, themeMode } = useThemeContext();
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SmartAreaView>
       <View style={styles.container}>
         <List.Section>
-          <List.Subheader style={styles.header}>Settings</List.Subheader>
+          <Text variant="headlineLarge" style={styles.header}>
+            Settings
+          </Text>
 
           {role === 1 && (
             <>
@@ -20,7 +25,7 @@ const Settings = () => {
                 title="Assign Caregiver"
                 titleStyle={styles.title}
                 left={() => <List.Icon icon="account-group" />}
-                onPress={() => router.push("/assigncaregiver")}
+                onPress={() => router.push("/settings/assigncaregiver")}
                 style={styles.item}
               />
               <Divider style={styles.divider} />
@@ -28,7 +33,7 @@ const Settings = () => {
                 title="Remove Caregiver"
                 titleStyle={styles.title}
                 left={() => <List.Icon icon="account-remove" />}
-                onPress={() => router.push("/removecaregiver")}
+                onPress={() => router.push("/settings/removecaregiver")}
                 style={styles.item}
               />
               <Divider style={styles.divider} />
@@ -36,8 +41,17 @@ const Settings = () => {
                 title="Assign Arduino"
                 titleStyle={styles.title}
                 left={() => <List.Icon icon="bluetooth" />}
-                onPress={() => router.push("/viewarduino")}
+                onPress={() => router.push("/settings/viewarduino")}
                 style={styles.item}
+              />
+              <Divider style={styles.divider} />
+              <List.Item
+                title="Home Perimeter"
+                titleStyle={styles.title}
+                left={() => <List.Icon icon="home" />}
+                onPress={() =>
+                  router.push({ pathname: "/settings/map_elder", params: { elderEmail: userEmail } })
+                }
               />
               <Divider style={styles.divider} />
               <List.Item
@@ -62,6 +76,15 @@ const Settings = () => {
             </>
           )}
           <Divider style={styles.divider} />
+          <List.Item
+            title={themeMode === "light" ? "Light Mode" : "Dark Mode"}
+            titleStyle={styles.title}
+            left={() => <List.Icon icon="theme-light-dark" />}
+            right={() => <Switch value={themeMode === "dark"} onValueChange={toggleTheme} />}
+            onPress={toggleTheme}
+            style={styles.item}
+          />
+          <Divider style={styles.divider} />
 
           <List.Item
             title="Logout"
@@ -72,7 +95,7 @@ const Settings = () => {
           />
         </List.Section>
       </View>
-    </SafeAreaView>
+    </SmartAreaView>
   );
 };
 
@@ -83,8 +106,8 @@ const styles = StyleSheet.create({
     paddingTop: 10,
   },
   header: {
-    fontSize: 28,
     fontWeight: "bold",
+    marginBottom: 16,
   },
   title: {
     fontSize: 18,

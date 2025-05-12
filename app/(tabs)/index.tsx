@@ -1,6 +1,6 @@
 import React from "react";
-import { View, Text, SafeAreaView, ActivityIndicator, StyleSheet, Alert } from "react-native";
-import { useTheme, Provider as PaperProvider } from "react-native-paper";
+import { View, ActivityIndicator, StyleSheet, Alert } from "react-native";
+import { useTheme, Text, Tooltip } from "react-native-paper";
 import { useDashBoardData } from "@/hooks/useGetDashboardData";
 import { router, useLocalSearchParams } from "expo-router";
 import { CaregiverCardList } from "@/components/CaregiverCardList";
@@ -10,10 +10,10 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTestArduinoConnection } from "@/hooks/useElders";
 import { useToast } from "@/providers/ToastProvider";
 import { testArduinoConnection } from "@/apis/elderAPI";
+import SmartAreaView from "@/components/SmartAreaView";
 
 const MainPage = () => {
   const theme = useTheme();
-  const backgroundColor = theme.dark ? "#000000" : theme.colors.surface;
   const { addToast } = useToast();
 
   const queryFn = async (email: string) => {
@@ -25,7 +25,7 @@ const MainPage = () => {
           Alert.alert("Arduino is not connected", undefined, [
             {
               text: "Go to Settings",
-              onPress: () => router.push("/viewarduino"),
+              onPress: () => router.push("/settings/viewarduino"),
             },
             {
               text: "Cancel",
@@ -69,6 +69,7 @@ const MainPage = () => {
           icon: "heart" as keyof typeof Ionicons.glyphMap,
           color: "#ff4757",
           onPress: () => router.push({ pathname: "/heartrate", params: { email: elderEmail } }),
+          theme,
         },
         {
           title: "Blood Oxygen Level",
@@ -76,6 +77,7 @@ const MainPage = () => {
           icon: "water" as keyof typeof Ionicons.glyphMap,
           color: "#1e90ff",
           onPress: () => router.push({ pathname: "/spo2", params: { email: elderEmail } }),
+          theme,
         },
         {
           title: "Steps",
@@ -83,6 +85,7 @@ const MainPage = () => {
           icon: "footsteps" as keyof typeof Ionicons.glyphMap,
           color: "#2ed573",
           onPress: () => router.push({ pathname: "/stepscount", params: { email: elderEmail } }),
+          theme,
         },
         {
           title: "Recorded Falls",
@@ -90,6 +93,7 @@ const MainPage = () => {
           icon: "alert-circle" as keyof typeof Ionicons.glyphMap,
           color: "#ffa502",
           onPress: () => router.push({ pathname: "/fallscount", params: { email: elderEmail } }),
+          theme,
         },
         {
           title: "Distance Walked",
@@ -97,6 +101,7 @@ const MainPage = () => {
           icon: "walk" as keyof typeof Ionicons.glyphMap,
           color: "#ff7f50",
           onPress: () => router.push({ pathname: "/distance", params: { email: elderEmail } }),
+          theme,
         },
       ]
     : [];
@@ -107,41 +112,61 @@ const MainPage = () => {
       value: "See caregiver invites from elders",
       icon: "mail-open" as keyof typeof Ionicons.glyphMap,
       color: "#1e90ff",
-      onPress: () => router.push("/viewcaregiverinvites"),
+      onPress: () => router.push("/settings/viewcaregiverinvites"),
+      theme,
     },
     {
       title: "View Assigned Elders",
       value: "See all elders assigned to you",
       icon: "people" as keyof typeof Ionicons.glyphMap,
       color: "#2ed573",
-      onPress: () => router.push("/viewelder"),
+      onPress: () => router.push("/settings/viewelder"),
+      theme,
     },
     {
       title: "Elder Map",
       value: "View your associated elders on a map",
       icon: "map" as keyof typeof Ionicons.glyphMap,
       color: "#ff4757",
-      onPress: () => router.push("/map"),
+      onPress: () => router.push("/settings/map"),
+      theme,
     },
   ];
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor }}>
+    <SmartAreaView>
       <View style={styles.container}>
         <View style={styles.topRow}>
-          <Text style={[styles.header, { color: theme.colors.onBackground }]}>
+          <Text variant="headlineLarge" style={[styles.header, { color: theme.colors.onBackground }]}>
             {name ? `${name}'s Dashboard` : "Dashboard"}
           </Text>
           {roleFromParams === 1 && (
-            <Ionicons
-              name="bluetooth"
-              size={34}
-              color={arduinoLoading ? theme.colors.outline : arduinoStatus ? "#2ed573" : theme.colors.error}
-              style={styles.statusIcon}
-            />
+            <View>
+              <Tooltip
+                title={
+                  arduinoLoading
+                    ? "Loading..."
+                    : arduinoStatus
+                    ? "Connected to device"
+                    : "Not Connected to device"
+                }>
+                <Ionicons
+                  name="bluetooth"
+                  size={40}
+                  color={
+                    arduinoLoading ? theme.colors.outline : arduinoStatus ? "#2ed573" : theme.colors.error
+                  }
+                  style={styles.statusIcon}
+                />
+              </Tooltip>
+            </View>
           )}
         </View>
-        {email && <Text style={{ color: theme.colors.onSurface, marginBottom: 10 }}>{email}</Text>}
+        {email && (
+          <Text variant="titleMedium" style={{ color: theme.colors.onSurface, marginBottom: 10 }}>
+            {email}
+          </Text>
+        )}
 
         {isLoading ? (
           <ActivityIndicator size="large" color={theme.colors.primary} style={{ marginTop: 30 }} />
@@ -150,7 +175,7 @@ const MainPage = () => {
         ) : (
           <>
             {roleFromParams === 0 ? (
-              <CaregiverCardList caregiverOptions={caregiverOptions} />
+              <CaregiverCardList healthData={caregiverOptions} />
             ) : roleFromParams === 1 ? (
               <HealthCardList healthData={healthData} />
             ) : (
@@ -159,7 +184,7 @@ const MainPage = () => {
           </>
         )}
       </View>
-    </SafeAreaView>
+    </SmartAreaView>
   );
 };
 
@@ -169,7 +194,6 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   header: {
-    fontSize: 28,
     fontWeight: "bold",
     marginBottom: 5,
   },
@@ -184,8 +208,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default () => (
-  <PaperProvider>
-    <MainPage />
-  </PaperProvider>
-);
+export default MainPage;

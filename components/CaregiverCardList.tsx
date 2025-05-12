@@ -1,43 +1,13 @@
 import React from "react";
 import { FlatList, StyleSheet, Text, View, TouchableOpacity } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { useTheme } from "react-native-paper";
+import { HealthCard, HealthCardListProps } from "./HealthCardList";
 
-type CaregiverCardProps = {
-  title: string;
-  value: string;
-  onPress?: () => void;
-  color: string;
-  icon?: keyof typeof Ionicons.glyphMap;
-};
-
-const CaregiverCard: React.FC<CaregiverCardProps> = ({ title, value, icon, color, onPress }) => {
-  const theme = useTheme();
-  const cardBackgroundColor = theme.dark ? "#1e1e1e" : "#ffffff";
-
-  return (
-    <TouchableOpacity onPress={onPress} style={{ marginBottom: 10 }}>
-      <View style={[styles.card, { backgroundColor: cardBackgroundColor, borderLeftColor: color }]}>
-        <Ionicons name={icon} size={32} color={color} style={styles.icon} />
-        <View>
-          <Text style={[styles.cardTitle, { color: theme.colors.onSurface }]}>{title}</Text>
-          <Text style={[styles.cardSubtitle, { color: theme.colors.onSurface }]}>{value}</Text>
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
-};
-
-type CaregiverCardListProps = {
-  caregiverOptions: CaregiverCardProps[];
-};
-
-export const CaregiverCardList: React.FC<CaregiverCardListProps> = ({ caregiverOptions }) => {
+export const CaregiverCardList: React.FC<HealthCardListProps> = ({ healthData }) => {
   return (
     <FlatList
-      data={caregiverOptions}
+      data={healthData}
       keyExtractor={(item) => item.title}
-      renderItem={({ item }) => <CaregiverCard {...item} />}
+      renderItem={({ item }) => <HealthCard {...item} />}
       showsVerticalScrollIndicator={false}
     />
   );

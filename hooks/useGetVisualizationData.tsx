@@ -5,6 +5,29 @@ import { useEffect, useRef, useState } from "react";
 
 export type TimeRange = "Hour" | "Day" | "Week";
 
+const getRoundedDate = (date: Date, range: TimeRange): Date => {
+  const roundedDate = new Date(date);
+
+  switch (range) {
+    case "Hour":
+      roundedDate.setMinutes(Math.floor(roundedDate.getMinutes() / 5) * 5);
+      break;
+    case "Day":
+      roundedDate.setHours(roundedDate.getHours(), 0, 0, 0);
+      break;
+    case "Week":
+      const dayOfWeek = roundedDate.getDay();
+      const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+      roundedDate.setDate(roundedDate.getDate() - daysToSubtract);
+      roundedDate.setHours(roundedDate.getHours(), 0, 0, 0);
+      break;
+    default:
+      throw new Error(`Unexpected timeRange value: ${range}`);
+  }
+
+  return roundedDate;
+};
+
 function useGetVisualizationData<T>({
   elderEmail,
   fetchFn,
@@ -19,7 +42,7 @@ function useGetVisualizationData<T>({
   select?: (data: T) => T;
   initialDate?: Date;
 }) {
-  const [date, setDate] = useState(initialDate ?? new Date());
+  const [date, setDate] = useState(getRoundedDate(initialDate ?? new Date(), "Day"));
   const [timeRange, setTimeRange] = useState<TimeRange>("Day");
   const hasPrefetched = useRef(false);
   const queryClient = useQueryClient();

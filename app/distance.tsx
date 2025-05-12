@@ -50,28 +50,26 @@ function DistanceScreen() {
   const isEmpty = data?.length === 0;
 
   const chartData = isEmpty
-    ? [{ day: 0, min: 0, avg: 0, max: 0 }]
+    ? [{ day: 0, distance: 0 }]
     : data.map((item) => ({
         day: new Date(item.timestamp).getTime(),
-        min: 0,
-        avg: Number(item.distance),
-        max: Number(item.distance),
+        distance: item.distance,
       }));
 
-  const distanceValues = isEmpty ? [0] : data.map((d) => Number(d.distance || 0));
+  const distanceValues = isEmpty ? [0] : data.map((d) => d.distance || 0);
   const avg = distanceValues.reduce((sum, val) => sum + val, 0) / distanceValues.length;
   const max = Math.max(...distanceValues);
 
   const stats = [
     {
       label: "Avg",
-      value: Math.round(avg),
+      value: avg,
       icon: "trophy" as const,
       color: theme.colors.primary,
     },
     {
       label: "Max",
-      value: Math.round(max),
+      value: max,
       icon: "arrow-up" as const,
       color: theme.colors.tertiary,
     },
@@ -96,6 +94,9 @@ function DistanceScreen() {
             font={font}
             boldFont={boldFont}
             timeRange={timeRange}
+            yKeys={["distance"]}
+            barColor="#ff7f50"
+            colors={[theme.colors.primary]}
           />
         </View>
         <SegmentedButtons

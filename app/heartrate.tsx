@@ -76,13 +76,14 @@ function HeartRateScreen() {
       label: "Min",
       value: Math.round(min),
       icon: "arrow-down" as const,
-      color: theme.colors.primary,
+
+      color: theme.colors.secondary,
     },
     {
       label: "Avg",
       value: Math.round(avg),
       icon: "trophy" as const,
-      color: theme.colors.secondary,
+      color: theme.colors.primary,
     },
     {
       label: "Max",
@@ -110,6 +111,8 @@ function HeartRateScreen() {
             font={font}
             boldFont={boldFont}
             timeRange={timeRange}
+            yKeys={["min", "avg", "max"]}
+            barColor={theme.colors.error}
           />
         </View>
 
@@ -124,7 +127,7 @@ function HeartRateScreen() {
           ]}
         />
 
-        <StatCard title="Statistics" stats={stats} icon="chart-line" color="blue" />
+        <StatCard title="Statistics" stats={stats} icon="chart-line" color={theme.colors.error} />
       </View>
     </SmartAreaView>
   );

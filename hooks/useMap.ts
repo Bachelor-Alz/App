@@ -1,58 +1,30 @@
-import { useQuery } from "@tanstack/react-query";
-import MapView, { MapMarker, Marker } from "react-native-maps";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import MapView, { MapMarker } from "react-native-maps";
 import { axiosInstance } from "@/apis/axiosConfig";
 import { useRef, useState } from "react";
+import { useToast } from "@/providers/ToastProvider";
 
 type elderLocations = {
-  elderEmail: string;
-  elderName: string;
-  elderLatitude: number;
-  elderLongitude: number;
-  sent: Date;
+  email: string;
+  name: string;
+  latitude: number;
+  longitude: number;
+  lastUpdated: string;
   perimeter: Perimeter;
 };
 
 type Perimeter = {
-  latitude: number;
-  longitude: number;
-  radius: number;
+  homeLatitude: number;
+  homeLongitude: number;
+  homeRadius: number;
 };
 //TODO USE WHEN WE GET DATA
 const fetchElderLocations = async () => {
-  const response = await axiosInstance.get<elderLocations[]>("Coordinates/Elders");
+  const response = await axiosInstance.get<elderLocations[]>("/api/Health/Coordinates/Elders");
+  if (response.status !== 200) {
+    throw new Error("Failed to fetch elder locations");
+  }
   return response.data;
-};
-const fetchElderLocationsFake = async () => {
-  return [
-    {
-      elderEmail: "example@example.com",
-      elderName: "John Doe",
-      elderLatitude: 37.78825,
-      elderLongitude: -122.4324,
-      sent: new Date(),
-      perimeter: {
-        latitude: 37.78825,
-        longitude: -122.43,
-        radius: 5,
-      },
-    },
-    {
-      elderEmail: "newexample@example.com",
-      elderName: "Jane Smith",
-      elderLatitude: 38,
-      elderLongitude: -122,
-      sent: new Date(),
-      perimeter: {
-        latitude: 38,
-        longitude: -122.5,
-        radius: 5,
-      },
-    },
-  ];
-};
-
-const updatePerimeter = (value: number, email: string | null) => {
-  if (!email || !value) return;
 };
 
 const useMap = () => {
@@ -66,37 +38,41 @@ const useMap = () => {
     latitudeDelta: 1,
     longitudeDelta: 1,
   });
+  const queryClient = useQueryClient();
 
   const query = useQuery({
     queryKey: ["elderLocations"],
-    queryFn: fetchElderLocationsFake,
+    queryFn: fetchElderLocations,
     staleTime: 1000 * 60 * 5,
   });
 
+  const { addToast } = useToast();
+
   const { data: elderLocations } = query;
+  console.log(elderLocations);
 
   const handleNextElder = () => {
     if (!elderLocations) return;
     if (elderFocus.current === null && elderLocations.length > 0) {
       const firstElder = elderLocations[0];
-      markerRefs.current[firstElder.elderEmail]?.current?.showCallout();
-      elderFocus.current = firstElder.elderEmail;
+      markerRefs.current[firstElder.email]?.current?.showCallout();
+      elderFocus.current = firstElder.email;
       animateToElder(firstElder);
       return;
     }
 
-    const currentIndex = elderLocations.findIndex((elder) => elder.elderEmail === elderFocus.current);
+    const currentIndex = elderLocations.findIndex((elder) => elder.email === elderFocus.current);
     const nextElder = elderLocations[(currentIndex + 1) % elderLocations.length];
-    markerRefs.current[nextElder.elderEmail]?.current?.showCallout();
-    elderFocus.current = nextElder.elderEmail;
+    markerRefs.current[nextElder.email]?.current?.showCallout();
+    elderFocus.current = nextElder.email;
     animateToElder(nextElder);
   };
 
   const animateToElder = (elder: elderLocations) => {
     if (mapRef.current) {
       mapRef.current.animateToRegion({
-        latitude: elder.elderLatitude,
-        longitude: elder.elderLongitude,
+        latitude: elder.latitude,
+        longitude: elder.longitude,
         latitudeDelta: zoomDeltaRef.current.latitudeDelta / 30,
         longitudeDelta: zoomDeltaRef.current.longitudeDelta / 30,
       });
@@ -124,8 +100,8 @@ const useMap = () => {
   const fitToMarkers = () => {
     if (!elderLocations) return;
     const coordinates = elderLocations.map((location) => ({
-      latitude: location.elderLatitude,
-      longitude: location.elderLongitude,
+      latitude: location.latitude,
+      longitude: location.longitude,
     }));
 
     if (mapRef.current && coordinates.length > 0) {
@@ -136,38 +112,37 @@ const useMap = () => {
   };
 
   const showHomePerimeter = (elderEmail: string) => {
-    const elder = elderLocations?.find((location) => location.elderEmail === elderEmail);
-    setSliderValue(elder?.perimeter.radius || 0);
+    const elder = elderLocations?.find((location) => location.email === elderEmail);
+    setSliderValue(elder?.perimeter.homeRadius || 0);
     if (elder && mapRef.current) {
       setHomePerimeter(() => ({
-        latitude: elder.perimeter.latitude,
-        longitude: elder.perimeter.longitude,
-        radius: elder.perimeter.radius,
+        homeLatitude: elder.perimeter.homeLatitude,
+        homeLongitude: elder.perimeter.homeLongitude,
+        homeRadius: elder.perimeter.homeRadius,
       }));
 
       mapRef.current.animateToRegion({
-        latitude: elder.perimeter.latitude,
-        longitude: elder.perimeter.longitude,
-        latitudeDelta: elder.perimeter.radius / 30,
-        longitudeDelta: elder.perimeter.radius / 30,
+        latitude: elder.perimeter.homeLatitude,
+        longitude: elder.perimeter.homeLongitude,
+        latitudeDelta: elder.perimeter.homeRadius / 30,
+        longitudeDelta: elder.perimeter.homeRadius / 30,
       });
     }
   };
 
-  const handleSlide = (value: number) => {
+  const handleSlide = async (value: number, elderEmail: string) => {
     if (!homePerimeter) return;
     setSliderValue(value);
-
     setHomePerimeter((prev) => ({
       ...prev!,
-      radius: value,
+      homeRadius: value,
     }));
 
     if (mapRef.current) {
       mapRef.current.animateToRegion(
         {
-          latitude: homePerimeter.latitude,
-          longitude: homePerimeter.longitude,
+          latitude: homePerimeter.homeLatitude,
+          longitude: homePerimeter.homeLongitude,
           latitudeDelta: value / 25,
           longitudeDelta: value / 25,
         },
@@ -180,8 +155,32 @@ const useMap = () => {
     }
 
     debounceRef.current = setTimeout(() => {
-      updatePerimeter(value, elderFocus.current);
+      updatePerimeter(value, elderFocus.current)
+        .then(() => {
+          queryClient.setQueryData<elderLocations[] | undefined>(["elderLocations"], (oldData) => {
+            if (!oldData) return oldData;
+            return oldData.map((elder) =>
+              elder.email === elderEmail
+                ? { ...elder, perimeter: { ...elder.perimeter, homeRadius: value } }
+                : elder
+            );
+          });
+        })
+        .catch((error) => {
+          addToast("Error", error.message);
+        });
     }, 5000);
+  };
+
+  const updatePerimeter = async (value: number, email: string | null) => {
+    if (!email || !value) return;
+    console.log("Updating perimeter for elder:", email, "with value:", value);
+    const response = await axiosInstance.post(
+      `/api/Health/Perimeter?radius=${Math.round(value)}&elderEmail=${encodeURIComponent(email)}`
+    );
+    if (response.status !== 200) {
+      addToast("Error", "Failed to update perimeter");
+    }
   };
 
   return {
