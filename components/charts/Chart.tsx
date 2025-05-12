@@ -1,5 +1,5 @@
-import { CartesianChart, useChartPressState, useChartTransformState } from "victory-native";
-import { Path, SkFont } from "@shopify/react-native-skia";
+import { CartesianChart, useChartPressState, useChartTransformState, Line } from "victory-native";
+import { Path, SkFont, Skia } from "@shopify/react-native-skia";
 import { ToolTip } from "@/components/charts/Tooltip";
 import { MD3Theme } from "react-native-paper";
 import formatDate from "@/utils/formatDate";
@@ -22,9 +22,40 @@ type ChartComponentProps = {
   labels?: string[];
   colors?: string[];
   barColor?: string;
+  chartType?: "bar" | "line";
 };
 
 const ChartComponent = ({
+  data,
+  theme,
+  font,
+  boldFont,
+  timeRange,
+  yKeys,
+  labels,
+  colors = [theme.colors.secondary, theme.colors.primary, theme.colors.tertiary],
+  barColor = theme.colors.primary,
+  chartType = "bar",
+}: ChartComponentProps) => {
+  const commonProps = {
+    data,
+    theme,
+    font,
+    boldFont,
+    timeRange,
+    yKeys,
+    labels,
+    barColor,
+  };
+
+  return chartType === "bar" ? (
+    <BarChart {...commonProps} colors={colors} chartType="bar" />
+  ) : (
+    <LineChart {...commonProps} colors={colors} chartType="line" />
+  );
+};
+
+const BarChart = ({
   data,
   theme,
   font,
@@ -97,6 +128,84 @@ const ChartComponent = ({
                   value: entry?.value,
                   position: entry?.position,
                   color: resolvedColors?.[i],
+                };
+              })}
+              theme={theme}
+              font={boldFont}
+            />
+          )}
+        </>
+      )}
+    </CartesianChart>
+  );
+};
+
+const LineChart = ({
+  data,
+  theme,
+  font,
+  boldFont,
+  timeRange,
+  yKeys,
+  labels,
+  colors,
+  barColor = theme.colors.primary,
+}: ChartComponentProps) => {
+  const { state: pressState, isActive: isPressActive } = useChartPressState(createInitState(yKeys));
+  const { state } = useChartTransformState();
+  const axisColor = theme.colors.onSurface;
+
+  const resolvedColors =
+    yKeys.length === 1
+      ? [barColor]
+      : colors || [theme.colors.secondary, theme.colors.primary, theme.colors.tertiary];
+
+  return (
+    <CartesianChart
+      data={data}
+      frame={{ lineColor: axisColor }}
+      domainPadding={{ left: 30, right: 30, bottom: 1, top: 5 }}
+      xKey="day"
+      yKeys={yKeys}
+      chartPressState={pressState}
+      transformState={state}
+      xAxis={{
+        lineColor: axisColor,
+        labelColor: axisColor,
+        font,
+        labelRotate: -50,
+        formatXLabel: (date) => formatDate(timeRange, date),
+      }}
+      yAxis={[
+        {
+          lineColor: axisColor,
+          labelColor: axisColor,
+          font,
+        },
+      ]}>
+      {({ points, yScale }) => (
+        <>
+          {yKeys.map((key, index) => {
+            const linePoints = points[key];
+
+            const color = resolvedColors[index % resolvedColors.length];
+            if (!linePoints) {
+              return null;
+            }
+
+            return <Line key={`line-${key}`} points={linePoints} color={color} strokeWidth={4} />;
+          })}
+          {isPressActive && (
+            <ToolTip
+              x={pressState.x}
+              entries={yKeys.map((key, i) => {
+                const entry = pressState.y[key];
+                return {
+                  label: labels?.[i] ?? key.charAt(0).toUpperCase() + key.slice(1),
+                  value: entry?.value,
+                  position: entry?.position,
+
+                  color: resolvedColors?.[i] ?? barColor,
                 };
               })}
               theme={theme}

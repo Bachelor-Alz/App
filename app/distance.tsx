@@ -7,7 +7,8 @@ import { StatCard } from "@/components/charts/StatsCard";
 import { useLocalSearchParams } from "expo-router";
 import useGetVisualizationData from "@/hooks/useGetVisualizationData";
 import { fetchDistance } from "@/apis/healthAPI";
-import ChartTitle from "@/components/charts/ChartTitle";
+import ChartTitle, { ChartType } from "@/components/charts/ChartTitle";
+import { useState } from "react";
 
 type TimeRange = "Hour" | "Day" | "Week";
 
@@ -17,13 +18,14 @@ function DistanceScreen() {
   const boldFont = useFont(require("../assets/fonts/Quicksand-Bold.ttf"), 15);
   const { email } = useLocalSearchParams<{ email?: string }>();
   const elderEmail = email || "";
-
   const { isError, isLoading, data, setTimeRange, timeRange, navigateTime, timeFormat } =
     useGetVisualizationData({
       elderEmail,
       fetchFn: fetchDistance,
       metricKey: "distance",
     });
+
+  const [chartType, setChartType] = useState<ChartType>("bar");
 
   if (!font || !boldFont) return null;
 
@@ -53,10 +55,10 @@ function DistanceScreen() {
     ? [{ day: 0, distance: 0 }]
     : data.map((item) => ({
         day: new Date(item.timestamp).getTime(),
-        distance: item.distance,
+        distance: item.distance * 1000,
       }));
 
-  const distanceValues = isEmpty ? [0] : data.map((d) => d.distance || 0);
+  const distanceValues = isEmpty ? [0] : data.map((d) => (d.distance || 0) * 1000); // Convert km to m
   const avg = distanceValues.reduce((sum, val) => sum + val, 0) / distanceValues.length;
   const max = Math.max(...distanceValues);
 
@@ -81,10 +83,10 @@ function DistanceScreen() {
         <ChartTitle
           title="Distance"
           timePeriod={timeFormat}
-          icon="walk"
-          iconColor={"#ff7f50"}
           navigateTime={navigateTime}
           theme={theme}
+          chartType={chartType}
+          onChartTypeChange={setChartType}
         />
 
         <View style={styles.chartContainer}>
@@ -97,6 +99,7 @@ function DistanceScreen() {
             yKeys={["distance"]}
             barColor="#ff7f50"
             colors={[theme.colors.primary]}
+            chartType={chartType}
           />
         </View>
         <SegmentedButtons
