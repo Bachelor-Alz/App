@@ -1,6 +1,6 @@
 import React from "react";
-import { View, SafeAreaView, StyleSheet, Alert } from "react-native";
-import { List, Divider, Switch } from "react-native-paper";
+import { View, StyleSheet, Alert } from "react-native";
+import { List, Divider, Switch, Text } from "react-native-paper";
 import { useAuthentication } from "@/providers/AuthenticationProvider";
 import { router } from "expo-router";
 import { removeArduinoFromElder } from "@/apis/elderAPI";
@@ -15,7 +15,9 @@ const Settings = () => {
     <SmartAreaView>
       <View style={styles.container}>
         <List.Section>
-          <List.Subheader style={styles.header}>Settings</List.Subheader>
+          <Text variant="headlineLarge" style={styles.header}>
+            Settings
+          </Text>
 
           {role === 1 && (
             <>
@@ -104,8 +106,8 @@ const styles = StyleSheet.create({
     paddingTop: 10,
   },
   header: {
-    fontSize: 28,
     fontWeight: "bold",
+    marginBottom: 16,
   },
   title: {
     fontSize: 18,
