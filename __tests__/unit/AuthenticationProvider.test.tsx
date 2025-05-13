@@ -1,7 +1,7 @@
 import { AuthenticationProvider, useAuthentication } from "@/providers/AuthenticationProvider";
 import { renderHook, act } from "@testing-library/react-native";
 import { createUserRequest } from "@/apis/registerAPI";
-import { RegisterForm } from "@/app/register";
+import { RegisterForm } from "@/app/Register";
 import { loginUserRequest } from "@/apis/loginAPI";
 import * as SecureStore from "expo-secure-store";
 import { ToastProvider } from "@/providers/ToastProvider";

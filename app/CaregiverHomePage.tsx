@@ -4,9 +4,8 @@ import { useTheme, Text } from "react-native-paper";
 import { CaregiverCardList } from "@/components/CaregiverCardList";
 import { Ionicons } from "@expo/vector-icons";
 import SmartAreaView from "@/components/SmartAreaView";
-import { useAuthentication } from "@/providers/AuthenticationProvider";
 
-const MainPage = () => {
+const CaregiverHomePage = ({ navigation }) => {
   const theme = useTheme();
 
   const caregiverOptions = [
@@ -15,7 +14,7 @@ const MainPage = () => {
       value: "See caregiver invites from elders",
       icon: "mail-open" as keyof typeof Ionicons.glyphMap,
       color: "#1e90ff",
-      onPress: () => router.push("/settings/viewcaregiverinvites"),
+      onPress: () => navigation.push("/settings/viewcaregiverinvites"),
       theme,
     },
     {
@@ -23,7 +22,7 @@ const MainPage = () => {
       value: "See all elders assigned to you",
       icon: "people" as keyof typeof Ionicons.glyphMap,
       color: "#2ed573",
-      onPress: () => router.push("/settings/viewelder"),
+      onPress: () => navigation.push("/settings/viewelder"),
       theme,
     },
     {
@@ -31,7 +30,7 @@ const MainPage = () => {
       value: "View your associated elders on a map",
       icon: "map" as keyof typeof Ionicons.glyphMap,
       color: "#ff4757",
-      onPress: () => router.push("/settings/map"),
+      onPress: () => navigation.push("/settings/map"),
       theme,
     },
   ];
@@ -70,4 +69,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MainPage;
+export default CaregiverHomePage;

@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { createUserRequest } from "@/apis/registerAPI";
-import { RegisterForm } from "@/app/register";
+import { RegisterForm } from "@/app/Register";
 import { LoginResponse, loginUserRequest } from "@/apis/loginAPI";
 import { setBearer } from "@/apis/axiosConfig";
 import * as SecureStore from "expo-secure-store";
@@ -8,7 +8,7 @@ import { useToast } from "./ToastProvider";
 import { addLogoutListener, removeLogoutListener } from "@/utils/logoutEmitter";
 import { revokeRefreshTokenAPI } from "@/apis/revokeRefreshTokenAPI";
 import { useNavigationContainerRef } from "@react-navigation/native";
-import { LoginForm } from "../app/index";
+import { LoginForm } from "@/app/Login";
 
 type AuthenticationProviderProps = {
   register: (form: RegisterForm) => Promise<void | null>;
@@ -98,6 +98,24 @@ export const useAuthentication = () => {
     throw new Error("useAuthentication must be used within an AuthenticationProvider");
   }
   return context;
+};
+
+type AuthenticatedUser = {
+  register: (form: RegisterForm) => Promise<void | null>;
+  login: (form: LoginForm) => Promise<LoginResponse>;
+  logout: () => Promise<void>;
+  role: 0 | 1;
+  userId: string;
+};
+
+export const useAuthenticatedUser = (): AuthenticatedUser => {
+  const all = useAuthentication();
+
+  if (all.userId === null || all.role === null) {
+    throw new Error("User is not authenticated");
+  }
+
+  return all as AuthenticatedUser;
 };
 
 export { AuthenticationProvider, AuthenticationContext };

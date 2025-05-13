@@ -9,6 +9,8 @@ import FormField from "@/components/forms/Formfield";
 import FormContainer from "@/components/forms/FormContainer";
 import { useAuthentication } from "@/providers/AuthenticationProvider";
 import SmartAreaView from "@/components/SmartAreaView";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { AuthStackParamList } from "./navigation/navigation";
 
 const schema = z.object({
   email: z.string().email("Needs to be a valid email address").trim(),
@@ -16,8 +18,12 @@ const schema = z.object({
 });
 
 export type LoginForm = z.infer<typeof schema>;
+type Props = NativeStackScreenProps<AuthStackParamList, "Login">;
 
-const LoginScreen = () => {
+function LoginScreen({ navigation }: Props) {
+  const theme = useTheme();
+  const { login } = useAuthentication();
+  const [rememberMe, setRememberMe] = useState(false);
   const {
     control,
     handleSubmit,
@@ -27,24 +33,42 @@ const LoginScreen = () => {
     mode: "onChange",
   });
 
-  const theme = useTheme();
-  const { login } = useAuthentication();
-  const [rememberMe, setRememberMe] = useState(false);
+  useEffect(() => {
+    const fetchCredentialsAndLogin = async () => {
+      const autoLogin = await SecureStore.getItemAsync("rememberMe");
+      const email = await SecureStore.getItemAsync("email");
+      const password = await SecureStore.getItemAsync("password");
+
+      if (autoLogin && email && password) {
+        await login({
+          email: email,
+          password: password,
+        } as LoginForm);
+      }
+    };
+
+    fetchCredentialsAndLogin();
+  }, []);
+
+  const handleRememberMePress = async () => {
+    if (rememberMe) {
+      await SecureStore.setItemAsync("rememberMe", "true");
+    } else {
+      await SecureStore.deleteItemAsync("rememberMe");
+    }
+  };
 
   const onSubmit = async (data: LoginForm) => {
     if (rememberMe) {
-      await SecureStore.setItemAsync("rememberedEmail", data.email);
+      await SecureStore.setItemAsync("rememberMe", "true");
+      await SecureStore.setItemAsync("email", data.email);
       await SecureStore.setItemAsync("password", data.password);
     } else {
-      await SecureStore.deleteItemAsync("rememberedEmail");
+      await SecureStore.deleteItemAsync("rememberMe");
+      await SecureStore.deleteItemAsync("email");
       await SecureStore.deleteItemAsync("password");
     }
-
-    // Login the user and navigate to the main tabs page
-    const resData = await login(data);
-    resData.role === 0
-      ? router.replace({ pathname: "/(tabs)", params: { id: resData.userId } })
-      : router.replace("/(tabs)/index_caregiver");
+    await login(data);
   };
 
   return (
@@ -63,7 +87,10 @@ const LoginScreen = () => {
           <View style={{ flexDirection: "row", alignItems: "center", marginVertical: 10 }}>
             <Checkbox.Android
               status={rememberMe ? "checked" : "unchecked"}
-              onPress={() => setRememberMe(!rememberMe)}
+              onPress={() => {
+                setRememberMe(!rememberMe);
+                handleRememberMePress();
+              }}
             />
             <Text style={{ color: theme.colors.onSurface }}>Remember Me</Text>
           </View>
@@ -83,7 +110,7 @@ const LoginScreen = () => {
               textColor={theme.colors.onSurface}
               style={{ marginTop: 5 }}
               icon={"account-plus"}
-              onPress={() => router.push("/register")}>
+              onPress={() => navigation.navigate("Register")}>
               Register
             </Button>
           </View>
@@ -91,6 +118,6 @@ const LoginScreen = () => {
       </View>
     </SmartAreaView>
   );
-};
+}
 
 export default LoginScreen;

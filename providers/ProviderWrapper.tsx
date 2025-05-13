@@ -6,7 +6,6 @@ import { ToastProvider } from "./ToastProvider";
 import { THEME_STORAGE_KEY, ThemeProvider, useThemeContext } from "./ThemeProvider";
 import * as SecureStore from "expo-secure-store";
 import { useMemo } from "react";
-
 const queryClient = new QueryClient();
 const initialThemeMode = SecureStore.getItem(THEME_STORAGE_KEY) === "dark" ? "dark" : "light";
 
@@ -34,7 +33,6 @@ const ProviderWrapper = ({ children }: ProviderWrapperProps) => {
   return (
     <ThemeProvider storedColorPreference={initialThemeMode}>
       <QueryClientProvider client={queryClient}>
-        {/* ProviderWrapperContent now uses the ThemeProvider context */}
         <ProviderWrapperContent>{children}</ProviderWrapperContent>
       </QueryClientProvider>
     </ThemeProvider>

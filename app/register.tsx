@@ -11,6 +11,8 @@ import { useAuthentication } from "@/providers/AuthenticationProvider";
 import useLocationResolver from "@/hooks/useLocationResolver";
 import { useDebounce } from "@uidotdev/usehooks";
 import SmartAreaView from "@/components/SmartAreaView";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { AuthStackParamList } from "./navigation/navigation";
 
 const baseFields = {
   email: z.string().email("Must be a valid email address").trim(),
@@ -55,8 +57,9 @@ const schema = z.discriminatedUnion("role", [caregiverSchema, elderSchema]).supe
 });
 
 export type RegisterForm = z.infer<typeof schema>;
+type Props = NativeStackScreenProps<AuthStackParamList, "Register">;
 
-const RegisterScreen = () => {
+const RegisterScreen = ({ navigation }: Props) => {
   const { register } = useAuthentication();
   const theme = useTheme();
 
@@ -83,8 +86,8 @@ const RegisterScreen = () => {
   const handleRegister = () => {
     const form = getValues();
     register(form).then(() => {
-      if (router.canGoBack()) {
-        router.back();
+      if (navigation.canGoBack()) {
+        navigation.goBack();
       }
     });
   };

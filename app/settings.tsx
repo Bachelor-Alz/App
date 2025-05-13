@@ -7,7 +7,7 @@ import SmartAreaView from "@/components/SmartAreaView";
 import { useThemeContext } from "@/providers/ThemeProvider";
 import { useQueryClient } from "@tanstack/react-query";
 
-const Settings = () => {
+const SettingsPage = () => {
   const { role, logout, userId } = useAuthentication();
   const { toggleTheme, themeMode } = useThemeContext();
   const queryClient = useQueryClient();
@@ -124,4 +124,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Settings;
+export default SettingsPage;

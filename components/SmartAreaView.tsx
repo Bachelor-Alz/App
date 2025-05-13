@@ -3,7 +3,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Icon, useTheme } from "react-native-paper";
 import { useNavigation, useNavigationState } from "@react-navigation/native";
 import React from "react";
-import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
+import Animated, { FadeIn } from "react-native-reanimated";
 
 const SmartAreaView: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const navigation = useNavigation();

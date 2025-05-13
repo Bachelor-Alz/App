@@ -1,22 +1,25 @@
 import React from "react";
-import { View, ActivityIndicator, StyleSheet, Alert } from "react-native";
+import { View, StyleSheet, Alert } from "react-native";
 import { useTheme, Text, Tooltip } from "react-native-paper";
 import { useDashBoardData } from "@/hooks/useGetDashboardData";
-import { CaregiverCardList } from "@/components/CaregiverCardList";
 import { HealthCardList } from "@/components/HealthCardList";
-import { useAuthentication } from "@/providers/AuthenticationProvider";
+import { useAuthenticatedUser } from "@/providers/AuthenticationProvider";
 import { Ionicons } from "@expo/vector-icons";
 import { useTestArduinoConnection } from "@/hooks/useElders";
 import { useToast } from "@/providers/ToastProvider";
 import { testArduinoConnection } from "@/apis/elderAPI";
 import SmartAreaView from "@/components/SmartAreaView";
+import { ElderTabParamList } from "./navigation/navigation";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-const MainPage = () => {
+type Props = NativeStackScreenProps<ElderTabParamList, "Home">;
+
+const ElderHomePage = ({ navigation }: Props) => {
   const theme = useTheme();
   const { addToast } = useToast();
 
   const queryFn = async () => {
-    if (roleFromParams === 1) {
+    if (role === 1) {
       try {
         const res = await testArduinoConnection();
         if (!res) {
@@ -24,7 +27,7 @@ const MainPage = () => {
           Alert.alert("Arduino is not connected", undefined, [
             {
               text: "Go to Settings",
-              onPress: () => router.push("/settings/viewarduino"),
+              onPress: () => navigation.push("/settings/viewarduino"),
             },
             {
               text: "Cancel",
@@ -41,23 +44,10 @@ const MainPage = () => {
     return false;
   };
 
-  const {
-    name,
-    id,
-    role: elderRoleParam,
-  } = useLocalSearchParams<{
-    name?: string;
-    id?: string;
-    role?: string;
-  }>();
+  const { role, userId } = useAuthenticatedUser();
 
-  const { role, userId } = useAuthentication();
-
-  const roleFromParams = parseInt(elderRoleParam ?? "") || role;
-
-  const elderId = id || userId || "";
-  const { error, isLoading, data } = useDashBoardData(elderId);
-  const { data: arduinoStatus, isLoading: arduinoLoading } = useTestArduinoConnection(elderId, queryFn);
+  const { error, isLoading, data } = useDashBoardData(userId);
+  const { data: arduinoStatus, isLoading: arduinoLoading } = useTestArduinoConnection(userId, queryFn);
 
   const healthData = data
     ? [
@@ -66,7 +56,7 @@ const MainPage = () => {
           value: `${data.heartRate ?? "N/A"} BPM`,
           icon: "heart" as keyof typeof Ionicons.glyphMap,
           color: "#ff4757",
-          onPress: () => router.push({ pathname: "/heartrate", params: { id: elderId } }),
+          onPress: () => navigation.push({ pathname: "/heartrate", params: { id: userId } }),
           theme,
         },
         {
@@ -74,7 +64,7 @@ const MainPage = () => {
           value: data.spO2 != null ? `${Math.round(Number(data.spO2) * 100)}%` : "N/A",
           icon: "water" as keyof typeof Ionicons.glyphMap,
           color: "#1e90ff",
-          onPress: () => router.push({ pathname: "/spo2", params: { id: elderId } }),
+          onPress: () => navigation.push({ pathname: "/spo2", params: { id: elderId } }),
           theme,
         },
         {
@@ -82,7 +72,7 @@ const MainPage = () => {
           value: `${data.steps ?? "N/A"}`,
           icon: "footsteps" as keyof typeof Ionicons.glyphMap,
           color: "#2ed573",
-          onPress: () => router.push({ pathname: "/stepscount", params: { id: elderId } }),
+          onPress: () => navigation.push({ pathname: "/stepscount", params: { id: elderId } }),
           theme,
         },
         {
@@ -90,7 +80,7 @@ const MainPage = () => {
           value: `${data.fallCount ?? "N/A"}`,
           icon: "alert-circle" as keyof typeof Ionicons.glyphMap,
           color: "#ffa502",
-          onPress: () => router.push({ pathname: "/fallscount", params: { id: elderId } }),
+          onPress: () => navigation.push({ pathname: "/fallscount", params: { id: elderId } }),
           theme,
         },
         {
@@ -98,7 +88,7 @@ const MainPage = () => {
           value: `${data.distance?.toFixed(2) ?? "N/A"} km`,
           icon: "walk" as keyof typeof Ionicons.glyphMap,
           color: "#ff7f50",
-          onPress: () => router.push({ pathname: "/distance", params: { id: elderId } }),
+          onPress: () => navigation.push({ pathname: "/distance", params: { id: elderId } }),
           theme,
         },
       ]
@@ -155,4 +145,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MainPage;
+export default ElderHomePage;
