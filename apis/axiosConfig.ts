@@ -45,7 +45,7 @@ const attemptRefresh = async () => {
 
 let lastRefreshAttempt: number | null = null;
 
-const ONE_MINUTE = 1 * 60 * 1000;
+const FOURTEEN_MINUTES = 14 * 60 * 1000;
 
 axiosInstance.interceptors.response.use(
   (response) => {
@@ -53,14 +53,14 @@ axiosInstance.interceptors.response.use(
     return response;
   },
   async (error) => {
-    console.log(error.response?.status + ": " + error.request.responseURL);
+    //console.log(error.response?.status + ": " + error.request.responseURL);
     const originalRequest = error.config;
 
     if (!error.response || error.response.status !== 401) {
       return Promise.reject(error);
     }
 
-    if (lastRefreshAttempt && Date.now() - lastRefreshAttempt < ONE_MINUTE) {
+    if (lastRefreshAttempt && Date.now() - lastRefreshAttempt < FOURTEEN_MINUTES) {
       return Promise.reject(new Error("Token refresh already attempted recently"));
     }
 
