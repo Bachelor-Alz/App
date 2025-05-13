@@ -93,6 +93,7 @@ function StepsScreen() {
           timePeriod={timeFormat}
           navigateTime={navigateTime}
           theme={theme}
+          buttonColor={"#2ed573"}
           chartType={chartType}
           onChartTypeChange={setChartType}
         />

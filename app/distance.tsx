@@ -85,6 +85,7 @@ function DistanceScreen() {
           timePeriod={timeFormat}
           navigateTime={navigateTime}
           theme={theme}
+          buttonColor="#ff7f50"
           chartType={chartType}
           onChartTypeChange={setChartType}
         />

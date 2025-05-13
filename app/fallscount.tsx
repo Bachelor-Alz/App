@@ -91,6 +91,7 @@ const FallsCountScreen = () => {
           timePeriod={timeFormat}
           navigateTime={navigateTime}
           theme={theme}
+          buttonColor="#ffa502"
           chartType={chartType}
           onChartTypeChange={setChartType}
         />
