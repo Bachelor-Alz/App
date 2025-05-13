@@ -1,9 +1,9 @@
 import { useFonts } from "expo-font";
-import { Text } from "react-native-paper";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
+import * as React from "react";
 import "react-native-reanimated";
 import ProviderWrapper from "@/providers/ProviderWrapper";
+import { NavigationContainer } from "@react-navigation/native";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -12,7 +12,7 @@ export default function RootLayout() {
     SpaceMono: require("./assets/fonts/SpaceMono-Regular.ttf"),
   });
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync();
     }
@@ -24,7 +24,9 @@ export default function RootLayout() {
 
   return (
     <ProviderWrapper>
-      <Text>Welcome to the app!</Text>
+      <NavigationContainer>
+        <Stack.Navigator></Stack.Navigator>
+      </NavigationContainer>
     </ProviderWrapper>
   );
 }
