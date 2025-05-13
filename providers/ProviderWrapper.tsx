@@ -3,9 +3,10 @@ import { AuthenticationProvider } from "@/providers/AuthenticationProvider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { PaperProvider } from "react-native-paper";
 import { ToastProvider } from "./ToastProvider";
-import { useMemo } from "react";
 import { THEME_STORAGE_KEY, ThemeProvider, useThemeContext } from "./ThemeProvider";
 import * as SecureStore from "expo-secure-store";
+import { useMemo } from "react";
+
 const queryClient = new QueryClient();
 const initialThemeMode = SecureStore.getItem(THEME_STORAGE_KEY) === "dark" ? "dark" : "light";
 

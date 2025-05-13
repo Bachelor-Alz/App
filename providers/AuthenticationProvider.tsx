@@ -1,13 +1,14 @@
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { createUserRequest } from "@/apis/registerAPI";
 import { RegisterForm } from "@/app/register";
-import { LoginForm } from "@/app";
 import { LoginResponse, loginUserRequest } from "@/apis/loginAPI";
 import { setBearer } from "@/apis/axiosConfig";
 import * as SecureStore from "expo-secure-store";
 import { useToast } from "./ToastProvider";
 import { addLogoutListener, removeLogoutListener } from "@/utils/logoutEmitter";
 import { revokeRefreshTokenAPI } from "@/apis/revokeRefreshTokenAPI";
+import { useNavigationContainerRef } from "@react-navigation/native";
+import { LoginForm } from "../app/index";
 
 type AuthenticationProviderProps = {
   register: (form: RegisterForm) => Promise<void | null>;
