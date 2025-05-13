@@ -8,6 +8,7 @@ import * as SecureStore from "expo-secure-store";
 import { useNavigationContainerRef } from "expo-router";
 import { useToast } from "./ToastProvider";
 import { addLogoutListener, removeLogoutListener } from "@/utils/logoutEmitter";
+import { revokeRefreshTokenAPI } from "@/apis/revokeRefreshTokenAPI";
 
 type AuthenticationProviderProps = {
   register: (form: RegisterForm) => Promise<string | null>;
@@ -45,10 +46,11 @@ const AuthenticationProvider = ({ children }: { children: React.ReactNode }) => 
         if (!res?.token || !res.email || res.role === undefined) {
           addToast("Error", "Invalid response from server");
         }
-        const { token, email, role } = res;
+        const { token, email, role, refreshToken } = res;
         setBearer(token);
         setUserEmail(email);
         setRole(role);
+        await SecureStore.setItemAsync("refreshToken", refreshToken);
         return role;
       } catch (e: any) {
         addToast("Error", e.message);
@@ -59,8 +61,13 @@ const AuthenticationProvider = ({ children }: { children: React.ReactNode }) => 
 
   const logout = useCallback(async () => {
     try {
+      const refreshToken = await SecureStore.getItemAsync("refreshToken");
+      if (refreshToken) {
+        await revokeRefreshTokenAPI({ refreshToken });
+      }
       await SecureStore.deleteItemAsync("rememberedEmail");
       await SecureStore.deleteItemAsync("password");
+      await SecureStore.deleteItemAsync("refreshToken");
       setUserEmail(null);
       setRole(undefined);
       setBearer("");

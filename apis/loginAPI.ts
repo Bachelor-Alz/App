@@ -4,15 +4,10 @@ import { axiosInstance } from "./axiosConfig";
 type LoginResponse = {
   token: string;
   role: number;
+  refreshToken: string;
 };
 
-export const loginUserRequest = async (
-  userData: LoginForm
-): Promise<{
-  role: number;
-  token: string;
-  email: string;
-}> => {
+export const loginUserRequest = async (userData: LoginForm) => {
   try {
     const response = await axiosInstance.post<LoginResponse>("/api/User/login", {
       email: userData.email,
@@ -26,9 +21,8 @@ export const loginUserRequest = async (
     }
 
     return {
-      token,
       email: userData.email,
-      role,
+      ...response.data,
     };
   } catch (error) {
     throw new Error((error as Error).message || "Login failed");
