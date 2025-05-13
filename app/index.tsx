@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { View } from "react-native";
 import { Text, Checkbox, Button, useTheme } from "react-native-paper";
-import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -43,7 +42,9 @@ const LoginScreen = () => {
 
     // Login the user and navigate to the main tabs page
     const resData = await login(data);
-    router.replace({ pathname: "/(tabs)", params: { id: resData.userId } });
+    resData.role === 0
+      ? router.replace({ pathname: "/(tabs)", params: { id: resData.userId } })
+      : router.replace("/(tabs)/index_caregiver");
   };
 
   return (

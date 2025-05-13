@@ -1,7 +1,6 @@
 import { View, StyleSheet } from "react-native";
 import MapView, { Circle, Marker } from "react-native-maps";
 import { IconButton, Text, useTheme, ActivityIndicator, Icon } from "react-native-paper";
-import { router, useLocalSearchParams } from "expo-router";
 import { Slider } from "@miblanchard/react-native-slider";
 
 import useElderPerimeterMap from "@/hooks/useElderMap";

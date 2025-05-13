@@ -3,7 +3,6 @@ import { useFont } from "@shopify/react-native-skia";
 import { SegmentedButtons, Text, useTheme } from "react-native-paper";
 import SmartAreaView from "@/components/SmartAreaView";
 import { StatCard } from "@/components/charts/StatsCard";
-import { useLocalSearchParams } from "expo-router";
 import useGetVisualizationData from "@/hooks/useGetVisualizationData";
 import { fetchSteps } from "@/apis/healthAPI";
 import ChartComponent from "@/components/charts/Chart";

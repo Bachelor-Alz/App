@@ -5,7 +5,6 @@ import SmartAreaView from "@/components/SmartAreaView";
 import { useCaregiverInvites } from "@/hooks/useElders";
 import { acceptCaregiverInvite, Elder } from "@/apis/elderAPI";
 import { useToast } from "@/providers/ToastProvider";
-import { router } from "expo-router";
 
 const ViewCaregiverInvites = () => {
   const theme = useTheme();

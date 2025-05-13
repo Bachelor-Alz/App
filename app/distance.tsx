@@ -4,7 +4,6 @@ import { SegmentedButtons, Text, useTheme } from "react-native-paper";
 import SmartAreaView from "@/components/SmartAreaView";
 import ChartComponent from "@/components/charts/Chart";
 import { StatCard } from "@/components/charts/StatsCard";
-import { useLocalSearchParams } from "expo-router";
 import useGetVisualizationData from "@/hooks/useGetVisualizationData";
 import { fetchDistance } from "@/apis/healthAPI";
 import ChartTitle, { ChartType } from "@/components/charts/ChartTitle";

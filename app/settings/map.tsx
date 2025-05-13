@@ -2,7 +2,6 @@ import { View, StyleSheet } from "react-native";
 import MapView, { Circle, Marker } from "react-native-maps";
 import { IconButton, Text, useTheme } from "react-native-paper";
 import useMap from "@/hooks/useMap";
-import { router } from "expo-router";
 import { Slider } from "@miblanchard/react-native-slider";
 
 const formatDate = (date: string) => {

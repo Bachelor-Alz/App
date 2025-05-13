@@ -5,7 +5,6 @@ import SmartAreaView from "@/components/SmartAreaView";
 import { useToast } from "@/providers/ToastProvider";
 import { useCaregiversForElder } from "@/hooks/useElders";
 import { removeCaregiverFromElder } from "@/apis/elderAPI";
-import { router } from "expo-router";
 
 const RemoveCaregiver = () => {
   const theme = useTheme();

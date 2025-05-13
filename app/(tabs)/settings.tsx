@@ -2,7 +2,6 @@ import React from "react";
 import { View, StyleSheet, Alert } from "react-native";
 import { List, Divider, Switch, Text } from "react-native-paper";
 import { useAuthentication } from "@/providers/AuthenticationProvider";
-import { router } from "expo-router";
 import { removeArduinoFromElder } from "@/apis/elderAPI";
 import SmartAreaView from "@/components/SmartAreaView";
 import { useThemeContext } from "@/providers/ThemeProvider";

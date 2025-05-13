@@ -1,5 +1,5 @@
 import React from "react";
-import { FlatList, StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import { FlatList, StyleSheet } from "react-native";
 import { HealthCard, HealthCardListProps } from "./HealthCardList";
 
 export const CaregiverCardList: React.FC<HealthCardListProps> = ({ healthData }) => {
@@ -17,14 +17,16 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 15,
+    paddingVertical: 25,
+    padding: 20,
     borderRadius: 10,
-    borderLeftWidth: 5,
+    borderLeftWidth: 8,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 5,
+    gap: 20,
   },
   icon: {
     marginRight: 15,

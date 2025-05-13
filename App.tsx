@@ -1,7 +1,6 @@
 import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
+import { Text } from "react-native-paper";
 import * as SplashScreen from "expo-splash-screen";
-import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import "react-native-reanimated";
 import ProviderWrapper from "@/providers/ProviderWrapper";
@@ -10,7 +9,7 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [loaded] = useFonts({
-    SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
+    SpaceMono: require("./assets/fonts/SpaceMono-Regular.ttf"),
   });
 
   useEffect(() => {
@@ -25,11 +24,7 @@ export default function RootLayout() {
 
   return (
     <ProviderWrapper>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
+      <Text>Welcome to the app!</Text>
     </ProviderWrapper>
   );
 }

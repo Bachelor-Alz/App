@@ -5,7 +5,6 @@ import SmartAreaView from "@/components/SmartAreaView";
 import { StatCard } from "@/components/charts/StatsCard";
 import ChartComponent from "@/components/charts/Chart";
 import useGetVisualizationData from "@/hooks/useGetVisualizationData";
-import { useLocalSearchParams } from "expo-router";
 import { fetchHeartRate } from "@/apis/healthAPI";
 import ChartTitle, { ChartType } from "@/components/charts/ChartTitle";
 import { useState } from "react";

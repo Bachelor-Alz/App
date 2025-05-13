@@ -8,7 +8,6 @@ import FormField from "@/components/forms/Formfield";
 import FormContainer from "@/components/forms/FormContainer";
 import { assignCaregiverToElder } from "@/apis/elderAPI";
 import SmartAreaView from "@/components/SmartAreaView";
-import { router } from "expo-router";
 
 const schema = z.object({
   caregiverEmail: z.string().email("Please enter a valid email address").trim(),

@@ -3,7 +3,6 @@ import { StyleSheet, View, FlatList, TouchableOpacity } from "react-native";
 import { Text, List, Searchbar, useTheme, IconButton } from "react-native-paper";
 import SmartAreaView from "@/components/SmartAreaView";
 import { useEldersForCaregiver } from "@/hooks/useElders";
-import { router } from "expo-router";
 import { Elder, removeElderFromCaregiver } from "@/apis/elderAPI";
 import { useToast } from "@/providers/ToastProvider";
 

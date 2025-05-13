@@ -8,7 +8,6 @@ import FormField from "@/components/forms/Formfield";
 import SubmitButton from "@/components/forms/SubmitButton";
 import FormContainer from "@/components/forms/FormContainer";
 import { useAuthentication } from "@/providers/AuthenticationProvider";
-import { router } from "expo-router";
 import useLocationResolver from "@/hooks/useLocationResolver";
 import { useDebounce } from "@uidotdev/usehooks";
 import SmartAreaView from "@/components/SmartAreaView";

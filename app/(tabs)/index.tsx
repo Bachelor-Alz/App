@@ -2,7 +2,6 @@ import React from "react";
 import { View, ActivityIndicator, StyleSheet, Alert } from "react-native";
 import { useTheme, Text, Tooltip } from "react-native-paper";
 import { useDashBoardData } from "@/hooks/useGetDashboardData";
-import { router, useLocalSearchParams } from "expo-router";
 import { CaregiverCardList } from "@/components/CaregiverCardList";
 import { HealthCardList } from "@/components/HealthCardList";
 import { useAuthentication } from "@/providers/AuthenticationProvider";
@@ -105,78 +104,32 @@ const MainPage = () => {
       ]
     : [];
 
-  const caregiverOptions = [
-    {
-      title: "View Invitations",
-      value: "See caregiver invites from elders",
-      icon: "mail-open" as keyof typeof Ionicons.glyphMap,
-      color: "#1e90ff",
-      onPress: () => router.push("/settings/viewcaregiverinvites"),
-      theme,
-    },
-    {
-      title: "View Assigned Elders",
-      value: "See all elders assigned to you",
-      icon: "people" as keyof typeof Ionicons.glyphMap,
-      color: "#2ed573",
-      onPress: () => router.push("/settings/viewelder"),
-      theme,
-    },
-    {
-      title: "Elder Map",
-      value: "View your associated elders on a map",
-      icon: "map" as keyof typeof Ionicons.glyphMap,
-      color: "#ff4757",
-      onPress: () => router.push("/settings/map"),
-      theme,
-    },
-  ];
+  const ToolTipTitle = arduinoLoading
+    ? "Loading..."
+    : arduinoStatus
+    ? "Connected to device"
+    : "Not Connected to device";
 
   return (
     <SmartAreaView>
       <View style={styles.container}>
         <View style={styles.topRow}>
           <Text variant="headlineLarge" style={[styles.header, { color: theme.colors.onBackground }]}>
-            {name ? `${name}'s Dashboard` : "Dashboard"}
+            {"Dashboard"}
           </Text>
-          {roleFromParams === 1 && (
-            <View>
-              <Tooltip
-                title={
-                  arduinoLoading
-                    ? "Loading..."
-                    : arduinoStatus
-                    ? "Connected to device"
-                    : "Not Connected to device"
-                }>
-                <Ionicons
-                  name="bluetooth"
-                  size={40}
-                  color={
-                    arduinoLoading ? theme.colors.outline : arduinoStatus ? "#2ed573" : theme.colors.error
-                  }
-                  style={styles.statusIcon}
-                />
-              </Tooltip>
-            </View>
-          )}
-        </View>
 
-        {isLoading ? (
-          <ActivityIndicator size="large" color={theme.colors.primary} style={{ marginTop: 30 }} />
-        ) : error ? (
-          <Text style={{ color: theme.colors.error, marginTop: 30, fontSize: 16 }}>Failed to load data.</Text>
-        ) : (
-          <>
-            {roleFromParams === 0 ? (
-              <CaregiverCardList healthData={caregiverOptions} />
-            ) : roleFromParams === 1 ? (
-              <HealthCardList healthData={healthData} />
-            ) : (
-              <Text style={{ color: theme.colors.error, marginTop: 30, fontSize: 16 }}>Invalid role.</Text>
-            )}
-          </>
-        )}
+          <View>
+            <Tooltip title={ToolTipTitle}>
+              <Ionicons
+                name="bluetooth"
+                size={40}
+                color={arduinoLoading ? theme.colors.outline : arduinoStatus ? "#2ed573" : theme.colors.error}
+                style={styles.statusIcon}
+              />
+            </Tooltip>
+          </View>
+        </View>
+        <HealthCardList healthData={healthData} />
       </View>
     </SmartAreaView>
   );
