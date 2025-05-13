@@ -16,12 +16,12 @@ function HeartRateScreen() {
   const theme = useTheme();
   const font = useFont(require("../assets/fonts/Quicksand-Medium.ttf"), 15);
   const boldFont = useFont(require("../assets/fonts/Quicksand-Bold.ttf"), 15);
-  const { email } = useLocalSearchParams<{ email?: string }>();
-  const elderEmail = email || "";
+  const { id } = useLocalSearchParams<{ id?: string }>();
+  const elderId = id || "";
 
   const { isError, isLoading, data, setTimeRange, timeRange, timeFormat, navigateTime } =
     useGetVisualizationData({
-      elderEmail,
+      userId: elderId,
       fetchFn: fetchHeartRate,
       metricKey: "heartRate",
     });

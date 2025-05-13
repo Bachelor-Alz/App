@@ -6,7 +6,6 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormField from "@/components/forms/Formfield";
 import FormContainer from "@/components/forms/FormContainer";
-import { useAuthentication } from "@/providers/AuthenticationProvider";
 import { assignCaregiverToElder } from "@/apis/elderAPI";
 import SmartAreaView from "@/components/SmartAreaView";
 import { router } from "expo-router";
@@ -19,7 +18,6 @@ type AssignCaregiverForm = z.infer<typeof schema>;
 
 const AssignCaregiverScreen = () => {
   const theme = useTheme();
-  const { userEmail } = useAuthentication();
 
   const {
     control,
@@ -31,25 +29,14 @@ const AssignCaregiverScreen = () => {
   });
 
   const onSubmit = async ({ caregiverEmail }: AssignCaregiverForm) => {
-    if (!userEmail) {
-      Alert.alert("Error", "No elder is logged in.");
-      return;
-    }
-
     try {
-      await assignCaregiverToElder(userEmail, caregiverEmail);
-      Alert.alert("Success", `Caregiver assigned to ${userEmail}`, [
-        {
-          text: "OK",
-          onPress: () => {
-            if (router.canGoBack()) {
-              router.back();
-            }
-          },
-        },
-      ]);
+      await assignCaregiverToElder(caregiverEmail);
+      if (router.canGoBack()) {
+        router.back();
+      }
     } catch (error) {
-      Alert.alert("Error", "Failed to assign caregiver.");
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      Alert.alert("Error", "Failed to assign caregiver. " + errorMessage);
     }
   };
 

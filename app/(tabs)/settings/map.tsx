@@ -44,14 +44,14 @@ const map = () => {
         {elderLocations.map((l) => (
           <Marker
             ref={(ref) => {
-              if (ref && !markerRefs.current[l.email]) {
-                markerRefs.current[l.email] = { current: ref };
+              if (ref && !markerRefs.current[l.userId]) {
+                markerRefs.current[l.userId] = { current: ref };
               }
             }}
             id={l.email}
             key={l.email}
-            onPress={() => (elderFocus.current = l.email)}
-            onCalloutPress={() => showHomePerimeter(l.email)}
+            onPress={() => (elderFocus.current = l.userId)}
+            onCalloutPress={() => showHomePerimeter(l.userId)}
             coordinate={{
               latitude: l.latitude,
               longitude: l.longitude,

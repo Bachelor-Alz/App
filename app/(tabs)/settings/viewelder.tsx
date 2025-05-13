@@ -4,7 +4,7 @@ import { Text, List, Searchbar, useTheme, IconButton } from "react-native-paper"
 import SmartAreaView from "@/components/SmartAreaView";
 import { useEldersForCaregiver } from "@/hooks/useElders";
 import { router } from "expo-router";
-import { removeElderFromCaregiver } from "@/apis/elderAPI";
+import { Elder, removeElderFromCaregiver } from "@/apis/elderAPI";
 import { useToast } from "@/providers/ToastProvider";
 
 const ViewElders = () => {
@@ -16,13 +16,14 @@ const ViewElders = () => {
   const filteredElders =
     elders?.filter((elder) => elder.name.toLowerCase().includes(searchQuery.toLowerCase())) || [];
 
-  const handleElderPress = (elder: { name: string; email: string; role: number }) => {
+  const handleElderPress = (elder: Elder) => {
     router.push({
       pathname: "/(tabs)",
       params: {
         name: elder.name,
         email: elder.email,
         role: elder.role,
+        id: elder.userId,
       },
     });
   };
@@ -47,7 +48,7 @@ const ViewElders = () => {
     );
   }
 
-  const renderItem = ({ item }: { item: { name: string; email: string; role: number } }) => (
+  const renderItem = ({ item }: { item: Elder }) => (
     <TouchableOpacity onPress={() => handleElderPress(item)}>
       <List.Item
         title={item.name}

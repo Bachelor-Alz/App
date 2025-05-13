@@ -4,7 +4,8 @@ import { axiosInstance } from "@/apis/axiosConfig";
 import { useRef, useState } from "react";
 import { useToast } from "@/providers/ToastProvider";
 
-type elderLocations = {
+type ElderLocations = {
+  userId: string;
   email: string;
   name: string;
   latitude: number;
@@ -20,7 +21,7 @@ type Perimeter = {
 };
 //TODO USE WHEN WE GET DATA
 const fetchElderLocations = async () => {
-  const response = await axiosInstance.get<elderLocations[]>("/api/Health/Coordinates/Elders");
+  const response = await axiosInstance.get<ElderLocations[]>("/api/Health/Coordinates/Elders");
   if (response.status !== 200) {
     throw new Error("Failed to fetch elder locations");
   }
@@ -67,7 +68,7 @@ const useMap = () => {
     animateToElder(nextElder);
   };
 
-  const animateToElder = (elder: elderLocations) => {
+  const animateToElder = (elder: ElderLocations) => {
     if (mapRef.current) {
       mapRef.current.animateToRegion({
         latitude: elder.latitude,
@@ -110,8 +111,8 @@ const useMap = () => {
     }
   };
 
-  const showHomePerimeter = (elderEmail: string) => {
-    const elder = elderLocations?.find((location) => location.email === elderEmail);
+  const showHomePerimeter = (userId: string) => {
+    const elder = elderLocations?.find((location) => location.userId === userId);
     setSliderValue(elder?.perimeter.homeRadius || 0);
     if (elder && mapRef.current) {
       setHomePerimeter(() => ({
@@ -156,7 +157,7 @@ const useMap = () => {
     debounceRef.current = setTimeout(() => {
       updatePerimeter(value, elderFocus.current)
         .then(() => {
-          queryClient.setQueryData<elderLocations[] | undefined>(["elderLocations"], (oldData) => {
+          queryClient.setQueryData<ElderLocations[] | undefined>(["elderLocations"], (oldData) => {
             if (!oldData) return oldData;
             return oldData.map((elder) =>
               elder.email === elderEmail
@@ -168,14 +169,17 @@ const useMap = () => {
         .catch((error) => {
           addToast("Error", error.message);
         });
-    }, 5000);
+    }, 2500);
   };
 
-  const updatePerimeter = async (value: number, email: string | null) => {
-    if (!email || !value) return;
-    const response = await axiosInstance.post(
-      `/api/Health/Perimeter?radius=${Math.round(value)}&elderEmail=${encodeURIComponent(email)}`
-    );
+  const updatePerimeter = async (radius: number, elderId: string | null) => {
+    if (!elderId || !radius) return;
+    const response = await axiosInstance.post(`/api/Health/Perimeter`, undefined, {
+      params: {
+        radius: radius,
+        elderId: elderId,
+      },
+    });
     if (response.status !== 200) {
       addToast("Error", "Failed to update perimeter");
     }

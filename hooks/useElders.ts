@@ -1,36 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import {
-  fetchAllElders,
   fetchEldersForCaregiver,
   fetchCaregiverInvites,
-  fetchArduino,
+  fetchArduinos,
   fetchCaregiverForElder,
+  Elder,
+  Caregiver,
 } from "@/apis/elderAPI";
-
-type Elder = {
-  name: string;
-  email: string;
-  role: number;
-};
-
-type ElderInvite = {
-  name: string;
-  email: string;
-};
-
-type Caregiver = {
-  name: string;
-  email: string;
-};
-
-export const useElders = () => {
-  return useQuery<Elder[]>({
-    queryKey: ["elders"],
-    queryFn: fetchAllElders,
-    staleTime: 5 * 60 * 1000,
-    retry: 2,
-  });
-};
 
 export const useEldersForCaregiver = () => {
   return useQuery<Elder[]>({
@@ -43,7 +19,7 @@ export const useEldersForCaregiver = () => {
 };
 
 export const useCaregiverInvites = () => {
-  return useQuery<ElderInvite[]>({
+  return useQuery<Elder[]>({
     queryKey: ["caregiverInvites"],
     queryFn: fetchCaregiverInvites,
     refetchOnMount: "always",
@@ -55,7 +31,7 @@ export const useCaregiverInvites = () => {
 export const useArduino = () => {
   return useQuery<any[]>({
     queryKey: ["arduino"],
-    queryFn: fetchArduino,
+    queryFn: fetchArduinos,
     refetchOnMount: "always",
     staleTime: 5 * 60 * 1000,
     retry: 2,
@@ -72,13 +48,10 @@ export const useCaregiversForElder = () => {
   });
 };
 
-export const useTestArduinoConnection = (
-  elderEmail: string,
-  queryFn: (elderEmail: string) => Promise<boolean>
-) => {
+export const useTestArduinoConnection = (elderId: string, queryFn: () => Promise<boolean>) => {
   return useQuery<boolean>({
-    queryKey: ["testArduinoConnection", elderEmail],
-    queryFn: () => queryFn(elderEmail),
+    queryKey: ["testArduinoConnection", elderId],
+    queryFn: () => queryFn(),
     staleTime: 5 * 60 * 1000,
     retry: 2,
   });

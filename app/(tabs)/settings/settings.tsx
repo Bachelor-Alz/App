@@ -6,10 +6,12 @@ import { router } from "expo-router";
 import { removeArduinoFromElder } from "@/apis/elderAPI";
 import SmartAreaView from "@/components/SmartAreaView";
 import { useThemeContext } from "@/providers/ThemeProvider";
+import { useQueryClient } from "@tanstack/react-query";
 
 const Settings = () => {
-  const { role, logout, userEmail } = useAuthentication();
+  const { role, logout, userId } = useAuthentication();
   const { toggleTheme, themeMode } = useThemeContext();
+  const queryClient = useQueryClient();
 
   return (
     <SmartAreaView>
@@ -49,9 +51,7 @@ const Settings = () => {
                 title="Home Perimeter"
                 titleStyle={styles.title}
                 left={() => <List.Icon icon="home" />}
-                onPress={() =>
-                  router.push({ pathname: "/settings/map_elder", params: { elderEmail: userEmail } })
-                }
+                onPress={() => router.push({ pathname: "/settings/map_elder", params: { id: userId } })}
               />
               <Divider style={styles.divider} />
               <List.Item
@@ -67,7 +67,10 @@ const Settings = () => {
                     {
                       text: "Remove",
                       style: "destructive",
-                      onPress: () => removeArduinoFromElder(),
+                      onPress: () => {
+                        removeArduinoFromElder();
+                        queryClient.invalidateQueries();
+                      },
                     },
                   ]);
                 }}

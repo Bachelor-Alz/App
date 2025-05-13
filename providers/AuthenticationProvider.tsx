@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useState } from "rea
 import { createUserRequest } from "@/apis/registerAPI";
 import { RegisterForm } from "@/app/register";
 import { LoginForm } from "@/app";
-import { loginUserRequest } from "@/apis/loginAPI";
+import { LoginResponse, loginUserRequest } from "@/apis/loginAPI";
 import { setBearer } from "@/apis/axiosConfig";
 import * as SecureStore from "expo-secure-store";
 import { useNavigationContainerRef } from "expo-router";
@@ -11,26 +11,25 @@ import { addLogoutListener, removeLogoutListener } from "@/utils/logoutEmitter";
 import { revokeRefreshTokenAPI } from "@/apis/revokeRefreshTokenAPI";
 
 type AuthenticationProviderProps = {
-  register: (form: RegisterForm) => Promise<string | null>;
-  login: (form: LoginForm) => Promise<number | undefined>;
+  register: (form: RegisterForm) => Promise<void | null>;
+  login: (form: LoginForm) => Promise<LoginResponse>;
   logout: () => Promise<void>;
-  userEmail: string | null;
-  role: number | undefined;
+  role: 0 | 1 | null;
+  userId: string | null;
 };
 
 const AuthenticationContext = createContext<AuthenticationProviderProps | undefined>(undefined);
 
 const AuthenticationProvider = ({ children }: { children: React.ReactNode }) => {
-  const [userEmail, setUserEmail] = useState<string | null>(null);
-  const [role, setRole] = useState<number | undefined>(undefined);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [role, setRole] = useState<0 | 1 | null>(null);
   const { addToast } = useToast();
   const rootNavigation = useNavigationContainerRef();
 
   const register = useCallback(
-    async (form: RegisterForm): Promise<string | null> => {
+    async (form: RegisterForm) => {
       try {
-        const res = await createUserRequest(form);
-        return res.id;
+        await createUserRequest(form);
       } catch (e: any) {
         addToast("Error", e.message);
         return null;
@@ -40,20 +39,18 @@ const AuthenticationProvider = ({ children }: { children: React.ReactNode }) => 
   );
 
   const login = useCallback(
-    async (form: LoginForm): Promise<number | undefined> => {
+    async (form: LoginForm) => {
       try {
-        const res = await loginUserRequest(form);
-        if (!res?.token || !res.email || res.role === undefined) {
-          addToast("Error", "Invalid response from server");
-        }
-        const { token, email, role, refreshToken } = res;
+        const res = (await loginUserRequest(form)) as LoginResponse;
+        const { token, role, refreshToken, userId } = res;
+        setUserId(userId);
         setBearer(token);
-        setUserEmail(email);
         setRole(role);
         await SecureStore.setItemAsync("refreshToken", refreshToken);
-        return role;
+        return res;
       } catch (e: any) {
         addToast("Error", e.message);
+        throw e;
       }
     },
     [addToast]
@@ -68,8 +65,7 @@ const AuthenticationProvider = ({ children }: { children: React.ReactNode }) => 
       await SecureStore.deleteItemAsync("rememberedEmail");
       await SecureStore.deleteItemAsync("password");
       await SecureStore.deleteItemAsync("refreshToken");
-      setUserEmail(null);
-      setRole(undefined);
+      setRole(null);
       setBearer("");
       rootNavigation.resetRoot({
         index: 0,
@@ -90,7 +86,7 @@ const AuthenticationProvider = ({ children }: { children: React.ReactNode }) => 
   }, []);
 
   return (
-    <AuthenticationContext.Provider value={{ register, login, logout, userEmail, role }}>
+    <AuthenticationContext.Provider value={{ register, login, logout, role, userId }}>
       {children}
     </AuthenticationContext.Provider>
   );

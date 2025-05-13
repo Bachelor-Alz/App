@@ -1,38 +1,32 @@
 import { axiosInstance } from "./axiosConfig";
 
-export const fetchAllElders = () => {
-  return axiosInstance
-    .get("/api/User/elder")
-    .then((response) => {
-      return response.data;
-    })
-    .catch((error) => {
-      throw error;
-    });
+export type Elder = {
+  userId: string;
+  email: string;
+  name: string;
+  role: 1;
 };
 
 export const fetchEldersForCaregiver = async () => {
   try {
-    const response = await axiosInstance.get("/api/User/users/getElders");
+    const response = await axiosInstance.get<Elder[]>("/api/User/users/getElders");
     return response.data;
   } catch (error) {
     throw error;
   }
 };
 
-export const assignCaregiverToElder = async (elderEmail: string, caregiverEmail: string) => {
+export const assignCaregiverToElder = async (caregiverEmail: string) => {
   try {
-    const response = await axiosInstance.post(
+    await axiosInstance.post<void>(
       `/api/User/users/elder`,
       {},
       {
         params: {
-          elderEmail,
           caregiverEmail,
         },
       }
     );
-    return response.data;
   } catch (error) {
     throw error;
   }
@@ -40,27 +34,34 @@ export const assignCaregiverToElder = async (elderEmail: string, caregiverEmail:
 
 export const fetchCaregiverInvites = async () => {
   try {
-    const response = await axiosInstance.get(`/api/User/caregiver/invites`);
+    const response = await axiosInstance.get<Elder[]>(`/api/User/caregiver/invites`);
     return response.data;
   } catch (error) {
     throw error;
   }
 };
 
-export const acceptCaregiverInvite = async (elderEmail: string) => {
+export const acceptCaregiverInvite = async (elderId: string) => {
   try {
-    const response = await axiosInstance.post("/api/User/caregiver/invites/accept", null, {
-      params: { elderEmail },
+    await axiosInstance.post<void>("/api/User/caregiver/invites/accept", null, {
+      params: { elderId },
     });
-    return response.data;
   } catch (error) {
     throw error;
   }
 };
 
-export const fetchArduino = async () => {
+export type Arduino = {
+  id: number;
+  macAddress: string;
+  address: string;
+  distance: number;
+  lastActivity: number;
+};
+
+export const fetchArduinos = async () => {
   try {
-    const response = await axiosInstance.get("/api/User/users/arduino");
+    const response = await axiosInstance.get<Arduino[]>("/api/User/users/arduino");
     return response.data;
   } catch (error) {
     throw error;
@@ -69,55 +70,55 @@ export const fetchArduino = async () => {
 
 export const assignArduinoToElder = async (arduinoAddress: string) => {
   try {
-    const response = await axiosInstance.post(
+    await axiosInstance.post<void>(
       "/api/User/users/arduino",
       {},
       {
         params: { address: arduinoAddress },
       }
     );
-    return response.data;
   } catch (error) {
     throw error;
   }
+};
+
+export type Caregiver = {
+  userId: string;
+  email: string;
+  name: string;
+  role: 0;
 };
 
 export const fetchCaregiverForElder = async () => {
   try {
-    const response = await axiosInstance.get(`/api/User/users/elder/caregiver`);
+    const response = await axiosInstance.get<Caregiver[]>(`/api/User/users/elder/caregiver`);
     return response.data;
   } catch (error) {
     throw error;
   }
 };
 
-export const removeCaregiverFromElder = async (caregiverEmail: string) => {
+export const removeCaregiverFromElder = async () => {
   try {
-    const response = await axiosInstance.delete(`/api/User/users/elder/removeCaregiver`, {
-      params: { caregiverEmail },
-    });
-    return response.data;
+    await axiosInstance.delete<void>(`/api/User/users/elder/removeCaregiver`);
   } catch (error) {
     throw error;
   }
 };
 
-export const removeElderFromCaregiver = async (elderEmail: string) => {
+export const removeElderFromCaregiver = async (elderId: string) => {
   try {
-    const response = await axiosInstance.delete(`/api/User/users/caregiver/removeFromElder`, {
-      params: { elderEmail },
+    await axiosInstance.delete<void>(`/api/User/users/caregiver/removeFromElder`, {
+      params: { elderId },
     });
-    return response.data;
   } catch (error) {
     throw error;
   }
 };
 
-export const testArduinoConnection = async (elderEmail: string): Promise<boolean> => {
+export const testArduinoConnection = async () => {
   try {
-    const response = await axiosInstance.get(`/api/User/connected`, {
-      params: { elderEmail },
-    });
+    const response = await axiosInstance.get<boolean>(`/api/User/connected`);
     return response.data;
   } catch (error) {
     throw error;
@@ -126,8 +127,7 @@ export const testArduinoConnection = async (elderEmail: string): Promise<boolean
 
 export const removeArduinoFromElder = async () => {
   try {
-    const response = await axiosInstance.delete(`/api/User/users/arduino`);
-    return response.data;
+    await axiosInstance.delete<void>(`/api/User/users/arduino`);
   } catch (error) {
     throw error;
   }

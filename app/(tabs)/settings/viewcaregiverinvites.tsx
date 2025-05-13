@@ -3,7 +3,7 @@ import { StyleSheet, View, FlatList } from "react-native";
 import { IconButton, List, Searchbar, Text, useTheme } from "react-native-paper";
 import SmartAreaView from "@/components/SmartAreaView";
 import { useCaregiverInvites } from "@/hooks/useElders";
-import { acceptCaregiverInvite } from "@/apis/elderAPI";
+import { acceptCaregiverInvite, Elder } from "@/apis/elderAPI";
 import { useToast } from "@/providers/ToastProvider";
 import { router } from "expo-router";
 
@@ -36,7 +36,7 @@ const ViewCaregiverInvites = () => {
     );
   }
 
-  const renderItem = ({ item }: { item: { name: string; email: string } }) => (
+  const renderItem = ({ item }: { item: Elder }) => (
     <List.Item
       title={item.name}
       description={item.email}
@@ -47,7 +47,7 @@ const ViewCaregiverInvites = () => {
           mode="outlined"
           onPress={async () => {
             try {
-              await acceptCaregiverInvite(item.email);
+              await acceptCaregiverInvite(item.userId);
               if (router.canGoBack()) {
                 router.back();
               }

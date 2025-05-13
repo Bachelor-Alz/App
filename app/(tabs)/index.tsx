@@ -16,10 +16,10 @@ const MainPage = () => {
   const theme = useTheme();
   const { addToast } = useToast();
 
-  const queryFn = async (email: string) => {
+  const queryFn = async () => {
     if (roleFromParams === 1) {
       try {
-        const res = await testArduinoConnection(email);
+        const res = await testArduinoConnection();
         if (!res) {
           addToast("Arduino is not connected", "error");
           Alert.alert("Arduino is not connected", undefined, [
@@ -44,22 +44,21 @@ const MainPage = () => {
 
   const {
     name,
-    email,
+    id,
     role: elderRoleParam,
   } = useLocalSearchParams<{
     name?: string;
-    email?: string;
+    id?: string;
     role?: string;
   }>();
 
-  const { role } = useAuthentication();
+  const { role, userId } = useAuthentication();
 
   const roleFromParams = parseInt(elderRoleParam ?? "") || role;
 
-  const elderEmail = email || "";
-
-  const { error, isLoading, data } = useDashBoardData(elderEmail);
-  const { data: arduinoStatus, isLoading: arduinoLoading } = useTestArduinoConnection(elderEmail, queryFn);
+  const elderId = id || userId || "";
+  const { error, isLoading, data } = useDashBoardData(elderId);
+  const { data: arduinoStatus, isLoading: arduinoLoading } = useTestArduinoConnection(elderId, queryFn);
 
   const healthData = data
     ? [
@@ -68,7 +67,7 @@ const MainPage = () => {
           value: `${data.heartRate ?? "N/A"} BPM`,
           icon: "heart" as keyof typeof Ionicons.glyphMap,
           color: "#ff4757",
-          onPress: () => router.push({ pathname: "/heartrate", params: { email: elderEmail } }),
+          onPress: () => router.push({ pathname: "/heartrate", params: { id: elderId } }),
           theme,
         },
         {
@@ -76,7 +75,7 @@ const MainPage = () => {
           value: data.spO2 != null ? `${Math.round(Number(data.spO2) * 100)}%` : "N/A",
           icon: "water" as keyof typeof Ionicons.glyphMap,
           color: "#1e90ff",
-          onPress: () => router.push({ pathname: "/spo2", params: { email: elderEmail } }),
+          onPress: () => router.push({ pathname: "/spo2", params: { id: elderId } }),
           theme,
         },
         {
@@ -84,7 +83,7 @@ const MainPage = () => {
           value: `${data.steps ?? "N/A"}`,
           icon: "footsteps" as keyof typeof Ionicons.glyphMap,
           color: "#2ed573",
-          onPress: () => router.push({ pathname: "/stepscount", params: { email: elderEmail } }),
+          onPress: () => router.push({ pathname: "/stepscount", params: { id: elderId } }),
           theme,
         },
         {
@@ -92,7 +91,7 @@ const MainPage = () => {
           value: `${data.fallCount ?? "N/A"}`,
           icon: "alert-circle" as keyof typeof Ionicons.glyphMap,
           color: "#ffa502",
-          onPress: () => router.push({ pathname: "/fallscount", params: { email: elderEmail } }),
+          onPress: () => router.push({ pathname: "/fallscount", params: { id: elderId } }),
           theme,
         },
         {
@@ -100,7 +99,7 @@ const MainPage = () => {
           value: `${data.distance?.toFixed(2) ?? "N/A"} km`,
           icon: "walk" as keyof typeof Ionicons.glyphMap,
           color: "#ff7f50",
-          onPress: () => router.push({ pathname: "/distance", params: { email: elderEmail } }),
+          onPress: () => router.push({ pathname: "/distance", params: { id: elderId } }),
           theme,
         },
       ]
@@ -162,11 +161,6 @@ const MainPage = () => {
             </View>
           )}
         </View>
-        {email && (
-          <Text variant="titleMedium" style={{ color: theme.colors.onSurface, marginBottom: 10 }}>
-            {email}
-          </Text>
-        )}
 
         {isLoading ? (
           <ActivityIndicator size="large" color={theme.colors.primary} style={{ marginTop: 30 }} />

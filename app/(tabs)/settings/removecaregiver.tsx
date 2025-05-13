@@ -10,7 +10,7 @@ import { router } from "expo-router";
 const RemoveCaregiver = () => {
   const theme = useTheme();
   const { addToast } = useToast();
-  const { data: caregivers, isLoading, error, refetch } = useCaregiversForElder();
+  const { data: caregivers, isLoading, error } = useCaregiversForElder();
 
   if (isLoading) {
     return (
@@ -46,7 +46,7 @@ const RemoveCaregiver = () => {
           mode="outlined"
           onPress={async () => {
             try {
-              await removeCaregiverFromElder(item.email);
+              await removeCaregiverFromElder();
               if (router.canGoBack()) {
                 router.back();
               }

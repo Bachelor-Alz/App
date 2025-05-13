@@ -22,7 +22,6 @@ const LoginScreen = () => {
   const {
     control,
     handleSubmit,
-    setValue,
     formState: { isValid },
   } = useForm<LoginForm>({
     resolver: zodResolver(schema),
@@ -32,31 +31,6 @@ const LoginScreen = () => {
   const theme = useTheme();
   const { login } = useAuthentication();
   const [rememberMe, setRememberMe] = useState(false);
-
-  useEffect(() => {
-    const loadAndAutoLogin = async () => {
-      const savedEmail = await SecureStore.getItemAsync("rememberedEmail");
-      const savedPassword = await SecureStore.getItemAsync("password");
-
-      if (savedEmail) {
-        setValue("email", savedEmail);
-        setRememberMe(true);
-      }
-
-      if (savedEmail && savedPassword) {
-        setValue("password", savedPassword);
-
-        login({ email: savedEmail, password: savedPassword }).then((role) => {
-          if (role === undefined) {
-            return;
-          }
-          router.replace({ pathname: "/(tabs)", params: { email: savedEmail } });
-        });
-      }
-    };
-
-    loadAndAutoLogin();
-  }, []);
 
   const onSubmit = async (data: LoginForm) => {
     if (rememberMe) {
@@ -68,11 +42,8 @@ const LoginScreen = () => {
     }
 
     // Login the user and navigate to the main tabs page
-    const role = await login(data);
-    if (role === undefined) {
-      return;
-    }
-    router.replace({ pathname: "/(tabs)", params: { email: data.email } });
+    const resData = await login(data);
+    router.replace({ pathname: "/(tabs)", params: { id: resData.userId } });
   };
 
   return (

@@ -11,21 +11,14 @@ type CreateUserRequestProps = {
   role: number;
 };
 
-type CreateUserResponseProps = {
-  name: string;
-  email: string;
-  role: number;
-  id: string;
-};
-
-export const createUserRequest = (userData: CreateUserRequestProps): Promise<CreateUserResponseProps> => {
+export const createUserRequest = async (userData: CreateUserRequestProps) => {
   const { address, confirmPassword, ...rest } = userData;
-  return axiosInstance
-    .post(`/api/User/register`, rest)
-    .then((res) => res.data)
-    .catch((error) => {
-      if (error.response) {
-        throw new Error(error.message || "Error: Couldn't create user");
-      }
-    });
+  try {
+    const res = await axiosInstance.post<void>(`/api/User/register`, rest);
+    return res.data;
+  } catch (error) {
+    if (error) {
+      throw new Error((error as any)?.message || "Error: Couldn't create user");
+    }
+  }
 };

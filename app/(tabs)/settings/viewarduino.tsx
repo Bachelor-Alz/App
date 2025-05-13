@@ -11,6 +11,8 @@ const ViewArduino = () => {
   const { data: arduino, isLoading, error, refetch } = useArduino();
   const { addToast } = useToast();
 
+  console.log(arduino);
+
   if (isLoading) {
     return (
       <SmartAreaView>

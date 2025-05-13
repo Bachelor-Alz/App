@@ -1,10 +1,11 @@
 import { LoginForm } from "@/app";
 import { axiosInstance } from "./axiosConfig";
 
-type LoginResponse = {
+export type LoginResponse = {
   token: string;
-  role: number;
+  role: 0 | 1;
   refreshToken: string;
+  userId: string;
 };
 
 export const loginUserRequest = async (userData: LoginForm) => {
@@ -14,14 +15,7 @@ export const loginUserRequest = async (userData: LoginForm) => {
       password: userData.password,
     });
 
-    const { token, role } = response.data;
-
-    if (!token || role === undefined) {
-      throw new Error("Login failed: Missing token or role.");
-    }
-
     return {
-      email: userData.email,
       ...response.data,
     };
   } catch (error) {

@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import MapView from "react-native-maps";
 import { axiosInstance } from "@/apis/axiosConfig";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState } from "react";
 import { useToast } from "@/providers/ToastProvider";
 
 type Perimeter = {
@@ -20,17 +20,20 @@ const fetchElderPerimeter = async (): Promise<Perimeter | null> => {
   return response.data;
 };
 
-const updatePerimeter = async (radius: number, elderEmail: string | null) => {
-  if (!elderEmail || !radius) return;
-  const response = await axiosInstance.post(
-    `/api/Health/Perimeter?radius=${Math.round(radius)}&elderEmail=${encodeURIComponent(elderEmail)}`
-  );
+const updatePerimeter = async (radius: number, elderId: string | null) => {
+  if (!elderId || !radius) return;
+  const response = await axiosInstance.post(`/api/Health/Perimeter`, undefined, {
+    params: {
+      radius: radius,
+      elderId: elderId,
+    },
+  });
   if (response.status !== 200) {
     throw new Error("API call failed to update perimeter");
   }
 };
 
-const useElderPerimeterMap = (elderEmail: string) => {
+const useElderPerimeterMap = (elderId: string) => {
   const [sliderValue, setSliderValue] = useState(1);
   const [homePerimeter, setHomePerimeter] = useState<Perimeter | null>(null);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
@@ -40,9 +43,9 @@ const useElderPerimeterMap = (elderEmail: string) => {
   const { addToast } = useToast();
 
   const query = useQuery<Perimeter | null, Error>({
-    queryKey: ["elderPerimeter", elderEmail],
+    queryKey: ["elderPerimeter", elderId],
     queryFn: () => fetchElderPerimeter(),
-    enabled: !!elderEmail,
+    enabled: !!elderId,
     refetchOnMount: "always",
     staleTime: 1000 * 60 * 5,
   });
@@ -87,9 +90,9 @@ const useElderPerimeterMap = (elderEmail: string) => {
     }
 
     debounceRef.current = setTimeout(() => {
-      updatePerimeter(newRadius, elderEmail)
+      updatePerimeter(newRadius, elderId)
         .then(() => {
-          queryClient.setQueryData<Perimeter | undefined>(["elderPerimeter", elderEmail], (oldData) => {
+          queryClient.setQueryData<Perimeter | undefined>(["elderPerimeter", elderId], (oldData) => {
             if (!oldData) return oldData;
             return {
               ...oldData,

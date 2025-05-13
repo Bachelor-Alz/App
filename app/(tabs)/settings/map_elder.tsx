@@ -7,15 +7,15 @@ import { Slider } from "@miblanchard/react-native-slider";
 import useElderPerimeterMap from "@/hooks/useElderMap";
 
 type LocalSearchParams = {
-  elderEmail?: string;
+  id?: string;
 };
 
 const ElderPerimeterMap = () => {
   const theme = useTheme();
-  const { elderEmail } = useLocalSearchParams<LocalSearchParams>();
+  const { id } = useLocalSearchParams<LocalSearchParams>();
 
   const { mapRef, isLoading, isError, homePerimeter, sliderValue, handleSlide, animateToHomeCoordinates } =
-    useElderPerimeterMap(elderEmail || "");
+    useElderPerimeterMap(id || "");
 
   if (isLoading) {
     return (

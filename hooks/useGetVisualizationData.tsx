@@ -28,24 +28,21 @@ const getRoundedDate = (date: Date, range: TimeRange): Date => {
   return roundedDate;
 };
 
+type UseGetVisualizationDataProps<T> = {
+  userId: string;
+  fetchFn: (userId: string, date: string, period: TimeRange) => Promise<T>;
+  metricKey: string;
+  initialDate?: Date;
+};
+
 function useGetVisualizationData<T>({
-  elderEmail,
+  userId,
   fetchFn,
   metricKey,
-  prefetch = true,
   initialDate,
-}: {
-  elderEmail: string;
-  fetchFn: (elderEmail: string, date: string, period: TimeRange) => Promise<T>;
-  metricKey: string;
-  prefetch?: boolean;
-  select?: (data: T) => T;
-  initialDate?: Date;
-}) {
+}: UseGetVisualizationDataProps<T>) {
   const [date, setDate] = useState(getRoundedDate(initialDate ?? new Date(), "Day"));
   const [timeRange, setTimeRange] = useState<TimeRange>("Day");
-  const hasPrefetched = useRef(false);
-  const queryClient = useQueryClient();
   const { addToast } = useToast();
 
   const timeFormat = (): string => {
@@ -74,37 +71,17 @@ function useGetVisualizationData<T>({
   };
 
   const query = useQuery({
-    queryKey: [metricKey, elderEmail, timeRange, date.toISOString()],
+    queryKey: [metricKey, userId, timeRange, date.toISOString()],
     queryFn: () =>
-      fetchFn(elderEmail, date.toISOString(), timeRange).catch((e) => {
+      fetchFn(userId, date.toISOString(), timeRange).catch((e) => {
         addToast("Error", e.message);
         throw e;
       }),
 
-    enabled: !!elderEmail,
+    enabled: !!userId,
     staleTime: 5 * 60 * 1000,
     retry: 2,
   });
-
-  useEffect(() => {
-    if (!prefetch || !elderEmail || hasPrefetched.current) return;
-
-    hasPrefetched.current = true;
-
-    (async () => {
-      const ranges: TimeRange[] = ["Hour", "Day", "Week"];
-      await Promise.all(
-        ranges
-          .filter((range) => range !== timeRange)
-          .map((range) =>
-            queryClient.prefetchQuery({
-              queryKey: [metricKey, elderEmail, range, date.toISOString()],
-              queryFn: () => fetchFn(elderEmail, date.toISOString(), range),
-            })
-          )
-      );
-    })();
-  }, [elderEmail, timeRange, date, prefetch, queryClient]);
 
   return {
     ...query,
