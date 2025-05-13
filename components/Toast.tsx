@@ -15,10 +15,15 @@ const Toast = ({ title, message, onClose, theme }: ToastProps) => {
       layout={LinearTransition}
       entering={FadeInUp}
       exiting={FadeOutRight}
-      style={[styles.toastContainer, { borderLeftColor: theme.colors.error }]}>
+      style={[
+        styles.toastContainer,
+        { borderLeftColor: theme.colors.error, backgroundColor: theme.colors.elevation.level1 },
+      ]}>
       <View>
-        <Text style={styles.toastTitle}>{title}</Text>
-        <Text style={styles.toastMessage}>{message}</Text>
+        <Text variant="titleLarge" style={styles.toastTitle}>
+          {title}
+        </Text>
+        <Text variant="titleMedium">{message}</Text>
       </View>
       <Button onPress={onClose}>
         <Icon size={25} source="close" />
@@ -36,7 +41,6 @@ const styles = StyleSheet.create({
     padding: 15,
     paddingRight: 0,
     margin: 10,
-    backgroundColor: "#fff",
     borderRadius: 8,
     elevation: 4,
     borderLeftWidth: 5,
@@ -45,11 +49,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
   },
   toastTitle: {
-    fontSize: 18,
     fontWeight: "bold",
-  },
-  toastMessage: {
-    fontSize: 16,
   },
 });
 

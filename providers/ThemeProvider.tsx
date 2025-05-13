@@ -10,7 +10,6 @@ interface ThemeContextType {
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
-
 export const THEME_STORAGE_KEY = "userThemeMode";
 
 export const ThemeProvider = ({
@@ -20,16 +19,16 @@ export const ThemeProvider = ({
   children: React.ReactNode;
   storedColorPreference: ThemeMode;
 }) => {
-  const systemColorScheme = Appearance.getColorScheme();
-  const [themeMode, setThemeMode] = useState<ThemeMode>(
-    storedColorPreference || (systemColorScheme === "dark" ? "dark" : "light")
-  );
+  const [themeMode, setThemeMode] = useState<ThemeMode>(() => {
+    Appearance.setColorScheme(storedColorPreference);
+    return storedColorPreference;
+  });
 
   useEffect(() => {
     const subscription = Appearance.addChangeListener(({ colorScheme }) => {
-      if (colorScheme && !SecureStore.getItemAsync(THEME_STORAGE_KEY)) {
+      if (colorScheme && !SecureStore.getItem(THEME_STORAGE_KEY)) {
         setThemeMode(colorScheme === "dark" ? "dark" : "light");
-        Appearance.setColorScheme(colorScheme);
+        Appearance.setColorScheme(colorScheme === "dark" ? "dark" : "light");
       }
     });
 
@@ -43,7 +42,7 @@ export const ThemeProvider = ({
       SecureStore.setItemAsync(THEME_STORAGE_KEY, newMode).catch((error) => {
         console.error("Failed to save theme preference to SecureStore", error);
       });
-      Appearance.setColorScheme(newMode);
+      Appearance.setColorScheme(newMode === "dark" ? "dark" : "light");
       return newMode;
     });
   };

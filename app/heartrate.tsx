@@ -105,6 +105,7 @@ function HeartRateScreen() {
           navigateTime={navigateTime}
           theme={theme}
           chartType={chartType}
+          buttonColor={theme.colors.error}
           onChartTypeChange={setChartType}
         />
         <View style={styles.chartContainer}>

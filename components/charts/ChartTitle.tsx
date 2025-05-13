@@ -9,6 +9,7 @@ type ChartTitleProps = {
   timePeriod: () => string;
   navigateTime: (direction: "prev" | "next") => void;
   theme: MD3Theme;
+  buttonColor: string;
   chartType: ChartType;
   onChartTypeChange: React.Dispatch<React.SetStateAction<ChartType>>;
 };
@@ -18,6 +19,7 @@ const ChartTitle = ({
   timePeriod,
   navigateTime,
   theme,
+  buttonColor,
   chartType,
   onChartTypeChange,
 }: ChartTitleProps) => {
@@ -34,14 +36,14 @@ const ChartTitle = ({
             <MaterialCommunityIcons
               name="chart-bar"
               size={24}
-              color={chartType === "bar" ? theme.colors.primary : theme.colors.onSurfaceVariant}
+              color={chartType === "bar" ? buttonColor : theme.colors.onSurfaceVariant}
             />
           </Pressable>
           <Pressable onPress={() => onChartTypeChange("line")}>
             <MaterialCommunityIcons
               name="chart-line"
               size={24}
-              color={chartType === "line" ? theme.colors.primary : theme.colors.onSurfaceVariant}
+              color={chartType === "line" ? buttonColor : theme.colors.onSurfaceVariant}
             />
           </Pressable>
         </View>

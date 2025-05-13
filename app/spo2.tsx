@@ -104,6 +104,7 @@ function SPO2Screen() {
           timePeriod={timeFormat}
           navigateTime={navigateTime}
           theme={theme}
+          buttonColor={"#1e90ff"}
           chartType={chartType}
           onChartTypeChange={setChartType}
         />
