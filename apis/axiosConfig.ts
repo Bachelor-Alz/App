@@ -1,6 +1,7 @@
 import axios from "axios";
 import { BASE_URL } from "@/utils/globals";
 import { emitLogoutEvent } from "@/utils/logoutEmitter";
+import * as SecureStore from "expo-secure-store";
 
 export const axiosInstance = axios.create({
   baseURL: BASE_URL,
@@ -12,14 +13,31 @@ export const axiosInstance = axios.create({
 export const setBearer = (token: string) => {
   axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 };
+type RenewTokenResponse = {
+  accessToken: string;
+  refreshToken: string;
+};
 
 const attemptRefresh = async () => {
-  const response = await axiosInstance.get<string>("/api/User/renew/token");
+  const refreshToken = await SecureStore.getItemAsync("refreshToken");
+  if (!refreshToken) {
+    throw new Error("No refresh token found");
+  }
+
+  const response = await axiosInstance.post<RenewTokenResponse>(
+    `/api/User/renew/token?token=${encodeURIComponent(refreshToken)}`
+  );
   if (response.status === 200) {
-    const newToken = response.data;
-    console.log("New token received:", newToken);
-    setBearer(newToken);
-    return newToken;
+    const data = response.data;
+    console.log(data);
+
+    if (!data.refreshToken || !data.accessToken) {
+      throw new Error("Failed to refresh token: Missing refresh token or access token");
+    }
+
+    setBearer(data.accessToken);
+    await SecureStore.setItemAsync("refreshToken", data.refreshToken);
+    return data.accessToken;
   } else {
     throw new Error("Failed to refresh token");
   }
@@ -27,7 +45,7 @@ const attemptRefresh = async () => {
 
 let lastRefreshAttempt: number | null = null;
 
-const FIVE_MINUTES = 5 * 60 * 1000;
+const FOURTEEN_MINUTES = 14 * 60 * 1000;
 
 axiosInstance.interceptors.response.use(
   (response) => {
@@ -42,7 +60,7 @@ axiosInstance.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    if (lastRefreshAttempt && Date.now() - lastRefreshAttempt < FIVE_MINUTES) {
+    if (lastRefreshAttempt && Date.now() - lastRefreshAttempt < FOURTEEN_MINUTES) {
       return Promise.reject(new Error("Token refresh already attempted recently"));
     }
 
