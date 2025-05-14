@@ -33,7 +33,9 @@ const ToastProvider = ({ children }: { children: ReactNode }) => {
   return (
     <ToastContext.Provider value={{ addToast }}>
       {children}
-      <SafeAreaView style={[StyleSheet.absoluteFill, { alignItems: "center" }]} pointerEvents="box-none">
+      <SafeAreaView
+        style={[{ alignItems: "center", position: "absolute", zIndex: 10 }]}
+        pointerEvents="box-none">
         {toasts.map((toast) => (
           <Toast
             key={toast.id}
