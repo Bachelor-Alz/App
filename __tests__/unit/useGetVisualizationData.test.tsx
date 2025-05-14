@@ -71,7 +71,6 @@ describe("useGetVisualizationData hook", () => {
           userId: testEmail,
           fetchFn: fetchHeartRate,
           metricKey: "heartRate",
-          prefetch: true,
           initialDate: new Date(testDate),
         }),
       { wrapper }
@@ -106,7 +105,6 @@ describe("useGetVisualizationData hook", () => {
           userId: testEmail,
           fetchFn: fetchSPO2,
           metricKey: "spo2",
-          prefetch: true,
           initialDate: new Date(testDate),
         }),
       { wrapper }
@@ -127,7 +125,6 @@ describe("useGetVisualizationData hook", () => {
           userId: testEmail,
           fetchFn: fetchDistance,
           metricKey: "distance",
-          prefetch: true,
           initialDate: new Date(testDate),
         }),
       { wrapper }
@@ -148,7 +145,6 @@ describe("useGetVisualizationData hook", () => {
           userId: testEmail,
           fetchFn: fetchSteps,
           metricKey: "steps",
-          prefetch: true,
           initialDate: new Date(testDate),
         }),
       { wrapper }
@@ -169,7 +165,6 @@ describe("useGetVisualizationData hook", () => {
           userId: testEmail,
           fetchFn: fetchFallsData,
           metricKey: "falls",
-          prefetch: true,
           initialDate: new Date(testDate),
         }),
       { wrapper }
@@ -186,7 +181,6 @@ describe("useGetVisualizationData hook", () => {
           userId: testEmail,
           fetchFn: fetchHeartRate,
           metricKey: "heartRate",
-          prefetch: true,
           initialDate: new Date(testDate),
         }),
       {

@@ -12,7 +12,7 @@ import useLocationResolver from "@/hooks/useLocationResolver";
 import { useDebounce } from "@uidotdev/usehooks";
 import SmartAreaView from "@/components/SmartAreaView";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { AuthStackParamList } from "./navigation/navigation";
+import { AuthStackParamList } from "../navigation/navigation";
 
 const baseFields = {
   email: z.string().email("Must be a valid email address").trim(),

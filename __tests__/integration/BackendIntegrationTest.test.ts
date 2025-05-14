@@ -1,6 +1,5 @@
 import { setBearer, axiosInstance } from "@/apis/axiosConfig";
 import { loginUserRequest } from "@/apis/loginAPI";
-import { LoginForm } from "@/app";
 import {
   HeartRateDataSchema,
   SPO2DataSchema,
@@ -15,6 +14,7 @@ import {
   fetchSPO2,
   fetchSteps,
 } from "@/apis/healthAPI";
+import { LoginForm } from "@/app/auth/Login";
 
 const mockUser: LoginForm = {
   email: "Test@Test.dk",

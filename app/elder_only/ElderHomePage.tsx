@@ -8,10 +8,10 @@ import { useTestArduinoConnection } from "@/hooks/useElders";
 import { useToast } from "@/providers/ToastProvider";
 import { testArduinoConnection } from "@/apis/elderAPI";
 import SmartAreaView from "@/components/SmartAreaView";
-import { ElderTabParamList, SharedHealthStackParamList } from "./navigation/navigation";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { CompositeScreenProps } from "@react-navigation/native";
 import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
+import { ElderTabParamList, SharedHealthStackParamList } from "../navigation/navigation";
 
 type ElderDashboardScreenProps = CompositeScreenProps<
   BottomTabScreenProps<ElderTabParamList, "Home">,
