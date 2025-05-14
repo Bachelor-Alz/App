@@ -6,7 +6,6 @@ import * as SecureStore from "expo-secure-store";
 import { useToast } from "./ToastProvider";
 import { addLogoutListener, removeLogoutListener } from "@/utils/logoutEmitter";
 import { revokeRefreshTokenAPI } from "@/apis/revokeRefreshTokenAPI";
-import { useNavigationContainerRef } from "@react-navigation/native";
 import { RegisterForm } from "@/app/auth/Register";
 import { LoginForm } from "@/app/auth/Login";
 
@@ -28,7 +27,6 @@ const AuthenticationProvider = ({ children }: { children: React.ReactNode }) => 
   const [userId, setUserId] = useState<string | null>(null);
   const [role, setRole] = useState<0 | 1 | null>(null);
   const { addToast } = useToast();
-  const rootNavigation = useNavigationContainerRef();
 
   const register = useCallback(
     async (form: RegisterForm) => {
@@ -69,6 +67,7 @@ const AuthenticationProvider = ({ children }: { children: React.ReactNode }) => 
       await SecureStore.deleteItemAsync("rememberedEmail");
       await SecureStore.deleteItemAsync("password");
       await SecureStore.deleteItemAsync("refreshToken");
+      setUserId(null);
       setRole(null);
       setBearer("");
     } catch (error) {

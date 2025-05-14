@@ -1,4 +1,4 @@
-import { LoginForm } from "@/app";
+import { LoginForm } from "@/app/auth/Login";
 import { axiosInstance } from "./axiosConfig";
 
 export type LoginResponse = {
