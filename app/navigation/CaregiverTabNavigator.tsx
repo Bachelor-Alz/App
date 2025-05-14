@@ -1,11 +1,11 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import CaregiverHomePage from "../CaregiverHomePage";
+import CaregiverHomePage from "../caregiver_only/CaregiverHomePage";
 import { CaregiverTabParamList } from "./navigation";
 import { useTheme } from "react-native-paper";
 import { HapticTab } from "@/components/HapticTab";
 import TabBarBackground from "@/components/ui/TabBarBackground";
 import { IconSymbol } from "@/components/ui/IconSymbol";
-import SettingsPageCaregiver from "../SettingsCaregiver";
+import SettingsPageCaregiver from "../caregiver_only/SettingsCaregiver";
 
 const Tab = createBottomTabNavigator<CaregiverTabParamList>();
 

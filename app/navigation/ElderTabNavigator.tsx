@@ -1,12 +1,13 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import ElderHomePage from "../ElderHomePage";
-import SettingsPage from "../Settings";
+
+import SettingsPage from "../elder_only/SettingsElder";
 import { ElderTabParamList } from "./navigation";
 import { useTheme } from "react-native-paper";
 import { IconSymbol } from "@/components/ui/IconSymbol.ios";
 import { HapticTab } from "@/components/HapticTab";
 import TabBarBackground from "@/components/ui/TabBarBackground";
 import { useAuthenticatedUser } from "@/providers/AuthenticationProvider";
+import ElderHomePage from "../elder_only/ElderHomePage";
 
 const Tab = createBottomTabNavigator<ElderTabParamList>();
 

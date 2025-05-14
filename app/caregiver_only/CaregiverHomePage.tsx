@@ -4,7 +4,7 @@ import { useTheme, Text } from "react-native-paper";
 import { Ionicons } from "@expo/vector-icons";
 import SmartAreaView from "@/components/SmartAreaView";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { CaregiverTabParamList } from "./navigation/navigation";
+import { CaregiverTabParamList } from "../navigation/navigation";
 import { HealthCardList } from "@/components/HealthCardList";
 type Props = NativeStackScreenProps<CaregiverTabParamList, "Home">;
 

@@ -3,9 +3,9 @@ import CaregiverTabNavigator from "./CaregiverTabNavigator";
 import SharedHealthStackNavigator from "./SharedHealthStackNavigator";
 import { CaregiverTabParamList } from "./navigation";
 import ElderHomeAsCaregiverPage from "../caregiver_only/ElderHomeAsCaregiver";
-import ViewElders from "../caregiver_only/viewelder";
-import ViewCaregiverInvites from "../caregiver_only/caregiverinvites";
 import MapCaregiver from "../caregiver_only/MapCaregiver";
+import ViewElders from "../caregiver_only/ViewElder";
+import ViewCaregiverInvites from "../caregiver_only/CaregiverInvites";
 
 const Stack = createNativeStackNavigator<CaregiverTabParamList>();
 

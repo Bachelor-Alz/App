@@ -6,7 +6,7 @@ import { removeArduinoFromElder } from "@/apis/elderAPI";
 import SmartAreaView from "@/components/SmartAreaView";
 import { useThemeContext } from "@/providers/ThemeProvider";
 import { useQueryClient } from "@tanstack/react-query";
-import { ElderTabParamList } from "./navigation/navigation";
+import { ElderTabParamList } from "../navigation/navigation";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 type Props = NativeStackScreenProps<ElderTabParamList, "Settings">;
