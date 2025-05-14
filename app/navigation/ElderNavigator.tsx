@@ -3,9 +3,9 @@ import ElderTabNavigator from "./ElderTabNavigator";
 import SharedHealthStackNavigator from "./SharedHealthStackNavigator";
 import { ElderTabParamList } from "./navigation";
 import ElderPerimeterMap from "../elder_only/MapElder";
-import AssignCaregiverScreen from "../elder_only/AssignCaregiver";
-import RemoveCaregiver from "../elder_only/RemoveCaregiver";
-import ViewArduino from "../elder_only/ViewArduino";
+import AssignCaregiverScreen from "../elder_only/assigncaregiver";
+import RemoveCaregiver from "../elder_only/removecaregiver";
+import ViewArduino from "../elder_only/viewarduino";
 
 const Stack = createNativeStackNavigator<ElderTabParamList>();
 
