@@ -20,12 +20,12 @@ export type CaregiverTabParamList = {
 };
 
 export type ElderTabParamList = {
+  Home: { elderId: string };
   Settings: undefined;
   AssignCaregiver: undefined;
   MapElder: undefined;
   RemoveCaregiver: undefined;
   ViewArduino: undefined;
-  Home: { elderId: string };
   ElderTabs: undefined;
   SharedHealth: NavigatorScreenParams<SharedHealthStackParamList>;
 };

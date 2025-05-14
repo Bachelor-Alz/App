@@ -5,7 +5,7 @@ import { useAuthentication } from "@/providers/AuthenticationProvider";
 import SmartAreaView from "@/components/SmartAreaView";
 import { useThemeContext } from "@/providers/ThemeProvider";
 
-const SettingsPage = () => {
+const SettingsPageCaregiver = () => {
   const { logout } = useAuthentication();
   const { toggleTheme, themeMode } = useThemeContext();
 
@@ -50,10 +50,10 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   title: {
-    fontSize: 18,
+    fontSize: 22,
   },
   item: {
-    paddingVertical: 12,
+    paddingVertical: 18,
   },
   divider: {
     height: 1,
@@ -62,4 +62,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SettingsPage;
+export default SettingsPageCaregiver;

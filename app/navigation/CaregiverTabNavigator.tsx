@@ -2,10 +2,10 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import CaregiverHomePage from "../CaregiverHomePage";
 import { CaregiverTabParamList } from "./navigation";
 import { useTheme } from "react-native-paper";
-import SettingsPage from "../Settings";
 import { HapticTab } from "@/components/HapticTab";
 import TabBarBackground from "@/components/ui/TabBarBackground";
 import { IconSymbol } from "@/components/ui/IconSymbol";
+import SettingsPageCaregiver from "../SettingsCaregiver";
 
 const Tab = createBottomTabNavigator<CaregiverTabParamList>();
 
@@ -38,7 +38,7 @@ export default function CaregiverTabNavigator() {
       />
       <Tab.Screen
         name="Settings"
-        component={SettingsPage}
+        component={SettingsPageCaregiver}
         options={{
           tabBarIcon: ({ color }) => <IconSymbol name="gear" size={24} color={color} />,
         }}

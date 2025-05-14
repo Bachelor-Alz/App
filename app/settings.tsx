@@ -11,7 +11,7 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 type Props = NativeStackScreenProps<ElderTabParamList, "Settings">;
 const SettingsPage = ({ navigation }: Props) => {
-  const { role, logout, userId } = useAuthentication();
+  const { logout } = useAuthentication();
   const { toggleTheme, themeMode } = useThemeContext();
   const queryClient = useQueryClient();
 
@@ -111,10 +111,10 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   title: {
-    fontSize: 18,
+    fontSize: 22,
   },
   item: {
-    paddingVertical: 12,
+    paddingVertical: 18,
   },
   divider: {
     height: 1,

@@ -14,15 +14,15 @@ const CaregiverHomePage = ({ navigation }: Props) => {
   const caregiverOptions = [
     {
       title: "View Invitations",
-      value: "See caregiver invites from elders",
+      value: "See invites from elders",
       icon: "mail-open" as keyof typeof Ionicons.glyphMap,
       color: "#1e90ff",
       onPress: () => navigation.push("CaregiverInvites"),
       theme,
     },
     {
-      title: "View Assigned Elders",
-      value: "See all elders assigned to you",
+      title: "View Elders",
+      value: "See all elders",
       icon: "people" as keyof typeof Ionicons.glyphMap,
       color: "#2ed573",
       onPress: () => navigation.push("ViewElder"),
@@ -30,7 +30,7 @@ const CaregiverHomePage = ({ navigation }: Props) => {
     },
     {
       title: "Elder Map",
-      value: "View your associated elders on a map",
+      value: "View elders on map",
       icon: "map" as keyof typeof Ionicons.glyphMap,
       color: "#ff4757",
       onPress: () => navigation.push("MapCaregiver"),

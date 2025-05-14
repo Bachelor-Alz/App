@@ -11,7 +11,7 @@ const formatDate = (date: string) => {
 };
 
 type Props = NativeStackScreenProps<CaregiverTabParamList, "MapCaregiver">;
-const MapCaregiver = ({ navigation }: Props) => {
+export default function MapCaregiver({ navigation }: Props) {
   const theme = useTheme();
   const {
     mapRef,
@@ -29,6 +29,8 @@ const MapCaregiver = ({ navigation }: Props) => {
     resetHomePerimeter,
     handleSlide,
   } = useMap();
+
+  console.log(elderLocations);
 
   if (isLoading) {
     return <View style={styles.container}></View>;
@@ -170,7 +172,7 @@ const MapCaregiver = ({ navigation }: Props) => {
       </View>
     </View>
   );
-};
+}
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -206,5 +208,3 @@ const styles = StyleSheet.create({
     height: 40,
   },
 });
-
-export default MapCaregiver;

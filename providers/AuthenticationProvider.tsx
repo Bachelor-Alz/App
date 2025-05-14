@@ -71,10 +71,6 @@ const AuthenticationProvider = ({ children }: { children: React.ReactNode }) => 
       await SecureStore.deleteItemAsync("refreshToken");
       setRole(null);
       setBearer("");
-      rootNavigation.resetRoot({
-        index: 0,
-        routes: [{ name: "index" }],
-      });
     } catch (error) {
       addToast("Error", "Failed to log out");
       throw error;
