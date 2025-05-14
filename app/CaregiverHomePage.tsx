@@ -1,11 +1,14 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
 import { useTheme, Text } from "react-native-paper";
-import { CaregiverCardList } from "@/components/CaregiverCardList";
 import { Ionicons } from "@expo/vector-icons";
 import SmartAreaView from "@/components/SmartAreaView";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { CaregiverTabParamList } from "./navigation/navigation";
+import { HealthCardList } from "@/components/HealthCardList";
+type Props = NativeStackScreenProps<CaregiverTabParamList, "Home">;
 
-const CaregiverHomePage = ({ navigation }) => {
+const CaregiverHomePage = ({ navigation }: Props) => {
   const theme = useTheme();
 
   const caregiverOptions = [
@@ -14,7 +17,7 @@ const CaregiverHomePage = ({ navigation }) => {
       value: "See caregiver invites from elders",
       icon: "mail-open" as keyof typeof Ionicons.glyphMap,
       color: "#1e90ff",
-      onPress: () => navigation.push("/settings/viewcaregiverinvites"),
+      onPress: () => navigation.push("CaregiverInvites"),
       theme,
     },
     {
@@ -22,7 +25,7 @@ const CaregiverHomePage = ({ navigation }) => {
       value: "See all elders assigned to you",
       icon: "people" as keyof typeof Ionicons.glyphMap,
       color: "#2ed573",
-      onPress: () => navigation.push("/settings/viewelder"),
+      onPress: () => navigation.push("ViewElder"),
       theme,
     },
     {
@@ -30,7 +33,7 @@ const CaregiverHomePage = ({ navigation }) => {
       value: "View your associated elders on a map",
       icon: "map" as keyof typeof Ionicons.glyphMap,
       color: "#ff4757",
-      onPress: () => navigation.push("/settings/map"),
+      onPress: () => navigation.push("MapCaregiver"),
       theme,
     },
   ];
@@ -43,7 +46,7 @@ const CaregiverHomePage = ({ navigation }) => {
             Dashboard
           </Text>
         </View>
-        <CaregiverCardList healthData={caregiverOptions} />
+        <HealthCardList healthData={caregiverOptions} />
       </View>
     </SmartAreaView>
   );

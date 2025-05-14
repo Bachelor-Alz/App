@@ -2,19 +2,18 @@ import { View, StyleSheet } from "react-native";
 import MapView, { Circle, Marker } from "react-native-maps";
 import { IconButton, Text, useTheme, ActivityIndicator, Icon } from "react-native-paper";
 import { Slider } from "@miblanchard/react-native-slider";
-
 import useElderPerimeterMap from "@/hooks/useElderMap";
+import { useAuthenticatedUser } from "@/providers/AuthenticationProvider";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { ElderTabParamList } from "../navigation/navigation";
 
-type LocalSearchParams = {
-  id?: string;
-};
+type Props = NativeStackScreenProps<ElderTabParamList, "MapElder">;
 
-const ElderPerimeterMap = () => {
+const ElderPerimeterMap = ({ navigation }: Props) => {
   const theme = useTheme();
-  const { id } = useLocalSearchParams<LocalSearchParams>();
-
+  const { userId: id } = useAuthenticatedUser();
   const { mapRef, isLoading, isError, homePerimeter, sliderValue, handleSlide, animateToHomeCoordinates } =
-    useElderPerimeterMap(id || "");
+    useElderPerimeterMap(id);
 
   if (isLoading) {
     return (
@@ -98,7 +97,7 @@ const ElderPerimeterMap = () => {
         containerColor={theme.colors.background}
         size={40}
         style={styles.backButton}
-        onPress={() => router.back()}
+        onPress={() => navigation.goBack()}
       />
     </View>
   );

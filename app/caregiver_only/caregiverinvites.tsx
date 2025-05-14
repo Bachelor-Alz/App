@@ -5,8 +5,11 @@ import SmartAreaView from "@/components/SmartAreaView";
 import { useCaregiverInvites } from "@/hooks/useElders";
 import { acceptCaregiverInvite, Elder } from "@/apis/elderAPI";
 import { useToast } from "@/providers/ToastProvider";
+import { CaregiverTabParamList } from "../navigation/navigation";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-const ViewCaregiverInvites = () => {
+type Props = NativeStackScreenProps<CaregiverTabParamList, "CaregiverInvites">;
+const ViewCaregiverInvites = ({ navigation }: Props) => {
   const theme = useTheme();
   const { data: invites, isLoading, error, refetch } = useCaregiverInvites();
   const [searchQuery, setSearchQuery] = useState("");
@@ -47,8 +50,8 @@ const ViewCaregiverInvites = () => {
           onPress={async () => {
             try {
               await acceptCaregiverInvite(item.userId);
-              if (router.canGoBack()) {
-                router.back();
+              if (navigation.canGoBack()) {
+                navigation.goBack();
               }
             } catch (err) {
               addToast("Error accepting invite", "The invite could not be accepted.");

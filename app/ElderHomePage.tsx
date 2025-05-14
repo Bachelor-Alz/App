@@ -3,96 +3,94 @@ import { View, StyleSheet, Alert } from "react-native";
 import { useTheme, Text, Tooltip } from "react-native-paper";
 import { useDashBoardData } from "@/hooks/useGetDashboardData";
 import { HealthCardList } from "@/components/HealthCardList";
-import { useAuthenticatedUser } from "@/providers/AuthenticationProvider";
 import { Ionicons } from "@expo/vector-icons";
 import { useTestArduinoConnection } from "@/hooks/useElders";
 import { useToast } from "@/providers/ToastProvider";
 import { testArduinoConnection } from "@/apis/elderAPI";
 import SmartAreaView from "@/components/SmartAreaView";
-import { ElderTabParamList } from "./navigation/navigation";
+import { ElderTabParamList, SharedHealthStackParamList } from "./navigation/navigation";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { CompositeScreenProps } from "@react-navigation/native";
+import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 
-type Props = NativeStackScreenProps<ElderTabParamList, "Home">;
+type ElderDashboardScreenProps = CompositeScreenProps<
+  BottomTabScreenProps<ElderTabParamList, "Home">,
+  NativeStackScreenProps<SharedHealthStackParamList>
+>;
 
-const ElderHomePage = ({ navigation }: Props) => {
+function ElderHomePage({ navigation, route }: ElderDashboardScreenProps) {
   const theme = useTheme();
   const { addToast } = useToast();
+  const elderId = route.params.elderId;
 
   const queryFn = async () => {
-    if (role === 1) {
-      try {
-        const res = await testArduinoConnection();
-        if (!res) {
-          addToast("Arduino is not connected", "error");
-          Alert.alert("Arduino is not connected", undefined, [
-            {
-              text: "Go to Settings",
-              onPress: () => navigation.push("/settings/viewarduino"),
-            },
-            {
-              text: "Cancel",
-              style: "cancel",
-            },
-          ]);
-        }
-        return res;
-      } catch (err) {
-        addToast("Arduino connection failed", "Cannot connect to server");
-        return false;
+    try {
+      const res = await testArduinoConnection();
+      if (!res) {
+        addToast("Arduino is not connected", "error");
+        Alert.alert("Arduino is not connected", undefined, [
+          {
+            text: "Go to Settings",
+            onPress: () => navigation.navigate("ViewArduino"),
+          },
+          {
+            text: "Cancel",
+            style: "cancel",
+          },
+        ]);
       }
+      return res;
+    } catch (err) {
+      addToast("Arduino connection failed", "Cannot connect to server");
+      return false;
     }
-    return false;
   };
 
-  const { role, userId } = useAuthenticatedUser();
+  const { data } = useDashBoardData(elderId);
+  const { data: arduinoStatus, isLoading: arduinoLoading } = useTestArduinoConnection(elderId, queryFn);
 
-  const { error, isLoading, data } = useDashBoardData(userId);
-  const { data: arduinoStatus, isLoading: arduinoLoading } = useTestArduinoConnection(userId, queryFn);
-
-  const healthData = data
-    ? [
-        {
-          title: "Heart Rate",
-          value: `${data.heartRate ?? "N/A"} BPM`,
-          icon: "heart" as keyof typeof Ionicons.glyphMap,
-          color: "#ff4757",
-          onPress: () => navigation.push({ pathname: "/heartrate", params: { id: userId } }),
-          theme,
-        },
-        {
-          title: "Blood Oxygen Level",
-          value: data.spO2 != null ? `${Math.round(Number(data.spO2) * 100)}%` : "N/A",
-          icon: "water" as keyof typeof Ionicons.glyphMap,
-          color: "#1e90ff",
-          onPress: () => navigation.push({ pathname: "/spo2", params: { id: elderId } }),
-          theme,
-        },
-        {
-          title: "Steps",
-          value: `${data.steps ?? "N/A"}`,
-          icon: "footsteps" as keyof typeof Ionicons.glyphMap,
-          color: "#2ed573",
-          onPress: () => navigation.push({ pathname: "/stepscount", params: { id: elderId } }),
-          theme,
-        },
-        {
-          title: "Recorded Falls",
-          value: `${data.fallCount ?? "N/A"}`,
-          icon: "alert-circle" as keyof typeof Ionicons.glyphMap,
-          color: "#ffa502",
-          onPress: () => navigation.push({ pathname: "/fallscount", params: { id: elderId } }),
-          theme,
-        },
-        {
-          title: "Distance Walked",
-          value: `${data.distance?.toFixed(2) ?? "N/A"} km`,
-          icon: "walk" as keyof typeof Ionicons.glyphMap,
-          color: "#ff7f50",
-          onPress: () => navigation.push({ pathname: "/distance", params: { id: elderId } }),
-          theme,
-        },
-      ]
-    : [];
+  const healthData = [
+    {
+      title: "Heart Rate",
+      value: `${data?.heartRate ?? "N/A"} BPM`,
+      icon: "heart" as keyof typeof Ionicons.glyphMap,
+      color: "#ff4757",
+      onPress: () => navigation.navigate("SharedHealth", { screen: "HeartRate", params: { id: elderId } }),
+      theme,
+    },
+    {
+      title: "Blood Oxygen Level",
+      value: data?.spO2 != null ? `${Math.round(Number(data.spO2) * 100)}%` : "N/A",
+      icon: "water" as keyof typeof Ionicons.glyphMap,
+      color: "#1e90ff",
+      onPress: () => navigation.navigate("SharedHealth", { screen: "SPO2", params: { id: elderId } }),
+      theme,
+    },
+    {
+      title: "Steps",
+      value: `${data?.steps ?? "N/A"}`,
+      icon: "footsteps" as keyof typeof Ionicons.glyphMap,
+      color: "#2ed573",
+      onPress: () => navigation.navigate("SharedHealth", { screen: "Steps", params: { id: elderId } }),
+      theme,
+    },
+    {
+      title: "Recorded Falls",
+      value: `${data?.fallCount ?? "N/A"}`,
+      icon: "alert-circle" as keyof typeof Ionicons.glyphMap,
+      color: "#ffa502",
+      onPress: () => navigation.navigate("SharedHealth", { screen: "Fall", params: { id: elderId } }),
+      theme,
+    },
+    {
+      title: "Distance Walked",
+      value: `${data?.distance?.toFixed(2) ?? "N/A"} km`,
+      icon: "walk" as keyof typeof Ionicons.glyphMap,
+      color: "#ff7f50",
+      onPress: () => navigation.navigate("SharedHealth", { screen: "Distance", params: { id: elderId } }),
+      theme,
+    },
+  ];
 
   const ToolTipTitle = arduinoLoading
     ? "Loading..."
@@ -123,7 +121,7 @@ const ElderHomePage = ({ navigation }: Props) => {
       </View>
     </SmartAreaView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {

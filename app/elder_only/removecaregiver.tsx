@@ -5,8 +5,11 @@ import SmartAreaView from "@/components/SmartAreaView";
 import { useToast } from "@/providers/ToastProvider";
 import { useCaregiversForElder } from "@/hooks/useElders";
 import { removeCaregiverFromElder } from "@/apis/elderAPI";
+import { ElderTabParamList } from "../navigation/navigation";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-const RemoveCaregiver = () => {
+type Props = NativeStackScreenProps<ElderTabParamList, "RemoveCaregiver">;
+const RemoveCaregiver = ({ navigation }: Props) => {
   const theme = useTheme();
   const { addToast } = useToast();
   const { data: caregivers, isLoading, error } = useCaregiversForElder();
@@ -46,8 +49,8 @@ const RemoveCaregiver = () => {
           onPress={async () => {
             try {
               await removeCaregiverFromElder();
-              if (router.canGoBack()) {
-                router.back();
+              if (navigation.canGoBack()) {
+                navigation.goBack();
               }
             } catch (err) {
               addToast("Error", "Failed to remove caregiver.");

@@ -5,24 +5,25 @@ import SmartAreaView from "@/components/SmartAreaView";
 import { StatCard } from "@/components/charts/StatsCard";
 import ChartComponent from "@/components/charts/Chart";
 import useGetVisualizationData from "@/hooks/useGetVisualizationData";
-import { fetchSPO2 } from "@/apis/healthAPI";
+import { fetchHeartRate } from "@/apis/healthAPI";
 import ChartTitle, { ChartType } from "@/components/charts/ChartTitle";
 import { useState } from "react";
+import { SharedHealthStackParamList } from "../navigation/navigation";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 type TimeRange = "Hour" | "Day" | "Week";
-
-function SPO2Screen() {
+type Props = NativeStackScreenProps<SharedHealthStackParamList, "HeartRate">;
+function HeartRateScreen({ route }: Props) {
   const theme = useTheme();
-  const font = useFont(require("../assets/fonts/Quicksand-Medium.ttf"), 15);
-  const boldFont = useFont(require("../assets/fonts/Quicksand-Bold.ttf"), 15);
-  const { id } = useLocalSearchParams<{ id?: string }>();
-  const elderId = id || "";
+  const font = useFont(require("../../assets/fonts/Quicksand-Medium.ttf"), 15);
+  const boldFont = useFont(require("../../assets/fonts/Quicksand-Bold.ttf"), 15);
+  const id = route.params.id;
 
   const { isError, isLoading, data, setTimeRange, timeRange, timeFormat, navigateTime } =
     useGetVisualizationData({
-      userId: elderId,
-      fetchFn: fetchSPO2,
-      metricKey: "spo2",
+      userId: id,
+      fetchFn: fetchHeartRate,
+      metricKey: "heartRate",
     });
 
   const [chartType, setChartType] = useState<ChartType>("bar");
@@ -53,7 +54,7 @@ function SPO2Screen() {
     return (
       <SmartAreaView>
         <View style={styles.container}>
-          <Text style={styles.centeredText}>No Blood Oxygen data available</Text>
+          <Text style={styles.centeredText}>No heart rate data available</Text>
         </View>
       </SmartAreaView>
     );
@@ -64,27 +65,27 @@ function SPO2Screen() {
     ? [{ day: 0, min: 0, avg: 0, max: 0 }]
     : data.map((item) => ({
         day: new Date(item.timestamp).getTime(),
-        min: item.minSpO2 * 100,
-        avg: item.avgSpO2 * 100,
-        max: item.maxSpO2 * 100,
+        min: item.minrate,
+        avg: item.avgrate,
+        max: item.maxrate,
       }));
 
-  const min = isEmpty ? 0 : Math.min(...data.map((d) => d.minSpO2 * 100));
-  const avg = isEmpty ? 0 : data.reduce((sum, item) => sum + item.avgSpO2 * 100, 0) / data.length;
-  const max = isEmpty ? 0 : Math.max(...data.map((d) => d.maxSpO2 * 100));
+  const min = isEmpty ? 0 : Math.min(...data.map((d) => d.minrate));
+  const avg = isEmpty ? 0 : data.reduce((sum, item) => sum + item.avgrate, 0) / data.length;
+  const max = isEmpty ? 0 : Math.max(...data.map((d) => d.maxrate));
 
   const stats = [
     {
       label: "Min",
       value: Math.round(min),
       icon: "arrow-down" as const,
+
       color: theme.colors.secondary,
     },
     {
       label: "Avg",
       value: Math.round(avg),
       icon: "trophy" as const,
-
       color: theme.colors.primary,
     },
     {
@@ -99,12 +100,12 @@ function SPO2Screen() {
     <SmartAreaView>
       <View style={styles.container}>
         <ChartTitle
-          title="Blood Oxygen"
+          title="Heart Rate"
           timePeriod={timeFormat}
           navigateTime={navigateTime}
           theme={theme}
-          buttonColor={"#1e90ff"}
           chartType={chartType}
+          buttonColor={theme.colors.error}
           onChartTypeChange={setChartType}
         />
         <View style={styles.chartContainer}>
@@ -115,7 +116,7 @@ function SPO2Screen() {
             boldFont={boldFont}
             timeRange={timeRange}
             yKeys={["min", "avg", "max"]}
-            barColor={"#1e90ff"}
+            barColor={theme.colors.error}
             chartType={chartType}
           />
         </View>
@@ -131,7 +132,7 @@ function SPO2Screen() {
           ]}
         />
 
-        <StatCard title="Statistics" stats={stats} icon="chart-line" color="blue" />
+        <StatCard title="Statistics" stats={stats} icon="chart-line" color={theme.colors.error} />
       </View>
     </SmartAreaView>
   );
@@ -157,4 +158,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SPO2Screen;
+export default HeartRateScreen;

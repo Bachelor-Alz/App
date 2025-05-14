@@ -8,15 +8,18 @@ import useGetVisualizationData from "@/hooks/useGetVisualizationData";
 import { fetchDistance } from "@/apis/healthAPI";
 import ChartTitle, { ChartType } from "@/components/charts/ChartTitle";
 import { useState } from "react";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { SharedHealthStackParamList } from "../navigation/navigation";
 
 type TimeRange = "Hour" | "Day" | "Week";
 
-function DistanceScreen() {
+type Props = NativeStackScreenProps<SharedHealthStackParamList, "Distance">;
+
+function DistanceScreen({ route }: Props) {
   const theme = useTheme();
-  const font = useFont(require("../assets/fonts/Quicksand-Medium.ttf"), 15);
-  const boldFont = useFont(require("../assets/fonts/Quicksand-Bold.ttf"), 15);
-  const { id } = useLocalSearchParams<{ id?: string }>();
-  const elderId = id || "";
+  const font = useFont(require("../../assets/fonts/Quicksand-Medium.ttf"), 15);
+  const boldFont = useFont(require("../../assets/fonts/Quicksand-Bold.ttf"), 15);
+  const elderId = route.params.id;
 
   const { isError, isLoading, data, setTimeRange, timeRange, navigateTime, timeFormat } =
     useGetVisualizationData({

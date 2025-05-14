@@ -5,8 +5,12 @@ import SmartAreaView from "@/components/SmartAreaView";
 import { useEldersForCaregiver } from "@/hooks/useElders";
 import { Elder, removeElderFromCaregiver } from "@/apis/elderAPI";
 import { useToast } from "@/providers/ToastProvider";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { CaregiverTabParamList } from "../navigation/navigation";
 
-const ViewElders = () => {
+type Props = NativeStackScreenProps<CaregiverTabParamList, "ViewElder">;
+
+const ViewElders = ({ navigation }: Props) => {
   const theme = useTheme();
   const { data: elders, isLoading, error, refetch } = useEldersForCaregiver();
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -16,14 +20,8 @@ const ViewElders = () => {
     elders?.filter((elder) => elder.name.toLowerCase().includes(searchQuery.toLowerCase())) || [];
 
   const handleElderPress = (elder: Elder) => {
-    router.push({
-      pathname: "/(tabs)",
-      params: {
-        name: elder.name,
-        email: elder.email,
-        role: elder.role,
-        id: elder.userId,
-      },
+    navigation.navigate("ElderHomeAsCaregiver", {
+      elderId: elder.userId,
     });
   };
 

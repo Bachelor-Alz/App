@@ -8,14 +8,16 @@ import FormField from "@/components/forms/Formfield";
 import FormContainer from "@/components/forms/FormContainer";
 import { assignCaregiverToElder } from "@/apis/elderAPI";
 import SmartAreaView from "@/components/SmartAreaView";
+import { ElderTabParamList } from "../navigation/navigation";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 const schema = z.object({
   caregiverEmail: z.string().email("Please enter a valid email address").trim(),
 });
 
 type AssignCaregiverForm = z.infer<typeof schema>;
-
-const AssignCaregiverScreen = () => {
+type Props = NativeStackScreenProps<ElderTabParamList, "AssignCaregiver">;
+const AssignCaregiverScreen = ({ navigation }: Props) => {
   const theme = useTheme();
 
   const {
@@ -30,8 +32,8 @@ const AssignCaregiverScreen = () => {
   const onSubmit = async ({ caregiverEmail }: AssignCaregiverForm) => {
     try {
       await assignCaregiverToElder(caregiverEmail);
-      if (router.canGoBack()) {
-        router.back();
+      if (navigation.canGoBack()) {
+        navigation.goBack();
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Unknown error";

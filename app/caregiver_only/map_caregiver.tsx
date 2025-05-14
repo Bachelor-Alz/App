@@ -3,12 +3,15 @@ import MapView, { Circle, Marker } from "react-native-maps";
 import { IconButton, Text, useTheme } from "react-native-paper";
 import useMap from "@/hooks/useMap";
 import { Slider } from "@miblanchard/react-native-slider";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { CaregiverTabParamList } from "../navigation/navigation";
 
 const formatDate = (date: string) => {
   return Math.floor((new Date().getTime() - new Date(date).getTime()) / 60000) + " min ago";
 };
 
-const map = () => {
+type Props = NativeStackScreenProps<CaregiverTabParamList, "MapCaregiver">;
+const MapCaregiver = ({ navigation }: Props) => {
   const theme = useTheme();
   const {
     mapRef,
@@ -128,7 +131,11 @@ const map = () => {
         containerColor={theme.colors.background}
         size={40}
         style={styles.backButton}
-        onPress={() => router.back()}
+        onPress={() => {
+          if (navigation.canGoBack()) {
+            navigation.goBack();
+          }
+        }}
       />
 
       <View style={styles.buttonContainer}>
@@ -200,4 +207,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default map;
+export default MapCaregiver;

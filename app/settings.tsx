@@ -6,8 +6,11 @@ import { removeArduinoFromElder } from "@/apis/elderAPI";
 import SmartAreaView from "@/components/SmartAreaView";
 import { useThemeContext } from "@/providers/ThemeProvider";
 import { useQueryClient } from "@tanstack/react-query";
+import { ElderTabParamList } from "./navigation/navigation";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-const SettingsPage = () => {
+type Props = NativeStackScreenProps<ElderTabParamList, "Settings">;
+const SettingsPage = ({ navigation }: Props) => {
   const { role, logout, userId } = useAuthentication();
   const { toggleTheme, themeMode } = useThemeContext();
   const queryClient = useQueryClient();
@@ -19,64 +22,60 @@ const SettingsPage = () => {
           <Text variant="headlineLarge" style={styles.header}>
             Settings
           </Text>
+          <List.Item
+            title="Assign Caregiver"
+            titleStyle={styles.title}
+            left={() => <List.Icon icon="account-group" />}
+            onPress={() => navigation.push("AssignCaregiver")}
+            style={styles.item}
+          />
+          <Divider style={styles.divider} />
+          <List.Item
+            title="Remove Caregiver"
+            titleStyle={styles.title}
+            left={() => <List.Icon icon="account-remove" />}
+            onPress={() => navigation.push("RemoveCaregiver")}
+            style={styles.item}
+          />
+          <Divider style={styles.divider} />
+          <List.Item
+            title="Assign Arduino"
+            titleStyle={styles.title}
+            left={() => <List.Icon icon="bluetooth" />}
+            onPress={() => navigation.push("ViewArduino")}
+            style={styles.item}
+          />
+          <Divider style={styles.divider} />
+          <List.Item
+            title="Home Perimeter"
+            titleStyle={styles.title}
+            left={() => <List.Icon icon="home" />}
+            onPress={() => navigation.push("MapElder")}
+          />
+          <Divider style={styles.divider} />
+          <List.Item
+            title="Remove Arduino"
+            titleStyle={styles.title}
+            left={() => <List.Icon icon="bluetooth-off" />}
+            onPress={() => {
+              Alert.alert("Confirm Removal", "Are you sure you want to remove your Arduino connection?", [
+                {
+                  text: "Cancel",
+                  style: "cancel",
+                },
+                {
+                  text: "Remove",
+                  style: "destructive",
+                  onPress: () => {
+                    removeArduinoFromElder();
+                    queryClient.invalidateQueries();
+                  },
+                },
+              ]);
+            }}
+            style={styles.item}
+          />
 
-          {role === 1 && (
-            <>
-              <List.Item
-                title="Assign Caregiver"
-                titleStyle={styles.title}
-                left={() => <List.Icon icon="account-group" />}
-                onPress={() => router.push("/settings/assigncaregiver")}
-                style={styles.item}
-              />
-              <Divider style={styles.divider} />
-              <List.Item
-                title="Remove Caregiver"
-                titleStyle={styles.title}
-                left={() => <List.Icon icon="account-remove" />}
-                onPress={() => router.push("/settings/removecaregiver")}
-                style={styles.item}
-              />
-              <Divider style={styles.divider} />
-              <List.Item
-                title="Assign Arduino"
-                titleStyle={styles.title}
-                left={() => <List.Icon icon="bluetooth" />}
-                onPress={() => router.push("/settings/viewarduino")}
-                style={styles.item}
-              />
-              <Divider style={styles.divider} />
-              <List.Item
-                title="Home Perimeter"
-                titleStyle={styles.title}
-                left={() => <List.Icon icon="home" />}
-                onPress={() => router.push({ pathname: "/settings/map_elder", params: { id: userId } })}
-              />
-              <Divider style={styles.divider} />
-              <List.Item
-                title="Remove Arduino"
-                titleStyle={styles.title}
-                left={() => <List.Icon icon="bluetooth-off" />}
-                onPress={() => {
-                  Alert.alert("Confirm Removal", "Are you sure you want to remove your Arduino connection?", [
-                    {
-                      text: "Cancel",
-                      style: "cancel",
-                    },
-                    {
-                      text: "Remove",
-                      style: "destructive",
-                      onPress: () => {
-                        removeArduinoFromElder();
-                        queryClient.invalidateQueries();
-                      },
-                    },
-                  ]);
-                }}
-                style={styles.item}
-              />
-            </>
-          )}
           <Divider style={styles.divider} />
           <List.Item
             title={themeMode === "light" ? "Light Mode" : "Dark Mode"}

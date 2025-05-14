@@ -10,6 +10,10 @@ import { revokeRefreshTokenAPI } from "@/apis/revokeRefreshTokenAPI";
 import { useNavigationContainerRef } from "@react-navigation/native";
 import { LoginForm } from "@/app/Login";
 
+/**
+ * Represents a potentially authenticated user and provides authentication-related actions.
+ * @property role The user's role, where 0 is a caregiver and 1 is an elder.
+ */
 type AuthenticationProviderProps = {
   register: (form: RegisterForm) => Promise<void | null>;
   login: (form: LoginForm) => Promise<LoginResponse>;
@@ -100,6 +104,10 @@ export const useAuthentication = () => {
   return context;
 };
 
+/**
+ * Represents an authenticated user and provides authentication-related actions. Without potential null values.
+ * @property role The user's role, where 0 is a caregiver and 1 is an elder.
+ */
 type AuthenticatedUser = {
   register: (form: RegisterForm) => Promise<void | null>;
   login: (form: LoginForm) => Promise<LoginResponse>;

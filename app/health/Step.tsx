@@ -8,15 +8,17 @@ import { fetchSteps } from "@/apis/healthAPI";
 import ChartComponent from "@/components/charts/Chart";
 import ChartTitle, { ChartType } from "@/components/charts/ChartTitle";
 import { useState } from "react";
+import { SharedHealthStackParamList } from "../navigation/navigation";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 type TimeRange = "Hour" | "Day" | "Week";
 
-function StepsScreen() {
+type Props = NativeStackScreenProps<SharedHealthStackParamList, "Steps">;
+function StepsScreen({ route }: Props) {
   const theme = useTheme();
-  const font = useFont(require("../assets/fonts/Quicksand-Medium.ttf"), 15);
-  const boldFont = useFont(require("../assets/fonts/Quicksand-Bold.ttf"), 15);
-  const { id } = useLocalSearchParams<{ id?: string }>();
-  const elderId = id || "";
+  const font = useFont(require("../../assets/fonts/Quicksand-Medium.ttf"), 15);
+  const boldFont = useFont(require("../../assets/fonts/Quicksand-Bold.ttf"), 15);
+  const id = route.params.id;
 
   const {
     isError,
@@ -27,7 +29,7 @@ function StepsScreen() {
     timeFormat,
     navigateTime,
   } = useGetVisualizationData({
-    userId: elderId,
+    userId: id,
     fetchFn: fetchSteps,
     metricKey: "steps",
   });
