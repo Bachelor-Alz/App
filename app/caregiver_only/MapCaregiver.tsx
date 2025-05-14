@@ -30,7 +30,6 @@ export default function MapCaregiver({ navigation }: Props) {
     handleSlide,
   } = useMap();
 
-  console.log("Elder Locations: ", elderLocations);
 
   if (isLoading) {
     return (

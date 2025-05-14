@@ -19,7 +19,6 @@ type Perimeter = {
   homeLongitude: number;
   homeRadius: number;
 };
-//TODO USE WHEN WE GET DATA
 const fetchElderLocations = async () => {
   const response = await axiosInstance.get<ElderLocations[]>("/api/Health/Coordinates/Elders");
   if (response.status !== 200) {

@@ -35,7 +35,6 @@ function LoginScreen({ navigation }: Props) {
 
   useEffect(() => {
     const loginRefresh = async () => {
-      console.log("HELLO");
       const rememberMe = await SecureStore.getItemAsync("rememberMe");
       const refreshToken = await SecureStore.getItemAsync("refreshToken");
       if (!rememberMe || !refreshToken) {

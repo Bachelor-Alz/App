@@ -29,7 +29,6 @@ const attemptRefresh = async () => {
   );
   if (response.status === 200) {
     const data = response.data;
-    console.log(data);
 
     if (!data.refreshToken || !data.accessToken) {
       throw new Error("Failed to refresh token: Missing refresh token or access token");
@@ -49,11 +48,11 @@ const FOURTEEN_MINUTES = 14 * 60 * 1000;
 
 axiosInstance.interceptors.response.use(
   (response) => {
-    console.log(response.status + ": " + response.request.responseURL);
+    //console.log(response.status + ": " + response.request.responseURL);
     return response;
   },
   async (error) => {
-    console.log(error.response?.status + ": " + error.request.responseURL);
+    //console.log(error.response?.status + ": " + error.request.responseURL);
     const originalRequest = error.config;
 
     if (!error.response || error.response.status !== 401) {
@@ -69,7 +68,6 @@ axiosInstance.interceptors.response.use(
     try {
       const newToken = await attemptRefresh();
       if (newToken) {
-        console.log("Retrying request with new token:", newToken);
         return axiosInstance({
           ...originalRequest,
           headers: {
