@@ -5,23 +5,23 @@ import SmartAreaView from "@/components/SmartAreaView";
 import { StatCard } from "@/components/charts/StatsCard";
 import ChartComponent from "@/components/charts/Chart";
 import useGetVisualizationData from "@/hooks/useGetVisualizationData";
-import { useLocalSearchParams } from "expo-router";
 import { fetchHeartRate } from "@/apis/healthAPI";
 import ChartTitle, { ChartType } from "@/components/charts/ChartTitle";
 import { useState } from "react";
+import { SharedHealthStackParamList } from "../navigation/navigation";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 type TimeRange = "Hour" | "Day" | "Week";
-
-function HeartRateScreen() {
+type Props = NativeStackScreenProps<SharedHealthStackParamList, "HeartRate">;
+function HeartRateScreen({ route }: Props) {
   const theme = useTheme();
-  const font = useFont(require("../assets/fonts/Quicksand-Medium.ttf"), 15);
-  const boldFont = useFont(require("../assets/fonts/Quicksand-Bold.ttf"), 15);
-  const { email } = useLocalSearchParams<{ email?: string }>();
-  const elderEmail = email || "";
+  const font = useFont(require("../../assets/fonts/Quicksand-Medium.ttf"), 15);
+  const boldFont = useFont(require("../../assets/fonts/Quicksand-Bold.ttf"), 15);
+  const id = route.params.id;
 
   const { isError, isLoading, data, setTimeRange, timeRange, timeFormat, navigateTime } =
     useGetVisualizationData({
-      elderEmail,
+      userId: id,
       fetchFn: fetchHeartRate,
       metricKey: "heartRate",
     });

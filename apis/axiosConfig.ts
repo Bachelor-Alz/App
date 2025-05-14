@@ -29,7 +29,6 @@ const attemptRefresh = async () => {
   );
   if (response.status === 200) {
     const data = response.data;
-    console.log(data);
 
     if (!data.refreshToken || !data.accessToken) {
       throw new Error("Failed to refresh token: Missing refresh token or access token");
@@ -69,7 +68,6 @@ axiosInstance.interceptors.response.use(
     try {
       const newToken = await attemptRefresh();
       if (newToken) {
-        console.log("Retrying request with new token:", newToken);
         return axiosInstance({
           ...originalRequest,
           headers: {

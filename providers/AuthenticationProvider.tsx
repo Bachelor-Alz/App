@@ -1,36 +1,38 @@
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { createUserRequest } from "@/apis/registerAPI";
-import { RegisterForm } from "@/app/register";
-import { LoginForm } from "@/app";
-import { loginUserRequest } from "@/apis/loginAPI";
+import { LoginResponse, loginUserRequest, refreshTokenAPI } from "@/apis/loginAPI";
 import { setBearer } from "@/apis/axiosConfig";
 import * as SecureStore from "expo-secure-store";
-import { useNavigationContainerRef } from "expo-router";
 import { useToast } from "./ToastProvider";
 import { addLogoutListener, removeLogoutListener } from "@/utils/logoutEmitter";
 import { revokeRefreshTokenAPI } from "@/apis/revokeRefreshTokenAPI";
+import { RegisterForm } from "@/app/auth/Register";
+import { LoginForm } from "@/app/auth/Login";
 
+/**
+ * Represents a potentially authenticated user and provides authentication-related actions.
+ * @property role The user's role, where 0 is a caregiver and 1 is an elder.
+ */
 type AuthenticationProviderProps = {
-  register: (form: RegisterForm) => Promise<string | null>;
-  login: (form: LoginForm) => Promise<number | undefined>;
+  register: (form: RegisterForm) => Promise<void | null>;
+  login: (form: LoginForm) => Promise<LoginResponse>;
   logout: () => Promise<void>;
-  userEmail: string | null;
-  role: number | undefined;
+  refreshTokenLogin: () => Promise<LoginResponse | null>;
+  role: 0 | 1 | null;
+  userId: string | null;
 };
 
 const AuthenticationContext = createContext<AuthenticationProviderProps | undefined>(undefined);
 
 const AuthenticationProvider = ({ children }: { children: React.ReactNode }) => {
-  const [userEmail, setUserEmail] = useState<string | null>(null);
-  const [role, setRole] = useState<number | undefined>(undefined);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [role, setRole] = useState<0 | 1 | null>(null);
   const { addToast } = useToast();
-  const rootNavigation = useNavigationContainerRef();
 
   const register = useCallback(
-    async (form: RegisterForm): Promise<string | null> => {
+    async (form: RegisterForm) => {
       try {
-        const res = await createUserRequest(form);
-        return res.id;
+        await createUserRequest(form);
       } catch (e: any) {
         addToast("Error", e.message);
         return null;
@@ -40,45 +42,54 @@ const AuthenticationProvider = ({ children }: { children: React.ReactNode }) => 
   );
 
   const login = useCallback(
-    async (form: LoginForm): Promise<number | undefined> => {
+    async (form: LoginForm) => {
       try {
-        const res = await loginUserRequest(form);
-        if (!res?.token || !res.email || res.role === undefined) {
-          addToast("Error", "Invalid response from server");
-        }
-        const { token, email, role, refreshToken } = res;
+        const res = (await loginUserRequest(form)) as LoginResponse;
+        const { token, role, refreshToken, userId } = res;
+        setUserId(userId);
         setBearer(token);
-        setUserEmail(email);
         setRole(role);
         await SecureStore.setItemAsync("refreshToken", refreshToken);
-        return role;
+        return res;
       } catch (e: any) {
         addToast("Error", e.message);
+        throw e;
       }
     },
     [addToast]
   );
+  const refreshTokenLogin = useCallback(async () => {
+    try {
+      const refreshToken = await SecureStore.getItemAsync("refreshToken");
+      if (!refreshToken) {
+        addToast("Error", "Couldnt load refresh token");
+        return null;
+      }
+
+      const res = await refreshTokenAPI(refreshToken);
+      setUserId(res.userId);
+      setBearer(res.token);
+      setRole(res.role);
+      await SecureStore.setItemAsync("refreshToken", res.refreshToken);
+      return res;
+    } catch (error: any) {
+      addToast("Error", error.message || "Failed to refresh session");
+      throw error;
+    }
+  }, [addToast]);
 
   const logout = useCallback(async () => {
     try {
+      setUserId(null);
+      setRole(null);
+      setBearer("");
       const refreshToken = await SecureStore.getItemAsync("refreshToken");
+      await SecureStore.deleteItemAsync("refreshToken");
+      await SecureStore.deleteItemAsync("rememberMe");
       if (refreshToken) {
         await revokeRefreshTokenAPI({ refreshToken });
       }
-      await SecureStore.deleteItemAsync("rememberedEmail");
-      await SecureStore.deleteItemAsync("password");
-      await SecureStore.deleteItemAsync("refreshToken");
-      setUserEmail(null);
-      setRole(undefined);
-      setBearer("");
-      rootNavigation.resetRoot({
-        index: 0,
-        routes: [{ name: "index" }],
-      });
-    } catch (error) {
-      addToast("Error", "Failed to log out");
-      throw error;
-    }
+    } catch (error) {}
   }, []);
 
   useEffect(() => {
@@ -90,7 +101,7 @@ const AuthenticationProvider = ({ children }: { children: React.ReactNode }) => 
   }, []);
 
   return (
-    <AuthenticationContext.Provider value={{ register, login, logout, userEmail, role }}>
+    <AuthenticationContext.Provider value={{ register, login, refreshTokenLogin, logout, role, userId }}>
       {children}
     </AuthenticationContext.Provider>
   );
@@ -102,6 +113,28 @@ export const useAuthentication = () => {
     throw new Error("useAuthentication must be used within an AuthenticationProvider");
   }
   return context;
+};
+
+/**
+ * Represents an authenticated user and provides authentication-related actions. Without potential null values.
+ * @property role The user's role, where 0 is a caregiver and 1 is an elder.
+ */
+type AuthenticatedUser = {
+  register: (form: RegisterForm) => Promise<void | null>;
+  login: (form: LoginForm) => Promise<LoginResponse>;
+  logout: () => Promise<void>;
+  role: 0 | 1;
+  userId: string;
+};
+
+export const useAuthenticatedUser = (): AuthenticatedUser => {
+  const all = useAuthentication();
+
+  if (all.userId === null || all.role === null) {
+    throw new Error("User is not authenticated");
+  }
+
+  return all as AuthenticatedUser;
 };
 
 export { AuthenticationProvider, AuthenticationContext };

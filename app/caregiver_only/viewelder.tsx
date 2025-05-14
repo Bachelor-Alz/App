@@ -3,11 +3,14 @@ import { StyleSheet, View, FlatList, TouchableOpacity } from "react-native";
 import { Text, List, Searchbar, useTheme, IconButton } from "react-native-paper";
 import SmartAreaView from "@/components/SmartAreaView";
 import { useEldersForCaregiver } from "@/hooks/useElders";
-import { router } from "expo-router";
-import { removeElderFromCaregiver } from "@/apis/elderAPI";
+import { Elder, removeElderFromCaregiver } from "@/apis/elderAPI";
 import { useToast } from "@/providers/ToastProvider";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { CaregiverTabParamList } from "../navigation/navigation";
 
-const ViewElders = () => {
+type Props = NativeStackScreenProps<CaregiverTabParamList, "ViewElder">;
+
+const ViewElders = ({ navigation }: Props) => {
   const theme = useTheme();
   const { data: elders, isLoading, error, refetch } = useEldersForCaregiver();
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -16,14 +19,9 @@ const ViewElders = () => {
   const filteredElders =
     elders?.filter((elder) => elder.name.toLowerCase().includes(searchQuery.toLowerCase())) || [];
 
-  const handleElderPress = (elder: { name: string; email: string; role: number }) => {
-    router.push({
-      pathname: "/(tabs)",
-      params: {
-        name: elder.name,
-        email: elder.email,
-        role: elder.role,
-      },
+  const handleElderPress = (elder: Elder) => {
+    navigation.navigate("ElderHomeAsCaregiver", {
+      elderId: elder.userId,
     });
   };
 
@@ -47,7 +45,7 @@ const ViewElders = () => {
     );
   }
 
-  const renderItem = ({ item }: { item: { name: string; email: string; role: number } }) => (
+  const renderItem = ({ item }: { item: Elder }) => (
     <TouchableOpacity onPress={() => handleElderPress(item)}>
       <List.Item
         title={item.name}

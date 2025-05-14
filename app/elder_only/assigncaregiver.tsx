@@ -6,24 +6,24 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormField from "@/components/forms/Formfield";
 import FormContainer from "@/components/forms/FormContainer";
-import { useAuthentication } from "@/providers/AuthenticationProvider";
 import { assignCaregiverToElder } from "@/apis/elderAPI";
 import SmartAreaView from "@/components/SmartAreaView";
-import { router } from "expo-router";
+import { ElderTabParamList } from "../navigation/navigation";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 const schema = z.object({
   caregiverEmail: z.string().email("Please enter a valid email address").trim(),
 });
 
 type AssignCaregiverForm = z.infer<typeof schema>;
-
-const AssignCaregiverScreen = () => {
+type Props = NativeStackScreenProps<ElderTabParamList, "AssignCaregiver">;
+const AssignCaregiverScreen = ({ navigation }: Props) => {
   const theme = useTheme();
-  const { userEmail } = useAuthentication();
 
   const {
     control,
     handleSubmit,
+    reset,
     formState: { isSubmitting, isValid },
   } = useForm<AssignCaregiverForm>({
     resolver: zodResolver(schema),
@@ -31,25 +31,15 @@ const AssignCaregiverScreen = () => {
   });
 
   const onSubmit = async ({ caregiverEmail }: AssignCaregiverForm) => {
-    if (!userEmail) {
-      Alert.alert("Error", "No elder is logged in.");
-      return;
-    }
-
     try {
-      await assignCaregiverToElder(userEmail, caregiverEmail);
-      Alert.alert("Success", `Caregiver assigned to ${userEmail}`, [
-        {
-          text: "OK",
-          onPress: () => {
-            if (router.canGoBack()) {
-              router.back();
-            }
-          },
-        },
-      ]);
+      await assignCaregiverToElder(caregiverEmail);
+      reset();
+      if (navigation.canGoBack()) {
+        navigation.goBack();
+      }
     } catch (error) {
-      Alert.alert("Error", "Failed to assign caregiver.");
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      Alert.alert("Error", "Failed to assign caregiver. " + errorMessage);
     }
   };
 

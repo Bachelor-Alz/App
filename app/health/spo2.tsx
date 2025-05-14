@@ -5,33 +5,29 @@ import SmartAreaView from "@/components/SmartAreaView";
 import { StatCard } from "@/components/charts/StatsCard";
 import ChartComponent from "@/components/charts/Chart";
 import useGetVisualizationData from "@/hooks/useGetVisualizationData";
-import { useLocalSearchParams } from "expo-router";
-import { fetchFallsData } from "@/apis/healthAPI";
-import useLatestFallData from "@/hooks/useLatestFallData";
+import { fetchSPO2 } from "@/apis/healthAPI";
 import ChartTitle, { ChartType } from "@/components/charts/ChartTitle";
 import { useState } from "react";
+import { SharedHealthStackParamList } from "../navigation/navigation";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 type TimeRange = "Hour" | "Day" | "Week";
 
-const FallsCountScreen = () => {
+type Props = NativeStackScreenProps<SharedHealthStackParamList, "SPO2">;
+function SPO2Screen({ route }: Props) {
   const theme = useTheme();
-  const font = useFont(require("../assets/fonts/Quicksand-Medium.ttf"), 15);
-  const boldFont = useFont(require("../assets/fonts/Quicksand-Bold.ttf"), 15);
-  const { email } = useLocalSearchParams<{ email?: string }>();
-  const elderEmail = email || "";
+  const font = useFont(require("../../assets/fonts/Quicksand-Medium.ttf"), 15);
+  const boldFont = useFont(require("../../assets/fonts/Quicksand-Bold.ttf"), 15);
+  const id = route.params.id;
 
   const { isError, isLoading, data, setTimeRange, timeRange, timeFormat, navigateTime } =
     useGetVisualizationData({
-      elderEmail,
-      fetchFn: fetchFallsData,
-      metricKey: "falls",
+      userId: id,
+      fetchFn: fetchSPO2,
+      metricKey: "spo2",
     });
 
   const [chartType, setChartType] = useState<ChartType>("bar");
-  const filteredData = useLatestFallData(
-    (data || []) as { timestamp: string; fallCount: number }[],
-    timeRange
-  );
 
   if (!font || !boldFont) return null;
 
@@ -45,39 +41,57 @@ const FallsCountScreen = () => {
     );
   }
 
-  if (isError || !filteredData) {
+  if (isError) {
     return (
       <SmartAreaView>
         <View style={styles.container}>
-          <Text style={styles.centeredText}>No Falls data available</Text>
+          <Text style={styles.centeredText}>Error loading data</Text>
         </View>
       </SmartAreaView>
     );
   }
 
-  const isEmpty = filteredData.length === 0;
+  if (!data) {
+    return (
+      <SmartAreaView>
+        <View style={styles.container}>
+          <Text style={styles.centeredText}>No Blood Oxygen data available</Text>
+        </View>
+      </SmartAreaView>
+    );
+  }
 
+  const isEmpty = data.length === 0;
   const chartData = isEmpty
-    ? [{ day: 0, falls: 0 }]
-    : filteredData.map((item) => ({
+    ? [{ day: 0, min: 0, avg: 0, max: 0 }]
+    : data.map((item) => ({
         day: new Date(item.timestamp).getTime(),
-        falls: Number(item.fallCount || 0),
+        min: item.minSpO2 * 100,
+        avg: item.avgSpO2 * 100,
+        max: item.maxSpO2 * 100,
       }));
 
-  const fallsValues = isEmpty ? [0] : filteredData.map((d) => Number(d.fallCount || 0));
-  const avg = fallsValues.reduce((sum, val) => sum + val, 0) / fallsValues.length;
-  const max = Math.max(...fallsValues);
+  const min = isEmpty ? 0 : Math.min(...data.map((d) => d.minSpO2 * 100));
+  const avg = isEmpty ? 0 : data.reduce((sum, item) => sum + item.avgSpO2 * 100, 0) / data.length;
+  const max = isEmpty ? 0 : Math.max(...data.map((d) => d.maxSpO2 * 100));
 
   const stats = [
     {
+      label: "Min",
+      value: Math.round(min),
+      icon: "arrow-down" as const,
+      color: theme.colors.secondary,
+    },
+    {
       label: "Avg",
-      value: avg,
+      value: Math.round(avg),
       icon: "trophy" as const,
+
       color: theme.colors.primary,
     },
     {
       label: "Max",
-      value: max,
+      value: Math.round(max),
       icon: "arrow-up" as const,
       color: theme.colors.tertiary,
     },
@@ -87,11 +101,11 @@ const FallsCountScreen = () => {
     <SmartAreaView>
       <View style={styles.container}>
         <ChartTitle
-          title="Falls"
+          title="Blood Oxygen"
           timePeriod={timeFormat}
           navigateTime={navigateTime}
           theme={theme}
-          buttonColor="#ffa502"
+          buttonColor={"#1e90ff"}
           chartType={chartType}
           onChartTypeChange={setChartType}
         />
@@ -102,13 +116,14 @@ const FallsCountScreen = () => {
             font={font}
             boldFont={boldFont}
             timeRange={timeRange}
-            yKeys={["falls"]}
-            barColor="#ffa502"
-            colors={[theme.colors.primary]}
+            yKeys={["min", "avg", "max"]}
+            barColor={"#1e90ff"}
             chartType={chartType}
           />
         </View>
+
         <SegmentedButtons
+          style={styles.segmentedButtons}
           value={timeRange}
           onValueChange={(value) => setTimeRange(value as TimeRange)}
           buttons={[
@@ -116,19 +131,18 @@ const FallsCountScreen = () => {
             { value: "Day", label: "Day" },
             { value: "Week", label: "Week" },
           ]}
-          style={styles.segmentedButtons}
         />
-        <StatCard title="Statistics" stats={stats} icon="chart-line" color="#ff7f50" />
+
+        <StatCard title="Statistics" stats={stats} icon="chart-line" color="blue" />
       </View>
     </SmartAreaView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    justifyContent: "center",
+    padding: 10,
   },
   chartContainer: {
     flex: 1,
@@ -145,4 +159,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default FallsCountScreen;
+export default SPO2Screen;

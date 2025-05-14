@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { View } from "react-native";
 import { Text, Checkbox, Button, useTheme } from "react-native-paper";
-import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -10,6 +9,8 @@ import FormField from "@/components/forms/Formfield";
 import FormContainer from "@/components/forms/FormContainer";
 import { useAuthentication } from "@/providers/AuthenticationProvider";
 import SmartAreaView from "@/components/SmartAreaView";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { AuthStackParamList } from "../navigation/navigation";
 
 const schema = z.object({
   email: z.string().email("Needs to be a valid email address").trim(),
@@ -17,62 +18,47 @@ const schema = z.object({
 });
 
 export type LoginForm = z.infer<typeof schema>;
+type Props = NativeStackScreenProps<AuthStackParamList, "Login">;
 
-const LoginScreen = () => {
+function LoginScreen({ navigation }: Props) {
+  const theme = useTheme();
+  const { login, refreshTokenLogin } = useAuthentication();
+  const [rememberMe, setRememberMe] = useState(false);
   const {
     control,
     handleSubmit,
-    setValue,
     formState: { isValid },
   } = useForm<LoginForm>({
     resolver: zodResolver(schema),
     mode: "onChange",
   });
 
-  const theme = useTheme();
-  const { login } = useAuthentication();
-  const [rememberMe, setRememberMe] = useState(false);
-
   useEffect(() => {
-    const loadAndAutoLogin = async () => {
-      const savedEmail = await SecureStore.getItemAsync("rememberedEmail");
-      const savedPassword = await SecureStore.getItemAsync("password");
-
-      if (savedEmail) {
-        setValue("email", savedEmail);
-        setRememberMe(true);
+    const loginRefresh = async () => {
+      const rememberMe = await SecureStore.getItemAsync("rememberMe");
+      const refreshToken = await SecureStore.getItemAsync("refreshToken");
+      if (!rememberMe || !refreshToken) {
+        return;
       }
-
-      if (savedEmail && savedPassword) {
-        setValue("password", savedPassword);
-
-        login({ email: savedEmail, password: savedPassword }).then((role) => {
-          if (role === undefined) {
-            return;
-          }
-          router.replace({ pathname: "/(tabs)", params: { email: savedEmail } });
-        });
-      }
+      await refreshTokenLogin();
     };
+    loginRefresh();
 
-    loadAndAutoLogin();
+    return () => {
+      SecureStore.deleteItemAsync("remeberMe");
+    };
   }, []);
 
-  const onSubmit = async (data: LoginForm) => {
+  const handleRememberMePress = async () => {
     if (rememberMe) {
-      await SecureStore.setItemAsync("rememberedEmail", data.email);
-      await SecureStore.setItemAsync("password", data.password);
+      await SecureStore.setItemAsync("rememberMe", "true");
     } else {
-      await SecureStore.deleteItemAsync("rememberedEmail");
-      await SecureStore.deleteItemAsync("password");
+      await SecureStore.deleteItemAsync("rememberMe");
     }
+  };
 
-    // Login the user and navigate to the main tabs page
-    const role = await login(data);
-    if (role === undefined) {
-      return;
-    }
-    router.replace({ pathname: "/(tabs)", params: { email: data.email } });
+  const onSubmit = async (data: LoginForm) => {
+    await login(data);
   };
 
   return (
@@ -91,7 +77,10 @@ const LoginScreen = () => {
           <View style={{ flexDirection: "row", alignItems: "center", marginVertical: 10 }}>
             <Checkbox.Android
               status={rememberMe ? "checked" : "unchecked"}
-              onPress={() => setRememberMe(!rememberMe)}
+              onPress={() => {
+                setRememberMe(!rememberMe);
+                handleRememberMePress();
+              }}
             />
             <Text style={{ color: theme.colors.onSurface }}>Remember Me</Text>
           </View>
@@ -111,7 +100,7 @@ const LoginScreen = () => {
               textColor={theme.colors.onSurface}
               style={{ marginTop: 5 }}
               icon={"account-plus"}
-              onPress={() => router.push("/register")}>
+              onPress={() => navigation.navigate("Register")}>
               Register
             </Button>
           </View>
@@ -119,6 +108,6 @@ const LoginScreen = () => {
       </View>
     </SmartAreaView>
   );
-};
+}
 
 export default LoginScreen;

@@ -1,15 +1,17 @@
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, Alert } from "react-native";
 import MapView, { Circle, Marker } from "react-native-maps";
 import { IconButton, Text, useTheme } from "react-native-paper";
 import useMap from "@/hooks/useMap";
-import { router } from "expo-router";
 import { Slider } from "@miblanchard/react-native-slider";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { CaregiverTabParamList } from "../navigation/navigation";
 
 const formatDate = (date: string) => {
   return Math.floor((new Date().getTime() - new Date(date).getTime()) / 60000) + " min ago";
 };
 
-const map = () => {
+type Props = NativeStackScreenProps<CaregiverTabParamList, "MapCaregiver">;
+export default function MapCaregiver({ navigation }: Props) {
   const theme = useTheme();
   const {
     mapRef,
@@ -28,14 +30,34 @@ const map = () => {
     handleSlide,
   } = useMap();
 
+
   if (isLoading) {
-    return <View style={styles.container}></View>;
+    return (
+      <View style={styles.container}>
+        <Text>Loading...</Text>
+      </View>
+    );
   }
   if (isError) {
-    return <View style={styles.container}></View>;
+    return (
+      <View style={styles.container}>
+        <Text>Error loading elder locations</Text>
+      </View>
+    );
   }
-  if (!elderLocations) {
-    return <View style={styles.container}></View>;
+
+  if (!elderLocations || elderLocations.length === 0) {
+    Alert.alert("No Elders Assigned", "Please assign elders to monitor before using the map.", [
+      {
+        text: "Go Back",
+        onPress: () => {
+          if (navigation.canGoBack()) {
+            navigation.goBack();
+          }
+        },
+      },
+    ]);
+    return null;
   }
 
   return (
@@ -44,14 +66,14 @@ const map = () => {
         {elderLocations.map((l) => (
           <Marker
             ref={(ref) => {
-              if (ref && !markerRefs.current[l.email]) {
-                markerRefs.current[l.email] = { current: ref };
+              if (ref && !markerRefs.current[l.userId]) {
+                markerRefs.current[l.userId] = { current: ref };
               }
             }}
             id={l.email}
             key={l.email}
-            onPress={() => (elderFocus.current = l.email)}
-            onCalloutPress={() => showHomePerimeter(l.email)}
+            onPress={() => (elderFocus.current = l.userId)}
+            onCalloutPress={() => showHomePerimeter(l.userId)}
             coordinate={{
               latitude: l.latitude,
               longitude: l.longitude,
@@ -129,7 +151,11 @@ const map = () => {
         containerColor={theme.colors.background}
         size={40}
         style={styles.backButton}
-        onPress={() => router.back()}
+        onPress={() => {
+          if (navigation.canGoBack()) {
+            navigation.goBack();
+          }
+        }}
       />
 
       <View style={styles.buttonContainer}>
@@ -164,7 +190,7 @@ const map = () => {
       </View>
     </View>
   );
-};
+}
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -200,5 +226,3 @@ const styles = StyleSheet.create({
     height: 40,
   },
 });
-
-export default map;

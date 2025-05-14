@@ -1,0 +1,23 @@
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import ElderTabNavigator from "./ElderTabNavigator";
+import SharedHealthStackNavigator from "./SharedHealthStackNavigator";
+import { ElderTabParamList } from "./navigation";
+import ElderPerimeterMap from "../elder_only/MapElder";
+import AssignCaregiverScreen from "../elder_only/AssignCaregiver";
+import RemoveCaregiver from "../elder_only/RemoveCaregiver";
+import ViewArduino from "../elder_only/ViewArduino";
+
+const Stack = createNativeStackNavigator<ElderTabParamList>();
+
+export default function ElderNavigator() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="ElderTabs" component={ElderTabNavigator} />
+      <Stack.Screen name="SharedHealth" component={SharedHealthStackNavigator} />
+      <Stack.Screen name="AssignCaregiver" component={AssignCaregiverScreen} />
+      <Stack.Screen name="MapElder" component={ElderPerimeterMap} />
+      <Stack.Screen name="RemoveCaregiver" component={RemoveCaregiver} />
+      <Stack.Screen name="ViewArduino" component={ViewArduino} />
+    </Stack.Navigator>
+  );
+}

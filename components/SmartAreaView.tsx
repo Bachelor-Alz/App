@@ -7,14 +7,24 @@ import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 
 const SmartAreaView: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const navigation = useNavigation();
-  const state = useNavigationState((state) => state);
   const theme = useTheme();
-  const canGoBackInCurrentStack = state ? state.index > 0 : false;
+
+  const currentRoute = useNavigationState((state) => {
+    const route = state.routes[state.index];
+    return route;
+  });
+
+  const showBackButton = (() => {
+    if (!currentRoute) return false;
+    if (currentRoute.name === "Login" || currentRoute.name === "Register") return false;
+    if (currentRoute.name === "Home" || currentRoute.name === "Settings") return false;
+    return navigation.canGoBack();
+  })();
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      {canGoBackInCurrentStack && (
-        <Animated.View entering={FadeIn} style={styles.backButton}>
+      {showBackButton && (
+        <Animated.View entering={FadeIn} exiting={FadeOut} style={styles.backButton}>
           <Pressable onPress={() => navigation.goBack()}>
             <Icon size={30} color={theme.colors.onSurface} source={"arrow-left"} />
           </Pressable>

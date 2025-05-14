@@ -2,28 +2,37 @@ import { View, StyleSheet } from "react-native";
 import { useFont } from "@shopify/react-native-skia";
 import { SegmentedButtons, Text, useTheme } from "react-native-paper";
 import SmartAreaView from "@/components/SmartAreaView";
-import ChartComponent from "@/components/charts/Chart";
 import { StatCard } from "@/components/charts/StatsCard";
-import { useLocalSearchParams } from "expo-router";
 import useGetVisualizationData from "@/hooks/useGetVisualizationData";
-import { fetchDistance } from "@/apis/healthAPI";
+import { fetchSteps } from "@/apis/healthAPI";
+import ChartComponent from "@/components/charts/Chart";
 import ChartTitle, { ChartType } from "@/components/charts/ChartTitle";
 import { useState } from "react";
+import { SharedHealthStackParamList } from "../navigation/navigation";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 type TimeRange = "Hour" | "Day" | "Week";
 
-function DistanceScreen() {
+type Props = NativeStackScreenProps<SharedHealthStackParamList, "Steps">;
+function StepsScreen({ route }: Props) {
   const theme = useTheme();
-  const font = useFont(require("../assets/fonts/Quicksand-Medium.ttf"), 15);
-  const boldFont = useFont(require("../assets/fonts/Quicksand-Bold.ttf"), 15);
-  const { email } = useLocalSearchParams<{ email?: string }>();
-  const elderEmail = email || "";
-  const { isError, isLoading, data, setTimeRange, timeRange, navigateTime, timeFormat } =
-    useGetVisualizationData({
-      elderEmail,
-      fetchFn: fetchDistance,
-      metricKey: "distance",
-    });
+  const font = useFont(require("../../assets/fonts/Quicksand-Medium.ttf"), 15);
+  const boldFont = useFont(require("../../assets/fonts/Quicksand-Bold.ttf"), 15);
+  const id = route.params.id;
+
+  const {
+    isError,
+    isLoading,
+    data: rawData,
+    setTimeRange,
+    timeRange,
+    timeFormat,
+    navigateTime,
+  } = useGetVisualizationData({
+    userId: id,
+    fetchFn: fetchSteps,
+    metricKey: "steps",
+  });
 
   const [chartType, setChartType] = useState<ChartType>("bar");
 
@@ -32,46 +41,46 @@ function DistanceScreen() {
   if (isLoading) {
     return (
       <SmartAreaView>
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
           <Text style={styles.centeredText}>Loading...</Text>
         </View>
       </SmartAreaView>
     );
   }
 
-  if (isError || !data) {
+  if (isError || !rawData) {
     return (
       <SmartAreaView>
-        <View style={styles.container}>
-          <Text style={styles.centeredText}>No Distance data available</Text>
+        <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+          <Text style={styles.centeredText}>No Steps data available</Text>
         </View>
       </SmartAreaView>
     );
   }
 
-  const isEmpty = data?.length === 0;
+  const isEmpty = rawData.length === 0;
 
   const chartData = isEmpty
-    ? [{ day: 0, distance: 0 }]
-    : data.map((item) => ({
+    ? [{ day: 0, stepcount: 0 }]
+    : rawData.map((item) => ({
         day: new Date(item.timestamp).getTime(),
-        distance: item.distance * 1000,
+        stepcount: Number(item.stepsCount),
       }));
 
-  const distanceValues = isEmpty ? [0] : data.map((d) => (d.distance || 0) * 1000); // Convert km to m
-  const avg = distanceValues.reduce((sum, val) => sum + val, 0) / distanceValues.length;
-  const max = Math.max(...distanceValues);
+  const stepsValues = isEmpty ? [0] : rawData.map((d) => Number(d.stepsCount || 0));
+  const avg = stepsValues.reduce((sum, val) => sum + val, 0) / stepsValues.length;
+  const max = Math.max(...stepsValues);
 
   const stats = [
     {
       label: "Avg",
-      value: avg,
+      value: Math.round(avg),
       icon: "trophy" as const,
       color: theme.colors.primary,
     },
     {
       label: "Max",
-      value: max,
+      value: Math.round(max),
       icon: "arrow-up" as const,
       color: theme.colors.tertiary,
     },
@@ -81,11 +90,11 @@ function DistanceScreen() {
     <SmartAreaView>
       <View style={styles.container}>
         <ChartTitle
-          title="Distance"
+          title="Steps"
           timePeriod={timeFormat}
           navigateTime={navigateTime}
           theme={theme}
-          buttonColor="#ff7f50"
+          buttonColor={"#2ed573"}
           chartType={chartType}
           onChartTypeChange={setChartType}
         />
@@ -97,12 +106,13 @@ function DistanceScreen() {
             font={font}
             boldFont={boldFont}
             timeRange={timeRange}
-            yKeys={["distance"]}
-            barColor="#ff7f50"
+            yKeys={["stepcount"]}
+            barColor={"#2ed573"}
             colors={[theme.colors.primary]}
             chartType={chartType}
           />
         </View>
+
         <SegmentedButtons
           style={styles.segmentedButtons}
           value={timeRange}
@@ -114,7 +124,7 @@ function DistanceScreen() {
           ]}
         />
 
-        <StatCard title="Statistics" stats={stats} icon="chart-line" color="#ff7f50" />
+        <StatCard title="Statistics" stats={stats} icon="chart-line" color="#2ed573" />
       </View>
     </SmartAreaView>
   );
@@ -140,4 +150,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default DistanceScreen;
+export default StepsScreen;

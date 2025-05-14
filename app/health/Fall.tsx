@@ -3,83 +3,81 @@ import { useFont } from "@shopify/react-native-skia";
 import { SegmentedButtons, Text, useTheme } from "react-native-paper";
 import SmartAreaView from "@/components/SmartAreaView";
 import { StatCard } from "@/components/charts/StatsCard";
-import { useLocalSearchParams } from "expo-router";
-import useGetVisualizationData from "@/hooks/useGetVisualizationData";
-import { fetchSteps } from "@/apis/healthAPI";
 import ChartComponent from "@/components/charts/Chart";
+import useGetVisualizationData from "@/hooks/useGetVisualizationData";
+import { fetchFallsData } from "@/apis/healthAPI";
+import useLatestFallData from "@/hooks/useLatestFallData";
 import ChartTitle, { ChartType } from "@/components/charts/ChartTitle";
 import { useState } from "react";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { SharedHealthStackParamList } from "../navigation/navigation";
 
 type TimeRange = "Hour" | "Day" | "Week";
-
-function StepsScreen() {
+type Props = NativeStackScreenProps<SharedHealthStackParamList, "Fall">;
+const FallsCountScreen = ({ route }: Props) => {
   const theme = useTheme();
-  const font = useFont(require("../assets/fonts/Quicksand-Medium.ttf"), 15);
-  const boldFont = useFont(require("../assets/fonts/Quicksand-Bold.ttf"), 15);
-  const { email } = useLocalSearchParams<{ email?: string }>();
-  const elderEmail = email || "";
+  const font = useFont(require("../../assets/fonts/Quicksand-Medium.ttf"), 15);
+  const boldFont = useFont(require("../../assets/fonts/Quicksand-Bold.ttf"), 15);
+  const id = route.params.id;
 
-  const {
-    isError,
-    isLoading,
-    data: rawData,
-    setTimeRange,
-    timeRange,
-    timeFormat,
-    navigateTime,
-  } = useGetVisualizationData({
-    elderEmail,
-    fetchFn: fetchSteps,
-    metricKey: "steps",
-  });
+  const { isError, isLoading, data, setTimeRange, timeRange, timeFormat, navigateTime } =
+    useGetVisualizationData({
+      userId: id,
+      fetchFn: fetchFallsData,
+      metricKey: "falls",
+    });
 
   const [chartType, setChartType] = useState<ChartType>("bar");
+  const filteredData = useLatestFallData(
+    (data || []) as { timestamp: string; fallCount: number }[],
+    timeRange
+  );
 
   if (!font || !boldFont) return null;
 
   if (isLoading) {
     return (
       <SmartAreaView>
-        <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+        <View style={styles.container}>
           <Text style={styles.centeredText}>Loading...</Text>
         </View>
       </SmartAreaView>
     );
   }
 
-  if (isError || !rawData) {
+  if (isError || !filteredData) {
     return (
       <SmartAreaView>
-        <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
-          <Text style={styles.centeredText}>No Steps data available</Text>
+        <View style={styles.container}>
+          <Text style={styles.centeredText}>No Falls data available</Text>
         </View>
       </SmartAreaView>
     );
   }
 
-  const isEmpty = rawData.length === 0;
+  const isEmpty = filteredData.length === 0;
 
   const chartData = isEmpty
-    ? [{ day: 0, stepcount: 0 }]
-    : rawData.map((item) => ({
+    ? [{ day: 0, falls: 0 }]
+    : filteredData.map((item) => ({
         day: new Date(item.timestamp).getTime(),
-        stepcount: Number(item.stepsCount),
+        falls: Number(item.fallCount || 0),
       }));
 
-  const stepsValues = isEmpty ? [0] : rawData.map((d) => Number(d.stepsCount || 0));
-  const avg = stepsValues.reduce((sum, val) => sum + val, 0) / stepsValues.length;
-  const max = Math.max(...stepsValues);
+  const fallsValues = isEmpty ? [0] : filteredData.map((d) => Number(d.fallCount || 0));
+  const avg = fallsValues.reduce((sum, val) => sum + val, 0) / fallsValues.length;
+  const max = Math.max(...fallsValues);
 
   const stats = [
     {
       label: "Avg",
-      value: Math.round(avg),
+      value: avg,
       icon: "trophy" as const,
       color: theme.colors.primary,
     },
     {
       label: "Max",
-      value: Math.round(max),
+      value: max,
       icon: "arrow-up" as const,
       color: theme.colors.tertiary,
     },
@@ -89,15 +87,14 @@ function StepsScreen() {
     <SmartAreaView>
       <View style={styles.container}>
         <ChartTitle
-          title="Steps"
+          title="Falls"
           timePeriod={timeFormat}
           navigateTime={navigateTime}
           theme={theme}
-          buttonColor={"#2ed573"}
+          buttonColor="#ffa502"
           chartType={chartType}
           onChartTypeChange={setChartType}
         />
-
         <View style={styles.chartContainer}>
           <ChartComponent
             data={chartData}
@@ -105,15 +102,13 @@ function StepsScreen() {
             font={font}
             boldFont={boldFont}
             timeRange={timeRange}
-            yKeys={["stepcount"]}
-            barColor={"#2ed573"}
+            yKeys={["falls"]}
+            barColor="#ffa502"
             colors={[theme.colors.primary]}
             chartType={chartType}
           />
         </View>
-
         <SegmentedButtons
-          style={styles.segmentedButtons}
           value={timeRange}
           onValueChange={(value) => setTimeRange(value as TimeRange)}
           buttons={[
@@ -121,18 +116,19 @@ function StepsScreen() {
             { value: "Day", label: "Day" },
             { value: "Week", label: "Week" },
           ]}
+          style={styles.segmentedButtons}
         />
-
-        <StatCard title="Statistics" stats={stats} icon="chart-line" color="#2ed573" />
+        <StatCard title="Statistics" stats={stats} icon="chart-line" color="#ff7f50" />
       </View>
     </SmartAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
+    padding: 20,
+    justifyContent: "center",
   },
   chartContainer: {
     flex: 1,
@@ -149,4 +145,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default StepsScreen;
+export default FallsCountScreen;

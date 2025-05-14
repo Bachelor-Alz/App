@@ -50,13 +50,13 @@ export const FallDataSchema = z
 export type FallData = z.infer<typeof FallDataSchema>;
 
 export const fetchHeartRate = async (
-  elderEmail: string,
+  elderId: string,
   date: string,
   period: "Hour" | "Day" | "Week"
 ): Promise<HeartRateData[]> => {
   try {
     let response = await axiosInstance.get<HeartRateData[]>("/api/Health/Heartrate", {
-      params: { elderEmail, date, period },
+      params: { elderId, date, period },
     });
     return response.data;
   } catch (error) {
@@ -65,13 +65,13 @@ export const fetchHeartRate = async (
 };
 
 export const fetchSPO2 = async (
-  elderEmail: string,
+  elderId: string,
   date: string,
   period: "Hour" | "Day" | "Week"
 ): Promise<SPO2Data[]> => {
   try {
     let response = await axiosInstance.get<SPO2Data[]>("/api/Health/SPO2", {
-      params: { elderEmail, date, period },
+      params: { elderId, date, period },
     });
     return response.data;
   } catch (error) {
@@ -80,13 +80,13 @@ export const fetchSPO2 = async (
 };
 
 export const fetchDistance = async (
-  elderEmail: string,
+  elderId: string,
   date: string,
   period: "Hour" | "Day" | "Week"
 ): Promise<DistanceData[]> => {
   try {
     let response = await axiosInstance.get<DistanceData[]>("/api/Health/Distance", {
-      params: { elderEmail, date, period },
+      params: { elderId, date, period },
     });
     return response.data;
   } catch (error) {
@@ -95,13 +95,13 @@ export const fetchDistance = async (
 };
 
 export const fetchSteps = async (
-  elderEmail: string,
+  elderId: string,
   date: string,
   period: "Hour" | "Day" | "Week"
 ): Promise<StepsData[]> => {
   return axiosInstance
     .get<StepsData[]>("/api/Health/Steps", {
-      params: { elderEmail, date, period },
+      params: { elderId, date, period },
     })
     .then((response) => response.data)
     .catch((error) => {
@@ -109,10 +109,10 @@ export const fetchSteps = async (
     });
 };
 
-export const fetchDashBoardData = async (elderEmail: string): Promise<DashboardData> => {
+export const fetchDashBoardData = async (elderId: string): Promise<DashboardData> => {
   try {
     let response = await axiosInstance.get<DashboardData>("/api/Health/Dashboard", {
-      params: { elderEmail },
+      params: { elderId },
     });
     return response.data;
   } catch (error) {
@@ -121,13 +121,13 @@ export const fetchDashBoardData = async (elderEmail: string): Promise<DashboardD
 };
 
 export const fetchFallsData = async (
-  elderEmail: string,
+  elderId: string,
   date: string,
   period: "Hour" | "Day" | "Week"
 ): Promise<FallData[]> => {
   try {
     let response = await axiosInstance.get("/api/Health/Falls", {
-      params: { elderEmail, date, period },
+      params: { elderId, date, period },
     });
     return await response.data;
   } catch (error) {
