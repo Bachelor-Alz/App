@@ -44,7 +44,7 @@ const useMap = () => {
   const query = useQuery({
     queryKey: ["elderLocations"],
     queryFn: fetchElderLocations,
-    refetchOnWindowFocus: "always",
+    refetchOnMount: "always",
     staleTime: 1000 * 60 * 5,
   });
 

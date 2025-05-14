@@ -23,6 +23,7 @@ const AssignCaregiverScreen = ({ navigation }: Props) => {
   const {
     control,
     handleSubmit,
+    reset,
     formState: { isSubmitting, isValid },
   } = useForm<AssignCaregiverForm>({
     resolver: zodResolver(schema),
@@ -32,6 +33,7 @@ const AssignCaregiverScreen = ({ navigation }: Props) => {
   const onSubmit = async ({ caregiverEmail }: AssignCaregiverForm) => {
     try {
       await assignCaregiverToElder(caregiverEmail);
+      reset();
       if (navigation.canGoBack()) {
         navigation.goBack();
       }
