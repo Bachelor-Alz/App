@@ -22,3 +22,14 @@ export const loginUserRequest = async (userData: LoginForm) => {
     throw new Error((error as Error).message || "Login failed");
   }
 };
+
+export const refreshTokenAPI = async (token: string) => {
+  try {
+    const response = await axiosInstance.post<LoginResponse>(`/api/User/login/token`, null, {
+      params: { token },
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error((error as Error).message || "Token refresh failed");
+  }
+};

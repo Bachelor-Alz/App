@@ -22,7 +22,7 @@ type Props = NativeStackScreenProps<AuthStackParamList, "Login">;
 
 function LoginScreen({ navigation }: Props) {
   const theme = useTheme();
-  const { login } = useAuthentication();
+  const { login, refreshTokenLogin } = useAuthentication();
   const [rememberMe, setRememberMe] = useState(false);
   const {
     control,
@@ -34,20 +34,20 @@ function LoginScreen({ navigation }: Props) {
   });
 
   useEffect(() => {
-    const fetchCredentialsAndLogin = async () => {
-      const autoLogin = await SecureStore.getItemAsync("rememberMe");
-      const email = await SecureStore.getItemAsync("email");
-      const password = await SecureStore.getItemAsync("password");
-
-      if (autoLogin && email && password) {
-        await login({
-          email: email,
-          password: password,
-        } as LoginForm);
+    const loginRefresh = async () => {
+      console.log("HELLO");
+      const rememberMe = await SecureStore.getItemAsync("rememberMe");
+      const refreshToken = await SecureStore.getItemAsync("refreshToken");
+      if (!rememberMe || !refreshToken) {
+        return;
       }
+      await refreshTokenLogin();
     };
+    loginRefresh();
 
-    fetchCredentialsAndLogin();
+    return () => {
+      SecureStore.deleteItemAsync("remeberMe");
+    };
   }, []);
 
   const handleRememberMePress = async () => {
@@ -59,15 +59,6 @@ function LoginScreen({ navigation }: Props) {
   };
 
   const onSubmit = async (data: LoginForm) => {
-    if (rememberMe) {
-      await SecureStore.setItemAsync("rememberMe", "true");
-      await SecureStore.setItemAsync("email", data.email);
-      await SecureStore.setItemAsync("password", data.password);
-    } else {
-      await SecureStore.deleteItemAsync("rememberMe");
-      await SecureStore.deleteItemAsync("email");
-      await SecureStore.deleteItemAsync("password");
-    }
     await login(data);
   };
 

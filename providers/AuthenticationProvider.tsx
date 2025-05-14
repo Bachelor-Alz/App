@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { createUserRequest } from "@/apis/registerAPI";
-import { LoginResponse, loginUserRequest } from "@/apis/loginAPI";
+import { LoginResponse, loginUserRequest, refreshTokenAPI } from "@/apis/loginAPI";
 import { setBearer } from "@/apis/axiosConfig";
 import * as SecureStore from "expo-secure-store";
 import { useToast } from "./ToastProvider";
@@ -17,6 +17,7 @@ type AuthenticationProviderProps = {
   register: (form: RegisterForm) => Promise<void | null>;
   login: (form: LoginForm) => Promise<LoginResponse>;
   logout: () => Promise<void>;
+  refreshTokenLogin: () => Promise<LoginResponse | null>;
   role: 0 | 1 | null;
   userId: string | null;
 };
@@ -57,23 +58,38 @@ const AuthenticationProvider = ({ children }: { children: React.ReactNode }) => 
     },
     [addToast]
   );
+  const refreshTokenLogin = useCallback(async () => {
+    try {
+      const refreshToken = await SecureStore.getItemAsync("refreshToken");
+      if (!refreshToken) {
+        addToast("Error", "Couldnt load refresh token");
+        return null;
+      }
+
+      const res = await refreshTokenAPI(refreshToken);
+      setUserId(res.userId);
+      setBearer(res.token);
+      setRole(res.role);
+      await SecureStore.setItemAsync("refreshToken", res.refreshToken);
+      return res;
+    } catch (error: any) {
+      addToast("Error", error.message || "Failed to refresh session");
+      throw error;
+    }
+  }, [addToast]);
 
   const logout = useCallback(async () => {
     try {
-      const refreshToken = await SecureStore.getItemAsync("refreshToken");
-      if (refreshToken) {
-        await revokeRefreshTokenAPI({ refreshToken });
-      }
-      await SecureStore.deleteItemAsync("rememberedEmail");
-      await SecureStore.deleteItemAsync("password");
-      await SecureStore.deleteItemAsync("refreshToken");
       setUserId(null);
       setRole(null);
       setBearer("");
-    } catch (error) {
-      addToast("Error", "Failed to log out");
-      throw error;
-    }
+      const refreshToken = await SecureStore.getItemAsync("refreshToken");
+      await SecureStore.deleteItemAsync("refreshToken");
+      await SecureStore.deleteItemAsync("rememberMe");
+      if (refreshToken) {
+        await revokeRefreshTokenAPI({ refreshToken });
+      }
+    } catch (error) {}
   }, []);
 
   useEffect(() => {
@@ -85,7 +101,7 @@ const AuthenticationProvider = ({ children }: { children: React.ReactNode }) => 
   }, []);
 
   return (
-    <AuthenticationContext.Provider value={{ register, login, logout, role, userId }}>
+    <AuthenticationContext.Provider value={{ register, login, refreshTokenLogin, logout, role, userId }}>
       {children}
     </AuthenticationContext.Provider>
   );

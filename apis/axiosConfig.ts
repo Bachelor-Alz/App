@@ -49,11 +49,11 @@ const FOURTEEN_MINUTES = 14 * 60 * 1000;
 
 axiosInstance.interceptors.response.use(
   (response) => {
-    //console.log(response.status + ": " + response.request.responseURL);
+    console.log(response.status + ": " + response.request.responseURL);
     return response;
   },
   async (error) => {
-    //console.log(error.response?.status + ": " + error.request.responseURL);
+    console.log(error.response?.status + ": " + error.request.responseURL);
     const originalRequest = error.config;
 
     if (!error.response || error.response.status !== 401) {

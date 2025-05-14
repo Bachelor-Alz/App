@@ -10,12 +10,16 @@ import { CompositeNavigationProp, CompositeScreenProps } from "@react-navigation
 import { BottomTabNavigationProp, BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import { CaregiverTabParamList, SharedHealthStackParamList } from "../navigation/navigation";
 
+// Keep this prop type definition as it correctly describes the navigation object's capabilities
+type ElderHomeAsCaregiverNavigationProp = CompositeNavigationProp<
+  BottomTabNavigationProp<CaregiverTabParamList, "ElderHomeAsCaregiver">,
+  NativeStackNavigationProp<SharedHealthStackParamList>
+>;
+
 function buildHealthSummary(
   data: { heartRate: number; spO2: number; steps: number; distance: number; fallCount: number } | undefined,
-  navigation: CompositeNavigationProp<
-    BottomTabNavigationProp<CaregiverTabParamList, "ElderHomeAsCaregiver", undefined>,
-    NativeStackNavigationProp<SharedHealthStackParamList, keyof SharedHealthStackParamList, undefined>
-  >,
+  // Use the defined composite prop type here
+  navigation: ElderHomeAsCaregiverNavigationProp,
   elderId: string,
   theme: MD3Theme
 ) {
@@ -25,7 +29,8 @@ function buildHealthSummary(
       value: `${data?.heartRate ?? "N/A"} BPM`,
       icon: "heart" as keyof typeof Ionicons.glyphMap,
       color: "#ff4757",
-      onPress: () => navigation.navigate("HeartRate", { id: elderId }),
+      // Correct navigation: Navigate to 'SharedHealth' tab/screen, then specify 'HeartRate' within it
+      onPress: () => navigation.navigate("SharedHealth", { screen: "HeartRate", params: { id: elderId } }),
       theme,
     },
     {
@@ -33,7 +38,8 @@ function buildHealthSummary(
       value: data?.spO2 != null ? `${Math.round(Number(data.spO2) * 100)}%` : "N/A",
       icon: "water" as keyof typeof Ionicons.glyphMap,
       color: "#1e90ff",
-      onPress: () => navigation.navigate("SPO2", { id: elderId }),
+      // Correct navigation: Navigate to 'SharedHealth' tab/screen, then specify 'SPO2' within it
+      onPress: () => navigation.navigate("SharedHealth", { screen: "SPO2", params: { id: elderId } }),
       theme,
     },
     {
@@ -41,7 +47,8 @@ function buildHealthSummary(
       value: `${data?.steps ?? "N/A"}`,
       icon: "footsteps" as keyof typeof Ionicons.glyphMap,
       color: "#2ed573",
-      onPress: () => navigation.navigate("Steps", { id: elderId }),
+      // Correct navigation: Navigate to 'SharedHealth' tab/screen, then specify 'Steps' within it
+      onPress: () => navigation.navigate("SharedHealth", { screen: "Steps", params: { id: elderId } }),
       theme,
     },
     {
@@ -49,7 +56,8 @@ function buildHealthSummary(
       value: `${data?.fallCount ?? "N/A"}`,
       icon: "alert-circle" as keyof typeof Ionicons.glyphMap,
       color: "#ffa502",
-      onPress: () => navigation.navigate("Fall", { id: elderId }),
+      // Correct navigation: Navigate to 'SharedHealth' tab/screen, then specify 'Fall' within it
+      onPress: () => navigation.navigate("SharedHealth", { screen: "Fall", params: { id: elderId } }),
       theme,
     },
     {
@@ -57,12 +65,14 @@ function buildHealthSummary(
       value: `${data?.distance?.toFixed(2) ?? "N/A"} km`,
       icon: "walk" as keyof typeof Ionicons.glyphMap,
       color: "#ff7f50",
-      onPress: () => navigation.navigate("Distance", { id: elderId }),
+      // Correct navigation: Navigate to 'SharedHealth' tab/screen, then specify 'Distance' within it
+      onPress: () => navigation.navigate("SharedHealth", { screen: "Distance", params: { id: elderId } }),
       theme,
     },
   ];
 }
 
+// This screen props type seems correct for ElderHomeAsCaregiverPage
 type ElderDashboardScreenProps = CompositeScreenProps<
   BottomTabScreenProps<CaregiverTabParamList, "ElderHomeAsCaregiver">,
   NativeStackScreenProps<SharedHealthStackParamList>
@@ -74,6 +84,7 @@ function ElderHomeAsCaregiverPage({ navigation, route }: ElderDashboardScreenPro
 
   const { data } = useDashBoardData(elderId);
 
+  // Pass the correct navigation prop
   const healthData = buildHealthSummary(data, navigation, elderId, theme);
 
   return (

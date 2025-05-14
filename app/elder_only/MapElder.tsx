@@ -97,7 +97,11 @@ const ElderPerimeterMap = ({ navigation }: Props) => {
         containerColor={theme.colors.background}
         size={40}
         style={styles.backButton}
-        onPress={() => navigation.goBack()}
+        onPress={() => {
+          if (navigation.canGoBack()) {
+            navigation.goBack();
+          }
+        }}
       />
     </View>
   );

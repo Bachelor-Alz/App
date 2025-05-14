@@ -1,4 +1,4 @@
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, Alert } from "react-native";
 import MapView, { Circle, Marker } from "react-native-maps";
 import { IconButton, Text, useTheme } from "react-native-paper";
 import useMap from "@/hooks/useMap";
@@ -30,16 +30,35 @@ export default function MapCaregiver({ navigation }: Props) {
     handleSlide,
   } = useMap();
 
-  console.log(elderLocations);
+  console.log("Elder Locations: ", elderLocations);
 
   if (isLoading) {
-    return <View style={styles.container}></View>;
+    return (
+      <View style={styles.container}>
+        <Text>Loading...</Text>
+      </View>
+    );
   }
   if (isError) {
-    return <View style={styles.container}></View>;
+    return (
+      <View style={styles.container}>
+        <Text>Error loading elder locations</Text>
+      </View>
+    );
   }
-  if (!elderLocations) {
-    return <View style={styles.container}></View>;
+
+  if (!elderLocations || elderLocations.length === 0) {
+    Alert.alert("No Elders Assigned", "Please assign elders to monitor before using the map.", [
+      {
+        text: "Go Back",
+        onPress: () => {
+          if (navigation.canGoBack()) {
+            navigation.goBack();
+          }
+        },
+      },
+    ]);
+    return null;
   }
 
   return (

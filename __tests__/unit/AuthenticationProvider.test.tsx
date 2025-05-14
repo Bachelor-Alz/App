@@ -151,9 +151,8 @@ describe("AuthenticationProvider", () => {
       await result.current.logout();
     });
 
-    expect(secureStoreDeleteMock).toHaveBeenCalledWith("rememberedEmail");
-    expect(secureStoreDeleteMock).toHaveBeenCalledWith("password");
-
+    expect(secureStoreDeleteMock).toHaveBeenCalledWith("rememberMe");
+    expect(secureStoreDeleteMock).toHaveBeenCalledWith("refreshToken");
     secureStoreDeleteMock.mockRestore();
   });
 });
