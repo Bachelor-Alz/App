@@ -1,10 +1,10 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { SharedHealthStackParamList } from "./navigation";
-import DistanceScreen from "../health/distance";
-import SPO2Screen from "../health/spo2";
-import HeartRateScreen from "../health/heartrate";
 import StepsScreen from "../health/Step";
 import FallsCountScreen from "../health/Fall";
+import SPO2Screen from "../health/spo2";
+import HeartRateScreen from "../health/heartrate";
+import DistanceScreen from "../health/distance";
 
 const Stack = createNativeStackNavigator<SharedHealthStackParamList>();
 

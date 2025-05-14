@@ -1,11 +1,11 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import CaregiverTabNavigator from "./CaregiverTabNavigator";
 import SharedHealthStackNavigator from "./SharedHealthStackNavigator";
+import { CaregiverTabParamList } from "./navigation";
 import ElderHomeAsCaregiverPage from "../caregiver_only/ElderHomeAsCaregiver";
 import ViewElders from "../caregiver_only/viewelder";
 import ViewCaregiverInvites from "../caregiver_only/caregiverinvites";
-import MapCaregiver from "../caregiver_only/map_caregiver";
-import { CaregiverTabParamList } from "./navigation";
+import MapCaregiver from "../caregiver_only/MapCaregiver";
 
 const Stack = createNativeStackNavigator<CaregiverTabParamList>();
 
